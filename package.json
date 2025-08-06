@@ -1,15 +1,15 @@
 {
-  "name": "@peerigon/template-public-package",
+  "name": "@peerigon/fractals-typescript",
   "version": "0.0.0-semantically-released",
-  "description": "Boilerplate template to kick start new public packages at Peerigon",
+  "description": "Tiny helpers for TypeScript applications",
   "keywords": [],
-  "homepage": "https://github.com/peerigon/template-public-package#readme",
+  "homepage": "https://github.com/peerigon/fractals-typescript#readme",
   "bugs": {
-    "url": "https://github.com/peerigon/template-public-package/issues"
+    "url": "https://github.com/peerigon/fractals-typescript/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/peerigon/template-public-package.git"
+    "url": "git+https://github.com/peerigon/fractals-typescript.git"
   },
   "license": "MIT",
   "author": "Peerigon GmbH <hello@peerigon.com>",

@@ -1,26 +1,23 @@
-# template-public-package
+# Fractals/TypeScript
 
-**🚀 Boilerplate template to kick start new public packages at Peerigon**
+**📦✨ Tiny helpers for TypeScript applications**
 
-[![Version on NPM](https://img.shields.io/npm/v/@peerigon/template-public-package?style=for-the-badge)](https://www.npmjs.com/package/@peerigon/template-public-package)
-[![Version on JSR](https://img.shields.io/jsr/v/@peerigon/template-public-package?style=for-the-badge)](https://jsr.io/@peerigon/template-public-package)
+[![Version on NPM](https://img.shields.io/npm/v/@peerigon/fractals-typescript?style=for-the-badge)](https://www.npmjs.com/package/@peerigon/fractals-typescript)
+[![Version on JSR](https://img.shields.io/jsr/v/@peerigon/fractals-typescript?style=for-the-badge)](https://jsr.io/@peerigon/fractals-typescript)
 [![Semantically released](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=for-the-badge)](https://github.com/semantic-release/semantic-release)
-[![Monthly downloads on NPM](https://img.shields.io/npm/dm/@peerigon/template-public-package?style=for-the-badge)](https://www.npmjs.com/package/@peerigon/template-public-package)<br>
-[![License](https://img.shields.io/npm/l/@peerigon/template-public-package?style=for-the-badge)](./LICENSE)
+[![Monthly downloads on NPM](https://img.shields.io/npm/dm/@peerigon/fractals-typescript?style=for-the-badge)](https://www.npmjs.com/package/@peerigon/fractals-typescript)<br>
+[![License](https://img.shields.io/npm/l/@peerigon/fractals-typescript?style=for-the-badge)](./LICENSE)
 
 ## Features
 
-- 🚀 Zero dependencies
-- 📱 Works in all modern browsers
-- 🎯 Accurate calculations
+- 🎯 High quality module design
+- ⚡ Lightweight because of sub-package exports
 - 📦 Tree-shakeable ES modules
-- 💪 TypeScript support
-- ⚡ Lightweight (~3KB gzipped)
 
 ## Installation
 
 ```sh
-npm install @peerigon/template-public-package  --save
+npm install @peerigon/fractals-typescript  --save
 ```
 
 ## Usage
@@ -28,7 +25,7 @@ npm install @peerigon/template-public-package  --save
 ### Adding numbers
 
 ```javascript
-import { add } from "@peerigon/template-public-package";
+import { add } from "@peerigon/fractals-typescript";
 
 add(1, 2); // 3
 ```
@@ -40,7 +37,7 @@ add(1, 2); // 3
 Adds two numbers.
 
 ```javascript
-import { add } from "@peerigon/template-public-package";
+import { add } from "@peerigon/fractals-typescript";
 
 add(1, 2); // 3
 ```
