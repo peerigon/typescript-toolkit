@@ -16,10 +16,8 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    ".": "./dist/main.js",
-    "./add": "./dist/add.js"
+    "./match": "./dist/match/match.js"
   },
-  "main": "./dist/main.js",
   "files": [
     "dist",
     "CHANGELOG.md",
@@ -40,6 +38,7 @@
   },
   "devDependencies": {
     "@peerigon/configs": "^7.0.2",
+    "@tanstack/query-core": "^5.83.1",
     "@types/node": "^24.2.0",
     "@vitest/coverage-v8": "^3.2.4",
     "eslint": "^9.32.0",

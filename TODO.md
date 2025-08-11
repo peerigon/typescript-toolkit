@@ -1,0 +1,6 @@
+- Finish unwrap
+- Add use-case docs for raise()
+- Defining errors with code / captureStackTrace
+- Match for error codes
+- Implement async.case
+- Use `interface` instead of `type`?
