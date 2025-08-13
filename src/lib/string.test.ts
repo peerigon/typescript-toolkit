@@ -14,24 +14,14 @@ describe("stringify()", () => {
 
     it("stringifies objects with default formatting", () => {
       const obj = { name: "John", age: 30 };
-      expect(stringify(obj)).toMatchInlineSnapshot(`
-        "{
-          "name": "John",
-          "age": 30
-        }"
-      `);
+      expect(stringify(obj)).toMatchInlineSnapshot(
+        `"{"name":"John","age":30}"`,
+      );
     });
 
     it("stringifies arrays with default formatting", () => {
       const arr = [1, 2, 3, "test"];
-      expect(stringify(arr)).toMatchInlineSnapshot(`
-        "[
-          1,
-          2,
-          3,
-          "test"
-        ]"
-      `);
+      expect(stringify(arr)).toMatchInlineSnapshot(`"[1,2,3,"test"]"`);
     });
 
     it("handles nested structures", () => {
@@ -42,12 +32,9 @@ describe("stringify()", () => {
         },
         active: true,
       };
-      expect(stringify(nested)).toMatchInlineSnapshot(`
-        "{
-          "user": {
-            "name": "John",
-            "hobbies": […"
-      `);
+      expect(stringify(nested)).toMatchInlineSnapshot(
+        `"{"user":{"name":"John","hobbies":["reading","codin…"`,
+      );
     });
   });
 
@@ -95,11 +82,9 @@ describe("stringify()", () => {
           country: "USA",
         },
       };
-      expect(stringify(complexObj, { limit: 30 })).toMatchInlineSnapshot(`
-        "{
-          "name": "John Doe",
-          "age…"
-      `);
+      expect(stringify(complexObj, { limit: 30 })).toMatchInlineSnapshot(
+        `"{"name":"John Doe","age":30,"e…"`,
+      );
     });
   });
 
@@ -141,21 +126,14 @@ describe("stringify()", () => {
 
     it("handles objects with undefined values", () => {
       const obj = { name: "John", age: undefined };
-      expect(stringify(obj)).toMatchInlineSnapshot(`
-        "{
-          "name": "John"
-        }"
-      `);
+      expect(stringify(obj)).toMatchInlineSnapshot(`"{"name":"John"}"`);
     });
 
     it("handles objects with null values", () => {
       const obj = { name: "John", age: null };
-      expect(stringify(obj)).toMatchInlineSnapshot(`
-        "{
-          "name": "John",
-          "age": null
-        }"
-      `);
+      expect(stringify(obj)).toMatchInlineSnapshot(
+        `"{"name":"John","age":null}"`,
+      );
     });
 
     it("handles functions", () => {
@@ -166,11 +144,7 @@ describe("stringify()", () => {
     it("handles objects with symbol keys", () => {
       const symbol = Symbol("key");
       const obj = { [symbol]: "value", name: "John" };
-      expect(stringify(obj)).toMatchInlineSnapshot(`
-        "{
-          "name": "John"
-        }"
-      `);
+      expect(stringify(obj)).toMatchInlineSnapshot(`"{"name":"John"}"`);
     });
 
     it("handles Date objects", () => {
@@ -207,11 +181,9 @@ describe("stringify()", () => {
         },
         regular: "regular value",
       };
-      expect(stringify(obj)).toMatchInlineSnapshot(`
-        "{
-          "computed": "computed value",
-          "regular": "re…"
-      `);
+      expect(stringify(obj)).toMatchInlineSnapshot(
+        `"{"computed":"computed value","regular":"regular va…"`,
+      );
     });
 
     it("handles objects with non-enumerable properties", () => {
@@ -220,11 +192,7 @@ describe("stringify()", () => {
         value: "hidden value",
         enumerable: false,
       });
-      expect(stringify(obj)).toMatchInlineSnapshot(`
-        "{
-          "name": "John"
-        }"
-      `);
+      expect(stringify(obj)).toMatchInlineSnapshot(`"{"name":"John"}"`);
     });
   });
 

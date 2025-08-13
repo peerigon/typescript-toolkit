@@ -18,7 +18,10 @@ export const stringify = (
   let stringified;
 
   try {
-    stringified = JSON.stringify(value, null, 2);
+    stringified = JSON.stringify(
+      value,
+      // not adding indentations on purpose because we want a compact string
+    );
   } catch {
     // Do nothing
   }
