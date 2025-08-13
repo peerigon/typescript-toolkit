@@ -1,3 +1,5 @@
+import { stringify } from "../lib/string";
+
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
 export type Result<
@@ -130,13 +132,18 @@ const isError = (error: unknown): error is GenericError => {
  */
 const success = <Data>({
   data,
-}: Pick<Result.Success<Data>, "data">): Result.Success<Data> => ({
-  status: Result.Status.Success,
-  isSuccess: true,
-  isError: false,
-  data,
-  error: null,
-});
+}: Pick<Result.Success<Data>, "data">): Result.Success<Data> => {
+  const successResult = {
+    status: Result.Status.Success,
+    isSuccess: true,
+    isError: false,
+    data,
+    error: null,
+    toString: createToString({ type: "Success", detail: data }),
+  } as const;
+
+  return successResult;
+};
 
 /**
  * Creates a result in the error state.
@@ -152,13 +159,18 @@ const error = <GivenError extends GenericError, Data = never>({
   Partial<Pick<Result.Error<GivenError, Data>, "data">>): Result.Error<
   GivenError,
   Data
-> => ({
-  status: Result.Status.Error,
-  isSuccess: false,
-  isError: true,
-  data,
-  error,
-});
+> => {
+  const errorResult = {
+    status: Result.Status.Error,
+    isSuccess: false,
+    isError: true,
+    data,
+    error,
+    toString: createToString({ type: "Error", detail: error.message }),
+  } as const;
+
+  return errorResult;
+};
 
 export const result = {
   from,
@@ -173,17 +185,31 @@ export const result = {
  * @param maybeValue - The value to check
  * @returns True if the value is a result, false otherwise
  */
-export const isResult = (maybeValue: any): maybeValue is Result => {
+export const isResult = (maybeValue: unknown): maybeValue is Result => {
   return (
     maybeValue !== undefined &&
     maybeValue !== null &&
     typeof maybeValue === "object" &&
+    "isSuccess" in maybeValue &&
     typeof maybeValue.isSuccess === "boolean" &&
+    "isError" in maybeValue &&
     typeof maybeValue.isError === "boolean" &&
+    "status" in maybeValue &&
+    typeof maybeValue.status === "string" &&
     "data" in maybeValue &&
     "error" in maybeValue &&
-    STATUS.includes(maybeValue.status)
+    STATUS.includes(maybeValue.status as Result.Status)
   );
+};
+
+const createToString = ({
+  type,
+  detail,
+}: {
+  type: "Success" | "Error";
+  detail: unknown;
+}) => {
+  return () => `Result.${type}(${stringify(detail)})`;
 };
 
 type GenericError = Error;

@@ -1,3 +1,4 @@
+import { stringify } from "../lib/string.ts";
 import { result, Result } from "./../result/result.ts";
 
 // Namespaces are only used to group related types together.
@@ -96,14 +97,19 @@ export namespace Async {
  */
 const asyncPending = <Data>({
   data,
-}: Pick<Partial<Async.Pending<Data>>, "data"> = {}): Async.Pending<Data> => ({
-  status: Async.Status.Pending,
-  isSuccess: false,
-  isError: false,
-  isPending: true,
-  data,
-  error: null,
-});
+}: Pick<Partial<Async.Pending<Data>>, "data"> = {}): Async.Pending<Data> => {
+  const pendingResult = {
+    status: Async.Status.Pending,
+    isSuccess: false,
+    isError: false,
+    isPending: true,
+    data,
+    error: null,
+    toString: createToString({ type: "Pending", detail: data }),
+  } as const;
+
+  return pendingResult;
+};
 
 /**
  * Creates an async in the success state
@@ -113,10 +119,15 @@ const asyncPending = <Data>({
  */
 const asyncSuccess = <Data>({
   data,
-}: Pick<Async.Success<Data>, "data">): Async.Success<Data> => ({
-  ...result.success({ data }),
-  isPending: false,
-});
+}: Pick<Async.Success<Data>, "data">): Async.Success<Data> => {
+  const successResult = {
+    ...result.success({ data }),
+    isPending: false,
+    toString: createToString({ type: "Success", detail: data }),
+  } as const;
+
+  return successResult;
+};
 
 /**
  * Creates an async result in the error state.
@@ -132,10 +143,15 @@ const asyncError = <GivenError extends Error, Data = never>({
   Pick<Partial<Async.Error<GivenError, Data>>, "data">): Async.Error<
   GivenError,
   Data
-> => ({
-  ...result.error({ error: givenError, data }),
-  isPending: false,
-});
+> => {
+  const errorResult = {
+    ...result.error({ error: givenError, data }),
+    isPending: false,
+    toString: createToString({ type: "Error", detail: givenError.message }),
+  } as const;
+
+  return errorResult;
+};
 
 export const async = {
   pending: asyncPending,
@@ -149,19 +165,32 @@ export const async = {
  * @param maybeValue - The value to check
  * @returns True if the value is an async result, false otherwise
  */
-export const isAsync = (maybeValue: any): maybeValue is Async => {
+export const isAsync = (maybeValue: unknown): maybeValue is Async => {
   return (
     maybeValue !== undefined &&
     maybeValue !== null &&
     typeof maybeValue === "object" &&
+    "isSuccess" in maybeValue &&
     typeof maybeValue.isSuccess === "boolean" &&
+    "isError" in maybeValue &&
     typeof maybeValue.isError === "boolean" &&
+    "isPending" in maybeValue &&
     typeof maybeValue.isPending === "boolean" &&
+    "status" in maybeValue &&
+    typeof maybeValue.status === "string" &&
     "data" in maybeValue &&
     "error" in maybeValue &&
-    "isPending" in maybeValue &&
-    STATUS.includes(maybeValue.status)
+    STATUS.includes(maybeValue.status as Async.Status)
   );
 };
 
+const createToString = ({
+  type,
+  detail,
+}: {
+  type: "Pending" | "Success" | "Error";
+  detail: unknown;
+}) => {
+  return () => `Async.${type}(${stringify(detail)})`;
+};
 type GenericError = Error;

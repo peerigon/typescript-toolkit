@@ -1,44 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { capitalize, stringify } from "./string.ts";
-
-describe("capitalize()", () => {
-  it("capitalizes the first letter of a lowercase string", () => {
-    expect(capitalize("hello")).toMatchInlineSnapshot(`"Hello"`);
-  });
-
-  it("keeps the first letter uppercase if already capitalized", () => {
-    expect(capitalize("Hello")).toMatchInlineSnapshot(`"Hello"`);
-  });
-
-  it("capitalizes the first letter of a mixed case string", () => {
-    expect(capitalize("hELLO")).toMatchInlineSnapshot(`"HELLO"`);
-  });
-
-  it("handles single character strings", () => {
-    expect(capitalize("a")).toMatchInlineSnapshot(`"A"`);
-    expect(capitalize("A")).toMatchInlineSnapshot(`"A"`);
-  });
-
-  it("ignores empty string", () => {
-    expect(capitalize("")).toMatchInlineSnapshot(`""`);
-  });
-
-  it("ignores strings with leading whitespace", () => {
-    expect(capitalize(" ")).toMatchInlineSnapshot(`" "`);
-    expect(capitalize("  hello")).toMatchInlineSnapshot(`"  hello"`);
-  });
-
-  it("ignores strings with special characters", () => {
-    expect(capitalize("123hello")).toMatchInlineSnapshot(`"123hello"`);
-    expect(capitalize("!hello")).toMatchInlineSnapshot(`"!hello"`);
-    expect(capitalize("_hello")).toMatchInlineSnapshot(`"_hello"`);
-  });
-
-  it("ignores numbers as strings", () => {
-    expect(capitalize("123")).toMatchInlineSnapshot(`"123"`);
-    expect(capitalize("1hello")).toMatchInlineSnapshot(`"1hello"`);
-  });
-});
+import { stringify } from "./string.ts";
 
 describe("stringify()", () => {
   describe("basic functionality", () => {
@@ -195,6 +156,11 @@ describe("stringify()", () => {
           "age": null
         }"
       `);
+    });
+
+    it("handles functions", () => {
+      const fn = () => "test";
+      expect(stringify(fn)).toMatchInlineSnapshot(`"() => "test""`);
     });
 
     it("handles objects with symbol keys", () => {

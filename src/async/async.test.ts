@@ -23,6 +23,7 @@ describe("async", () => {
           "isPending": true,
           "isSuccess": false,
           "status": "pending",
+          "toString": [Function],
         }
       `);
     });

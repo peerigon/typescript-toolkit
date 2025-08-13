@@ -1,13 +1,4 @@
 /**
- * Capitalize the first letter of a string.
- *
- * @param string - The string to capitalize.
- * @returns The capitalized string.
- */
-export const capitalize = (string: string) =>
-  string.charAt(0).toUpperCase() + string.slice(1);
-
-/**
  * Stringify a value to a string using JSON.stringify.
  * Fallback to String(value) if JSON.stringify fails.
  *
