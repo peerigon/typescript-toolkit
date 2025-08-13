@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { async } from "../async/async.ts";
-import { error, success } from "../result/result.ts";
+import { result } from "../result/result.ts";
 import { unwrap } from "./unwrap.ts";
 
 describe("unwrap()", () => {
@@ -85,38 +85,41 @@ describe("unwrap()", () => {
     });
   });
 
-  describe("from success()", () => {
+  describe("from result.success()", () => {
     it("returns data", () => {
-      const result = success({ data: "test data" });
-      const unwrapped: string = unwrap(result);
+      const returned = result.success({ data: "test data" });
+      const unwrapped: string = unwrap(returned);
       expect(unwrapped).toBe("test data");
     });
 
     it("returns data even when data is undefined", () => {
-      const result = success({ data: undefined });
-      const unwrapped: undefined = unwrap(result);
+      const returned = result.success({ data: undefined });
+      const unwrapped: undefined = unwrap(returned);
       expect(unwrapped).toBe(undefined);
     });
   });
 
-  describe("from error()", () => {
+  describe("from result.error()", () => {
     it("throws when there is no data and no fallback", () => {
-      const result = error({ error: "test error" });
-      expect(() => unwrap(result)).toThrow(TypeError);
-      expect(() => unwrap(result)).toThrowErrorMatchingInlineSnapshot(
+      const returned = result.error({ error: new Error("test error") });
+      expect(() => unwrap(returned)).toThrow(TypeError);
+      expect(() => unwrap(returned)).toThrowErrorMatchingInlineSnapshot(
         `[TypeError: Unwrap failed: Result has no data, was {"status":"error","isSuccess":...]`,
       );
     });
 
     it("returns the fallback when there is no data and a fallback is provided", () => {
-      const result = error({ error: "test error" });
-      const unwrapped = unwrap(result, "fallback");
+      const returned = result.error({ error: new Error("test error") });
+      const unwrapped = unwrap(returned, "fallback");
       expect(unwrapped).toBe("fallback");
     });
 
     it("returns the fallback when there is data and a fallback is provided", () => {
-      const result = error({ error: "test error", data: "test data" });
-      const unwrapped = unwrap(result, "fallback");
+      const returned = result.error({
+        error: new Error("test error"),
+        data: "test data",
+      });
+      const unwrapped = unwrap(returned, "fallback");
       expect(unwrapped).toBe("fallback");
     });
   });
@@ -129,7 +132,7 @@ describe("unwrap()", () => {
     });
 
     it("returns data even when data is undefined", () => {
-      const result = success({ data: undefined });
+      const result = async.success({ data: undefined });
       const unwrapped = unwrap(result);
       expect(unwrapped).toBe(undefined);
     });

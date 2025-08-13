@@ -7,7 +7,7 @@ import {
 } from "@tanstack/query-core";
 import { describe, expect, it } from "vitest";
 import { match } from "../match/match.ts";
-import { error, success, type Result } from "../result/result.ts";
+import { result, type Result } from "../result/result.ts";
 import { async, isAsync, type Async } from "./async.ts";
 
 describe("async", () => {
@@ -185,13 +185,13 @@ describe("isAsync()", () => {
   });
 
   it("returns false for Result.Success because it's missing some async properties", () => {
-    const resultSuccess = success({ data: "test" });
+    const resultSuccess = result.success({ data: "test" });
 
     expect(isAsync(resultSuccess)).toBe(false);
   });
 
   it("returns false for Result.Error because it's missing some async properties", () => {
-    const resultError = error({ error: new Error("test error") });
+    const resultError = result.error({ error: new Error("test error") });
 
     expect(isAsync(resultError)).toBe(false);
   });

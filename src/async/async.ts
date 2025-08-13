@@ -1,4 +1,4 @@
-import { error, Result, success } from "./../result/result.ts";
+import { result, Result } from "./../result/result.ts";
 
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -114,7 +114,7 @@ const asyncPending = <Data>({
 const asyncSuccess = <Data>({
   data,
 }: Pick<Async.Success<Data>, "data">): Async.Success<Data> => ({
-  ...success({ data }),
+  ...result.success({ data }),
   isPending: false,
 });
 
@@ -133,7 +133,7 @@ const asyncError = <GivenError extends Error, Data = never>({
   GivenError,
   Data
 > => ({
-  ...error({ error: givenError, data }),
+  ...result.error({ error: givenError, data }),
   isPending: false,
 });
 

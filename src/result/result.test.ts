@@ -5,13 +5,13 @@ import {
 import { describe, expect, it } from "vitest";
 import { async } from "../async/async.ts";
 import { match } from "../match/match.ts";
-import { error, isResult, result, success, type Result } from "./result.ts";
+import { isResult, result, type Result } from "./result.ts";
 
-describe("success()", () => {
+describe("result.success()", () => {
   it("has the expected shape", () => {
-    const result = success({ data: "some data" });
+    const returned = result.success({ data: "some data" });
 
-    expect(result).toMatchInlineSnapshot(`
+    expect(returned).toMatchInlineSnapshot(`
       {
         "data": "some data",
         "error": null,
@@ -31,13 +31,13 @@ describe("success()", () => {
   });
 });
 
-describe("error()", () => {
+describe("result.error()", () => {
   class TestError extends Error {}
 
   it("has the expected shape", () => {
-    const result = error({ error: new Error("some error") });
+    const returned = result.error({ error: new Error("some error") });
 
-    expect(result).toMatchInlineSnapshot(`
+    expect(returned).toMatchInlineSnapshot(`
       {
         "data": undefined,
         "error": [Error: some error],
@@ -49,9 +49,12 @@ describe("error()", () => {
   });
 
   it("allows data to be provided", () => {
-    const result = error({ error: new Error("some error"), data: "some data" });
+    const returned = result.error({
+      error: new Error("some error"),
+      data: "some data",
+    });
 
-    expect(result.data).toBe("some data");
+    expect(returned.data).toBe("some data");
   });
 
   it("is compatible with tanstack query's QueryObserverLoadingErrorResult", () => {
@@ -69,7 +72,7 @@ describe("error()", () => {
 describe("result()", () => {
   it("returns success result when function executes successfully", () => {
     const fn = () => "test data";
-    const returned = result(fn);
+    const returned = result.from(fn);
 
     expect(returned.isSuccess).toBe(true);
     expect(returned.data).toBe("test data");
@@ -86,7 +89,7 @@ describe("result()", () => {
     const fn = () => {
       throw new TestError();
     };
-    const returned = result(fn);
+    const returned = result.from(fn);
 
     expect(returned.isError).toBe(true);
     expect(returned.error).toBeInstanceOf(TestError);
@@ -101,7 +104,7 @@ describe("result()", () => {
     const test = (thing: any) => {
       let caught: unknown;
       try {
-        result(fn(thing));
+        result.from(fn(thing));
       } catch (error) {
         caught = error;
       }
@@ -119,7 +122,7 @@ describe("result()", () => {
   it("**does not** await promises, but wraps them in a result", () => {
     const promise = Promise.resolve("async data");
     const fn = () => promise;
-    const returned = result(fn);
+    const returned = result.from(fn);
 
     expect(returned.isSuccess).toBe(true);
     expect(returned.data).toBe(promise);
@@ -129,7 +132,7 @@ describe("result()", () => {
 describe("result.async()", () => {
   it("returns success result when async function resolves successfully", async () => {
     const fn = async () => "async test data";
-    const returned = await result.async(fn);
+    const returned = await result.fromAsync(fn);
 
     expect(returned.isSuccess).toBe(true);
     expect(returned.data).toBe("async test data");
@@ -146,7 +149,7 @@ describe("result.async()", () => {
     const fn = async () => {
       throw new TestError();
     };
-    const returned = await result.async(fn);
+    const returned = await result.fromAsync(fn);
 
     expect(returned.isError).toBe(true);
     expect(returned.error).toBeInstanceOf(TestError);
@@ -161,7 +164,7 @@ describe("result.async()", () => {
     const test = async (thing: any) => {
       let caught: unknown;
       try {
-        await result.async(() => fn(thing));
+        await result.fromAsync(() => fn(thing));
       } catch (error) {
         caught = error;
       }
@@ -178,9 +181,9 @@ describe("result.async()", () => {
 });
 
 it("works with match()", () => {
-  const result = success({ data: "some data" }) as Result;
+  const returned = result.success({ data: "some data" }) as Result;
 
-  const isSuccess = match(result.status, {
+  const isSuccess = match(returned.status, {
     success: true,
     error: false,
   });
@@ -190,12 +193,12 @@ it("works with match()", () => {
 
 describe("isResult()", () => {
   it("returns true for success results", () => {
-    const successResult = success({ data: "test data" });
+    const successResult = result.success({ data: "test data" });
     expect(isResult(successResult)).toBe(true);
   });
 
   it("returns true for error results", () => {
-    const errorResult = error({ error: new Error("test error") });
+    const errorResult = result.error({ error: new Error("test error") });
     expect(isResult(errorResult)).toBe(true);
   });
 
@@ -291,7 +294,7 @@ describe("isResult()", () => {
   });
 
   it("works with type guards in conditional logic", () => {
-    const maybeResult = success({ data: "success" }) as unknown;
+    const maybeResult = result.success({ data: "success" }) as unknown;
 
     if (isResult(maybeResult)) {
       // TypeScript should know this is a Result here

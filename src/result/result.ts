@@ -63,7 +63,7 @@ export namespace Result {
  * @param fn - The function to call
  * @returns The result of the function
  */
-export const result = <Data>(fn: () => Data): Result<Data> => {
+const from = <Data>(fn: () => Data): Result<Data> => {
   try {
     return success({ data: fn() });
   } catch (caughtError) {
@@ -83,7 +83,9 @@ export const result = <Data>(fn: () => Data): Result<Data> => {
  * @param fn - The async function to call and await
  * @returns The result of the async function
  */
-result.async = async <Data>(fn: () => Promise<Data>): Promise<Result<Data>> => {
+const fromAsync = async <Data>(
+  fn: () => Promise<Data>,
+): Promise<Result<Data>> => {
   try {
     return success({ data: await fn() });
   } catch (caughtError) {
@@ -126,7 +128,7 @@ const isError = (error: unknown): error is GenericError => {
  * @param data - The data to store in the result
  * @returns The successful result
  */
-export const success = <Data>({
+const success = <Data>({
   data,
 }: Pick<Result.Success<Data>, "data">): Result.Success<Data> => ({
   status: Result.Status.Success,
@@ -143,7 +145,7 @@ export const success = <Data>({
  * @param data - Potentially stale data from a previous result
  * @returns The failed result
  */
-export const error = <GivenError extends GenericError, Data = never>({
+const error = <GivenError extends GenericError, Data = never>({
   error,
   data,
 }: Pick<Result.Error<GivenError, Data>, "error"> &
@@ -157,6 +159,13 @@ export const error = <GivenError extends GenericError, Data = never>({
   data,
   error,
 });
+
+export const result = {
+  from,
+  fromAsync,
+  success,
+  error,
+};
 
 /**
  * Checks if the given value is a result.
