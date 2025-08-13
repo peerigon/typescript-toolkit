@@ -1,4 +1,5 @@
 import { isAsync, type Async } from "../async/async.ts";
+import { stringify } from "../lib/string.ts";
 import { isResult, type Result } from "../result/result.ts";
 
 export function unwrap<Value>(
@@ -14,17 +15,16 @@ export function unwrap<Value, Fallback>(
   fallback?: Fallback,
 ): Value | Fallback {
   const hasFallback = arguments.length > 1;
+
   if (maybeValue === null || maybeValue === undefined) {
     if (hasFallback) return fallback!;
-    throw new TypeError(`Unwrap failed: Value is ${String(maybeValue)}`);
+    throw new TypeError(`${errorPrefix}Value is ${stringify(maybeValue)}`);
   }
 
   if (isResult(maybeValue)) {
     if (maybeValue.isError) {
       if (hasFallback) return fallback!;
-      throw new TypeError(
-        `Unwrap failed: Result has no data, was ${JSON.stringify(maybeValue).slice(0, 30)}...`,
-      );
+      throw new TypeError(typeErrorMessageForResult(maybeValue));
     }
 
     return maybeValue.data;
@@ -36,9 +36,7 @@ export function unwrap<Value, Fallback>(
       (maybeValue.isPending && maybeValue.data === undefined)
     ) {
       if (hasFallback) return fallback!;
-      throw new TypeError(
-        `Unwrap failed: Result has no data, was ${JSON.stringify(maybeValue).slice(0, 30)}...`,
-      );
+      throw new TypeError(typeErrorMessageForResult(maybeValue));
     }
 
     return maybeValue.data as Value; // Why is the type assertion necessary here?
@@ -46,3 +44,7 @@ export function unwrap<Value, Fallback>(
 
   return maybeValue;
 }
+
+const errorPrefix = "Cannot unwrap: ";
+const typeErrorMessageForResult = (maybeValue: unknown) =>
+  `${errorPrefix}${String(maybeValue)} is not a success and there is no fallback`;

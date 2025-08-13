@@ -61,7 +61,7 @@ describe("unwrap()", () => {
     it("throws when no fallback is provided", () => {
       expect(() => unwrap(undefined)).toThrow(TypeError);
       expect(() => unwrap(undefined)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Unwrap failed: Result has no data, was {"status":"success","isSuccess":...]`,
+        `[TypeError: Cannot unwrap: Value is undefined]`,
       );
     });
 
@@ -75,7 +75,7 @@ describe("unwrap()", () => {
     it("throws when no fallback is provided", () => {
       expect(() => unwrap(null)).toThrow(TypeError);
       expect(() => unwrap(null)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Unwrap failed: Result has no data, was {"status":"success","isSuccess":...]`,
+        `[TypeError: Cannot unwrap: Value is null]`,
       );
     });
 
@@ -104,7 +104,7 @@ describe("unwrap()", () => {
       const error = result.error({ error: new Error("test error") });
       expect(() => unwrap(error)).toThrow(TypeError);
       expect(() => unwrap(error)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Unwrap failed: Result has no data, was {"status":"error","isSuccess":...]`,
+        `[TypeError: Cannot unwrap: Result.Error("test error") is not a success and there is no fallback]`,
       );
     });
 
@@ -143,7 +143,7 @@ describe("unwrap()", () => {
       const asyncData = async.pending();
       expect(() => unwrap(asyncData)).toThrow(TypeError);
       expect(() => unwrap(asyncData)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Unwrap failed: Result has no data, was {"status":"pending","isSuccess...]`,
+        `[TypeError: Cannot unwrap: Async.Pending() is not a success and there is no fallback]`,
       );
     });
 
@@ -165,7 +165,7 @@ describe("unwrap()", () => {
       const asyncData = async.error({ error: new Error("test error") });
       expect(() => unwrap(asyncData)).toThrow(TypeError);
       expect(() => unwrap(asyncData)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Unwrap failed: Result has no data, was {"status":"error","isSuccess":...]`,
+        `[TypeError: Cannot unwrap: Async.Error("test error") is not a success and there is no fallback]`,
       );
     });
 
@@ -176,7 +176,7 @@ describe("unwrap()", () => {
       });
       expect(() => unwrap(asyncData)).toThrow(TypeError);
       expect(() => unwrap(asyncData)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Unwrap failed: Result has no data, was {"status":"error","isSuccess":...]`,
+        `[TypeError: Cannot unwrap: Async.Error("test error") is not a success and there is no fallback]`,
       );
     });
 
