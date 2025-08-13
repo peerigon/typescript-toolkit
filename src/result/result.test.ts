@@ -9,9 +9,9 @@ import { isResult, result, type Result } from "./result.ts";
 
 describe("result.success()", () => {
   it("has the expected shape", () => {
-    const returned = result.success({ data: "some data" });
+    const successResult = result.success({ data: "some data" });
 
-    expect(returned).toMatchInlineSnapshot(`
+    expect(successResult).toMatchInlineSnapshot(`
       {
         "data": "some data",
         "error": null,
@@ -35,9 +35,9 @@ describe("result.error()", () => {
   class TestError extends Error {}
 
   it("has the expected shape", () => {
-    const returned = result.error({ error: new Error("some error") });
+    const errorResult = result.error({ error: new Error("some error") });
 
-    expect(returned).toMatchInlineSnapshot(`
+    expect(errorResult).toMatchInlineSnapshot(`
       {
         "data": undefined,
         "error": [Error: some error],
@@ -49,12 +49,12 @@ describe("result.error()", () => {
   });
 
   it("allows data to be provided", () => {
-    const returned = result.error({
+    const errorResult = result.error({
       error: new Error("some error"),
       data: "some data",
     });
 
-    expect(returned.data).toBe("some data");
+    expect(errorResult.data).toBe("some data");
   });
 
   it("is compatible with tanstack query's QueryObserverLoadingErrorResult", () => {
@@ -72,10 +72,10 @@ describe("result.error()", () => {
 describe("result()", () => {
   it("returns success result when function executes successfully", () => {
     const fn = () => "test data";
-    const returned = result.from(fn);
+    const fnResult = result.from(fn);
 
-    expect(returned.isSuccess).toBe(true);
-    expect(returned.data).toBe("test data");
+    expect(fnResult.isSuccess).toBe(true);
+    expect(fnResult.data).toBe("test data");
   });
 
   it("returns error result when function throws Error instance", () => {
@@ -89,11 +89,11 @@ describe("result()", () => {
     const fn = () => {
       throw new TestError();
     };
-    const returned = result.from(fn);
+    const fnResult = result.from(fn);
 
-    expect(returned.isError).toBe(true);
-    expect(returned.error).toBeInstanceOf(TestError);
-    expect(returned.error!.message).toBe(errorMessage);
+    expect(fnResult.isError).toBe(true);
+    expect(fnResult.error).toBeInstanceOf(TestError);
+    expect(fnResult.error!.message).toBe(errorMessage);
   });
 
   it("rethrows when function throws non-Error values", () => {
@@ -122,20 +122,20 @@ describe("result()", () => {
   it("**does not** await promises, but wraps them in a result", () => {
     const promise = Promise.resolve("async data");
     const fn = () => promise;
-    const returned = result.from(fn);
+    const fnResult = result.from(fn);
 
-    expect(returned.isSuccess).toBe(true);
-    expect(returned.data).toBe(promise);
+    expect(fnResult.isSuccess).toBe(true);
+    expect(fnResult.data).toBe(promise);
   });
 });
 
 describe("result.async()", () => {
   it("returns success result when async function resolves successfully", async () => {
     const fn = async () => "async test data";
-    const returned = await result.fromAsync(fn);
+    const fnResult = await result.fromAsync(fn);
 
-    expect(returned.isSuccess).toBe(true);
-    expect(returned.data).toBe("async test data");
+    expect(fnResult.isSuccess).toBe(true);
+    expect(fnResult.data).toBe("async test data");
   });
 
   it("returns error result when async function rejects with Error instance", async () => {
@@ -149,11 +149,11 @@ describe("result.async()", () => {
     const fn = async () => {
       throw new TestError();
     };
-    const returned = await result.fromAsync(fn);
+    const fnResult = await result.fromAsync(fn);
 
-    expect(returned.isError).toBe(true);
-    expect(returned.error).toBeInstanceOf(TestError);
-    expect(returned.error!.message).toBe(errorMessage);
+    expect(fnResult.isError).toBe(true);
+    expect(fnResult.error).toBeInstanceOf(TestError);
+    expect(fnResult.error!.message).toBe(errorMessage);
   });
 
   it("rethrows when async function rejects with non-Error values", async () => {
@@ -181,9 +181,9 @@ describe("result.async()", () => {
 });
 
 it("works with match()", () => {
-  const returned = result.success({ data: "some data" }) as Result;
+  const successResult = result.success({ data: "some data" }) as Result;
 
-  const isSuccess = match(returned.status, {
+  const isSuccess = match(successResult.status, {
     success: true,
     error: false,
   });

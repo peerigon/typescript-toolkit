@@ -87,39 +87,39 @@ describe("unwrap()", () => {
 
   describe("from result.success()", () => {
     it("returns data", () => {
-      const returned = result.success({ data: "test data" });
-      const unwrapped: string = unwrap(returned);
+      const success = result.success({ data: "test data" });
+      const unwrapped: string = unwrap(success);
       expect(unwrapped).toBe("test data");
     });
 
     it("returns data even when data is undefined", () => {
-      const returned = result.success({ data: undefined });
-      const unwrapped: undefined = unwrap(returned);
+      const success = result.success({ data: undefined });
+      const unwrapped: undefined = unwrap(success);
       expect(unwrapped).toBe(undefined);
     });
   });
 
   describe("from result.error()", () => {
     it("throws when there is no data and no fallback", () => {
-      const returned = result.error({ error: new Error("test error") });
-      expect(() => unwrap(returned)).toThrow(TypeError);
-      expect(() => unwrap(returned)).toThrowErrorMatchingInlineSnapshot(
+      const error = result.error({ error: new Error("test error") });
+      expect(() => unwrap(error)).toThrow(TypeError);
+      expect(() => unwrap(error)).toThrowErrorMatchingInlineSnapshot(
         `[TypeError: Unwrap failed: Result has no data, was {"status":"error","isSuccess":...]`,
       );
     });
 
     it("returns the fallback when there is no data and a fallback is provided", () => {
-      const returned = result.error({ error: new Error("test error") });
-      const unwrapped = unwrap(returned, "fallback");
+      const error = result.error({ error: new Error("test error") });
+      const unwrapped = unwrap(error, "fallback");
       expect(unwrapped).toBe("fallback");
     });
 
     it("returns the fallback when there is data and a fallback is provided", () => {
-      const returned = result.error({
+      const error = result.error({
         error: new Error("test error"),
         data: "test data",
       });
-      const unwrapped = unwrap(returned, "fallback");
+      const unwrapped = unwrap(error, "fallback");
       expect(unwrapped).toBe("fallback");
     });
   });

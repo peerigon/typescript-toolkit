@@ -13,9 +13,9 @@ import { async, isAsync, type Async } from "./async.ts";
 describe("async", () => {
   describe("pending()", () => {
     it("has the expected shape", () => {
-      const asyncData = async.pending();
+      const asyncPending = async.pending();
 
-      expect(asyncData).toMatchInlineSnapshot(`
+      expect(asyncPending).toMatchInlineSnapshot(`
         {
           "data": undefined,
           "error": null,
@@ -28,33 +28,33 @@ describe("async", () => {
     });
 
     it("allows to pass in previous data", () => {
-      const asyncData = async.pending({ data: "some data" });
+      const asyncPending = async.pending({ data: "some data" });
 
-      expect(asyncData.data).toBe("some data");
+      expect(asyncPending.data).toBe("some data");
     });
 
     it("is compatible with tanstack query's QueryObserverLoadingResult", () => {
       const tanstackResult = {} as QueryObserverLoadingResult<string>;
-      const _asyncData: Async.Pending = tanstackResult;
+      const _asyncPending: Async.Pending = tanstackResult;
 
       // Dummy assertion
-      expect(_asyncData).toBeDefined();
+      expect(_asyncPending).toBeDefined();
     });
 
     it("is compatible with tanstack query's QueryObserverPendingResult", () => {
       const tanstackResult = {} as QueryObserverPendingResult<string>;
-      const _asyncData: Async.Pending = tanstackResult;
+      const _asyncPending: Async.Pending = tanstackResult;
 
       // Dummy assertion
-      expect(_asyncData).toBeDefined();
+      expect(_asyncPending).toBeDefined();
     });
   });
 
   describe("success()", () => {
     it("has the expected shape", () => {
-      const asyncData = async.success({ data: "some data" });
+      const asyncSuccess = async.success({ data: "some data" });
 
-      expect(asyncData).toMatchInlineSnapshot(`
+      expect(asyncSuccess).toMatchInlineSnapshot(`
         {
           "data": "some data",
           "error": null,
@@ -76,10 +76,10 @@ describe("async", () => {
 
     it("is compatible with tanstack query's QueryObserverSuccessResult", () => {
       const tanstackResult = {} as QueryObserverSuccessResult<string>;
-      const _asyncData: Async.Success<string> = tanstackResult;
+      const _asyncSuccess: Async.Success<string> = tanstackResult;
 
       // Dummy assertion
-      expect(_asyncData).toBeDefined();
+      expect(_asyncSuccess).toBeDefined();
     });
   });
 
@@ -87,9 +87,9 @@ describe("async", () => {
     class TestError extends Error {}
 
     it("has the expected shape", () => {
-      const asyncData = async.error({ error: new Error("some error") });
+      const asyncError = async.error({ error: new Error("some error") });
 
-      expect(asyncData).toMatchInlineSnapshot(`
+      expect(asyncError).toMatchInlineSnapshot(`
         {
           "data": undefined,
           "error": [Error: some error],
@@ -102,12 +102,12 @@ describe("async", () => {
     });
 
     it("allows to pass in previous data", () => {
-      const asyncData = async.error({
+      const asyncError = async.error({
         error: new Error("some error"),
         data: "some data",
       });
 
-      expect(asyncData.data).toBe("some data");
+      expect(asyncError.data).toBe("some data");
     });
 
     it("is compatible with Result.Error", () => {
@@ -126,73 +126,71 @@ describe("async", () => {
         string,
         TestError
       >;
-      const _asyncData: Async.Error<TestError> = tanstackResult;
+      const _asyncError: Async.Error<TestError> = tanstackResult;
 
       // Dummy assertion
-      expect(_asyncData).toBeDefined();
+      expect(_asyncError).toBeDefined();
     });
   });
 
   it("works with match() for all states", () => {
-    const pendingData = async.pending() as Async;
-    const pendingResult = match(pendingData.status, {
+    const pendingResult = async.pending() as Async;
+    const pendingResultMatched = match(pendingResult.status, {
       pending: "pending",
       success: "success",
       error: "error",
     });
-    expect(pendingResult).toBe("pending");
+    expect(pendingResultMatched).toBe("pending");
 
-    const successData = async.success({ data: "some data" }) as Async;
-    const successResult = match(successData.status, {
+    const asyncSuccess = async.success({ data: "some data" }) as Async;
+    const asyncSuccessMatched = match(asyncSuccess.status, {
       pending: "pending",
       success: "success",
       error: "error",
     });
-    expect(successResult).toBe("success");
+    expect(asyncSuccessMatched).toBe("success");
 
     const errorData = async.error({ error: new Error("some error") }) as Async;
-    const errorResult = match(errorData.status, {
+    const errorResultMatched = match(errorData.status, {
       pending: "pending",
       success: "success",
       error: "error",
     });
-    expect(errorResult).toBe("error");
+    expect(errorResultMatched).toBe("error");
   });
 
   it("is compatible with tanstack query's UseQueryResult", () => {
     const tanstackResult = {} as QueryObserverResult<string>;
-    const _asyncData: Async<string> = tanstackResult;
+    const _async: Async<string> = tanstackResult;
 
     // Dummy assertion
-    expect(_asyncData).toBeDefined();
+    expect(_async).toBeDefined();
   });
 });
 
 describe("isAsync()", () => {
   it("returns true for Async.Pending", () => {
-    const pendingData = async.pending();
-    expect(isAsync(pendingData)).toBe(true);
+    const asyncPending = async.pending();
+    expect(isAsync(asyncPending)).toBe(true);
   });
 
   it("returns true for Async.Success", () => {
-    const successData = async.success({ data: "test data" });
-    expect(isAsync(successData)).toBe(true);
+    const asyncSuccess = async.success({ data: "test data" });
+    expect(isAsync(asyncSuccess)).toBe(true);
   });
 
   it("returns true for Async.Error", () => {
-    const errorData = async.error({ error: new Error("test error") });
-    expect(isAsync(errorData)).toBe(true);
+    const asyncError = async.error({ error: new Error("test error") });
+    expect(isAsync(asyncError)).toBe(true);
   });
 
   it("returns false for Result.Success because it's missing some async properties", () => {
     const resultSuccess = result.success({ data: "test" });
-
     expect(isAsync(resultSuccess)).toBe(false);
   });
 
   it("returns false for Result.Error because it's missing some async properties", () => {
     const resultError = result.error({ error: new Error("test error") });
-
     expect(isAsync(resultError)).toBe(false);
   });
 
