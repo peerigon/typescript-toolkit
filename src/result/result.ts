@@ -5,14 +5,19 @@ export type Result<
   GivenError extends GenericError = GenericError,
 > = Result.Success<Data> | Result.Error<GivenError>;
 
-const STATUS_SUCCESS = "success";
-const STATUS_ERROR = "error";
-const STATUS = [STATUS_SUCCESS, STATUS_ERROR] as const;
+export const Result = {
+  Status: {
+    Success: "success",
+    Error: "error",
+  },
+} as const;
+
+const STATUS = [Result.Status.Success, Result.Status.Error] as const;
 
 export namespace Result {
   export namespace Status {
-    export type Success = typeof STATUS_SUCCESS;
-    export type Error = typeof STATUS_ERROR;
+    export type Success = typeof Result.Status.Success;
+    export type Error = typeof Result.Status.Error;
   }
 
   export type Status = (typeof STATUS)[number];
@@ -124,7 +129,7 @@ const isError = (error: unknown): error is GenericError => {
 export const success = <Data>({
   data,
 }: Pick<Result.Success<Data>, "data">): Result.Success<Data> => ({
-  status: STATUS_SUCCESS,
+  status: Result.Status.Success,
   isSuccess: true,
   isError: false,
   data,
@@ -146,7 +151,7 @@ export const error = <GivenError extends GenericError, Data = never>({
   GivenError,
   Data
 > => ({
-  status: STATUS_ERROR,
+  status: Result.Status.Error,
   isSuccess: false,
   isError: true,
   data,

@@ -1,3 +1,5 @@
+import { error, Result, success } from "./../result/result.ts";
+
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
 
@@ -23,19 +25,28 @@ export type Async<
   GivenError extends GenericError = GenericError,
 > = Async.Pending<Data> | Async.Success<Data> | Async.Error<GivenError, Data>;
 
-const STATUS_PENDING = "pending";
-const STATUS_SUCCESS = "success";
-const STATUS_ERROR = "error";
-const STATUS = [STATUS_PENDING, STATUS_SUCCESS, STATUS_ERROR] as const;
+export const Async = {
+  Status: {
+    Pending: "pending",
+    Success: Result.Status.Success,
+    Error: Result.Status.Error,
+  },
+} as const;
+
+const STATUS = [
+  Async.Status.Pending,
+  Async.Status.Success,
+  Async.Status.Error,
+] as const;
 
 export namespace Async {
   export namespace Status {
-    export type Pending = typeof STATUS_PENDING;
-    export type Success = typeof STATUS_SUCCESS;
-    export type Error = typeof STATUS_ERROR;
+    export type Pending = typeof Async.Status.Pending;
+    export type Success = typeof Async.Status.Success;
+    export type Error = typeof Async.Status.Error;
   }
 
-  export type Status = (typeof STATUS)[number];
+  export type Status = Result.Status | typeof Async.Status.Pending;
 
   /**
    * Represents a pending result where data is being loaded.
@@ -57,17 +68,11 @@ export namespace Async {
   /**
    * Represents a successful async result that holds some data.
    */
-  export type Success<Data = unknown> = Readonly<{
-    status: Status.Success;
-    /** Is true when there's data */
-    isSuccess: true;
-    /** Is true when there's an error */
-    isError: false;
-    /** Is true when the request is pending */
-    isPending: false;
-    data: Data;
-    error: null;
-  }>;
+  export type Success<Data = unknown> = Result.Success<Data> &
+    Readonly<{
+      /** Is true when the request is pending */
+      isPending: false;
+    }>;
 
   /**
    * Represents an async result that has failed to load.
@@ -76,18 +81,11 @@ export namespace Async {
   export type Error<
     GivenError extends GenericError = GenericError,
     Data = never,
-  > = Readonly<{
-    status: Status.Error;
-    /** Is true when there's data */
-    isSuccess: false;
-    /** Is true when there's an error */
-    isError: true;
-    /** Is true when the request is pending */
-    isPending: false;
-    /** Potentially stale data from a previous result */
-    data: undefined | Data;
-    error: GivenError;
-  }>;
+  > = Result.Error<GivenError, Data> &
+    Readonly<{
+      /** Is true when the request is pending */
+      isPending: false;
+    }>;
 }
 
 /**
@@ -96,10 +94,10 @@ export namespace Async {
  * @param data - Potentially stale data from a previous result
  * @returns The pending async result
  */
-const pending = <Data>({
+const asyncPending = <Data>({
   data,
 }: Pick<Partial<Async.Pending<Data>>, "data"> = {}): Async.Pending<Data> => ({
-  status: STATUS_PENDING,
+  status: Async.Status.Pending,
   isSuccess: false,
   isError: false,
   isPending: true,
@@ -113,15 +111,11 @@ const pending = <Data>({
  * @param data - The data to store in the result
  * @returns The successful async result
  */
-const success = <Data>({
+const asyncSuccess = <Data>({
   data,
 }: Pick<Async.Success<Data>, "data">): Async.Success<Data> => ({
-  status: STATUS_SUCCESS,
-  isSuccess: true,
-  isError: false,
+  ...success({ data }),
   isPending: false,
-  data,
-  error: null,
 });
 
 /**
@@ -131,26 +125,22 @@ const success = <Data>({
  * @param data - Potentially stale data from a previous result
  * @returns The failed async result
  */
-const error = <GivenError extends Error, Data = never>({
-  error,
+const asyncError = <GivenError extends Error, Data = never>({
+  error: givenError,
   data,
 }: Pick<Async.Error<GivenError, Data>, "error"> &
   Pick<Partial<Async.Error<GivenError, Data>>, "data">): Async.Error<
   GivenError,
   Data
 > => ({
-  status: STATUS_ERROR,
-  isSuccess: false,
-  isError: true,
+  ...error({ error: givenError, data }),
   isPending: false,
-  data,
-  error,
 });
 
 export const async = {
-  pending,
-  success,
-  error,
+  pending: asyncPending,
+  success: asyncSuccess,
+  error: asyncError,
 };
 
 /**
