@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import {
   type QueryObserverLoadingErrorResult,
   type QueryObserverLoadingResult,
@@ -15,16 +16,22 @@ describe("async", () => {
     it("has the expected shape", () => {
       const asyncPending = async.pending();
 
-      expect(asyncPending).toMatchInlineSnapshot(`
-        {
-          "data": undefined,
-          "error": null,
-          "isError": false,
-          "isPending": true,
-          "isSuccess": false,
-          "status": "pending",
-          "toString": [Function],
-        }
+      expect(inspect(asyncPending)).toMatchInlineSnapshot(
+        `"{ data: undefined }"`,
+      );
+      expect(
+        inspect(asyncPending, {
+          showHidden: true,
+        }),
+      ).toMatchInlineSnapshot(`
+        "{
+          data: undefined,
+          status: 'pending',
+          isSuccess: false,
+          isError: false,
+          isPending: true,
+          error: null
+        }"
       `);
     });
 
@@ -55,15 +62,22 @@ describe("async", () => {
     it("has the expected shape", () => {
       const asyncSuccess = async.success({ data: "some data" });
 
-      expect(asyncSuccess).toMatchInlineSnapshot(`
-        {
-          "data": "some data",
-          "error": null,
-          "isError": false,
-          "isPending": false,
-          "isSuccess": true,
-          "status": "success",
-        }
+      expect(inspect(asyncSuccess)).toMatchInlineSnapshot(
+        `"{ data: 'some data' }"`,
+      );
+      expect(
+        inspect(asyncSuccess, {
+          showHidden: true,
+        }),
+      ).toMatchInlineSnapshot(`
+        "{
+          data: 'some data',
+          status: 'success',
+          isSuccess: true,
+          isError: false,
+          isPending: false,
+          error: null
+        }"
       `);
     });
 
@@ -88,17 +102,31 @@ describe("async", () => {
     class TestError extends Error {}
 
     it("has the expected shape", () => {
-      const asyncError = async.error({ error: new Error("some error") });
+      const error = new Error("some error");
+      const asyncError = async.error({ error });
 
-      expect(asyncError).toMatchInlineSnapshot(`
-        {
-          "data": undefined,
-          "error": [Error: some error],
-          "isError": true,
-          "isPending": false,
-          "isSuccess": false,
-          "status": "error",
-        }
+      // Removing the stack so that our snapshot is not polluted with the test file path
+      error.stack = "";
+
+      expect(inspect(asyncError)).toMatchInlineSnapshot(
+        `"{ data: undefined, error: [Error: some error] }"`,
+      );
+      expect(
+        inspect(asyncError, {
+          showHidden: true,
+        }),
+      ).toMatchInlineSnapshot(`
+        "{
+          data: undefined,
+          error: [Error: some error] {
+            [stack]: [Getter/Setter],
+            [message]: 'some error'
+          },
+          status: 'error',
+          isSuccess: false,
+          isError: true,
+          isPending: false
+        }"
       `);
     });
 

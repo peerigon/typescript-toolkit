@@ -130,20 +130,24 @@ const isError = (error: unknown): error is GenericError => {
  * @param data - The data to store in the result
  * @returns The successful result
  */
-const success = <Data>({
-  data,
-}: Pick<Result.Success<Data>, "data">): Result.Success<Data> => {
-  const successResult = {
-    status: Result.Status.Success,
-    isSuccess: true,
-    isError: false,
-    data,
-    error: null,
-    toString: createToString({ type: "Success", detail: data }),
-  } as const;
-
-  return successResult;
+const success = <Data>({ data }: Pick<Result.Success<Data>, "data">) => {
+  return Object.create(successPrototype, {
+    data: { value: data, enumerable: true },
+  }) as Result.Success<Data>;
 };
+
+const successPrototype: Result.Success<undefined> & {
+  toString: () => string;
+} = {
+  status: Result.Status.Success,
+  isSuccess: true,
+  isError: false,
+  data: undefined,
+  error: null,
+  toString() {
+    return `Result.Success(${stringify(this.data)})`;
+  },
+} as const;
 
 /**
  * Creates a result in the error state.
@@ -160,17 +164,24 @@ const error = <GivenError extends GenericError, Data = never>({
   GivenError,
   Data
 > => {
-  const errorResult = {
-    status: Result.Status.Error,
-    isSuccess: false,
-    isError: true,
-    data,
-    error,
-    toString: createToString({ type: "Error", detail: error.message }),
-  } as const;
-
-  return errorResult;
+  return Object.create(errorPrototype, {
+    data: { value: data, enumerable: true },
+    error: { value: error, enumerable: true },
+  }) as Result.Error<GivenError, Data>;
 };
+
+const errorPrototype: Result.Error & {
+  toString: () => string;
+} = {
+  status: Result.Status.Error,
+  isSuccess: false,
+  isError: true,
+  data: undefined,
+  error: new Error("Default error"),
+  toString() {
+    return `Result.Error(${stringify(this.error.message)})`;
+  },
+} as const;
 
 export const result = {
   from,
@@ -200,16 +211,6 @@ export const isResult = (maybeValue: unknown): maybeValue is Result => {
     "error" in maybeValue &&
     STATUS.includes(maybeValue.status as Result.Status)
   );
-};
-
-const createToString = ({
-  type,
-  detail,
-}: {
-  type: "Success" | "Error";
-  detail: unknown;
-}) => {
-  return () => `Result.${type}(${stringify(detail)})`;
 };
 
 type GenericError = Error;

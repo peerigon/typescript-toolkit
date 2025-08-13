@@ -1,5 +1,5 @@
 import { stringify } from "../lib/string.ts";
-import { result, Result } from "./../result/result.ts";
+import { Result } from "./../result/result.ts";
 
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -98,18 +98,24 @@ export namespace Async {
 const asyncPending = <Data>({
   data,
 }: Pick<Partial<Async.Pending<Data>>, "data"> = {}): Async.Pending<Data> => {
-  const pendingResult = {
-    status: Async.Status.Pending,
-    isSuccess: false,
-    isError: false,
-    isPending: true,
-    data,
-    error: null,
-    toString: createToString({ type: "Pending", detail: data }),
-  } as const;
-
-  return pendingResult;
+  return Object.create(pendingPrototype, {
+    data: { value: data, enumerable: true },
+  }) as Async.Pending<Data>;
 };
+
+const pendingPrototype: Async.Pending<undefined> & {
+  toString: () => string;
+} = {
+  status: Async.Status.Pending,
+  isSuccess: false,
+  isError: false,
+  isPending: true,
+  data: undefined,
+  error: null,
+  toString() {
+    return `Async.Pending(${stringify(this.data)})`;
+  },
+} as const;
 
 /**
  * Creates an async in the success state
@@ -120,14 +126,24 @@ const asyncPending = <Data>({
 const asyncSuccess = <Data>({
   data,
 }: Pick<Async.Success<Data>, "data">): Async.Success<Data> => {
-  const successResult = {
-    ...result.success({ data }),
-    isPending: false,
-    toString: createToString({ type: "Success", detail: data }),
-  } as const;
-
-  return successResult;
+  return Object.create(successPrototype, {
+    data: { value: data, enumerable: true },
+  }) as Async.Success<Data>;
 };
+
+const successPrototype: Async.Success<undefined> & {
+  toString: () => string;
+} = {
+  status: Async.Status.Success,
+  isSuccess: true,
+  isError: false,
+  isPending: false,
+  data: undefined,
+  error: null,
+  toString() {
+    return `Async.Success(${stringify(this.data)})`;
+  },
+} as const;
 
 /**
  * Creates an async result in the error state.
@@ -144,14 +160,25 @@ const asyncError = <GivenError extends Error, Data = never>({
   GivenError,
   Data
 > => {
-  const errorResult = {
-    ...result.error({ error: givenError, data }),
-    isPending: false,
-    toString: createToString({ type: "Error", detail: givenError.message }),
-  } as const;
-
-  return errorResult;
+  return Object.create(errorPrototype, {
+    data: { value: data, enumerable: true },
+    error: { value: givenError, enumerable: true },
+  }) as Async.Error<GivenError, Data>;
 };
+
+const errorPrototype: Async.Error<GenericError, undefined> & {
+  toString: () => string;
+} = {
+  status: Async.Status.Error,
+  isSuccess: false,
+  isError: true,
+  isPending: false,
+  data: undefined,
+  error: new Error("Default error"),
+  toString() {
+    return `Async.Error(${stringify(this.error.message)})`;
+  },
+} as const;
 
 export const async = {
   pending: asyncPending,
@@ -184,13 +211,4 @@ export const isAsync = (maybeValue: unknown): maybeValue is Async => {
   );
 };
 
-const createToString = ({
-  type,
-  detail,
-}: {
-  type: "Pending" | "Success" | "Error";
-  detail: unknown;
-}) => {
-  return () => `Async.${type}(${stringify(detail)})`;
-};
 type GenericError = Error;

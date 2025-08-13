@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import {
   type QueryObserverLoadingErrorResult,
   type QueryObserverSuccessResult,
@@ -12,16 +13,22 @@ describe("result", () => {
     it("has the expected shape", () => {
       const successResult = result.success({ data: "some data" });
 
-      expect(successResult).toMatchInlineSnapshot(`
-      {
-        "data": "some data",
-        "error": null,
-        "isError": false,
-        "isSuccess": true,
-        "status": "success",
-        "toString": [Function],
-      }
-    `);
+      expect(inspect(successResult)).toMatchInlineSnapshot(
+        `"{ data: 'some data' }"`,
+      );
+      expect(
+        inspect(successResult, {
+          showHidden: true,
+        }),
+      ).toMatchInlineSnapshot(`
+        "{
+          data: 'some data',
+          status: 'success',
+          isSuccess: true,
+          isError: false,
+          error: null
+        }"
+      `);
     });
 
     it("is compatible with tanstack query's QueryObserverSuccessResult", () => {
@@ -34,6 +41,7 @@ describe("result", () => {
 
     it("has a string representation (simple data)", () => {
       const successResult = result.success({ data: "some data" });
+
       expect(successResult.toString()).toMatchInlineSnapshot(
         `"Result.Success("some data")"`,
       );
@@ -48,13 +56,10 @@ describe("result", () => {
       const successResult = result.success({
         data: complexData,
       });
-      expect(successResult.toString()).toMatchInlineSnapshot(`
-      "Result.Success({
-        "name": "John",
-        "age": 30,
-        "active": true
-      …)"
-    `);
+
+      expect(successResult.toString()).toMatchInlineSnapshot(
+        `"Result.Success({"name":"John","age":30,"active":true})"`,
+      );
     });
   });
 
@@ -62,18 +67,31 @@ describe("result", () => {
     class TestError extends Error {}
 
     it("has the expected shape", () => {
-      const errorResult = result.error({ error: new Error("some error") });
+      const error = new Error("some error");
+      const errorResult = result.error({ error });
 
-      expect(errorResult).toMatchInlineSnapshot(`
-      {
-        "data": undefined,
-        "error": [Error: some error],
-        "isError": true,
-        "isSuccess": false,
-        "status": "error",
-        "toString": [Function],
-      }
-    `);
+      // Removing the stack so that our snapshot is not polluted with the test file path
+      error.stack = "";
+
+      expect(inspect(errorResult)).toMatchInlineSnapshot(
+        `"{ data: undefined, error: [Error: some error] }"`,
+      );
+      expect(
+        inspect(errorResult, {
+          showHidden: true,
+        }),
+      ).toMatchInlineSnapshot(`
+        "{
+          data: undefined,
+          error: [Error: some error] {
+            [stack]: [Getter/Setter],
+            [message]: 'some error'
+          },
+          status: 'error',
+          isSuccess: false,
+          isError: true
+        }"
+      `);
     });
 
     it("allows data to be provided", () => {
@@ -358,6 +376,7 @@ describe("isResult()", () => {
 
   it("returns false for async.pending()", () => {
     const asyncData = async.pending();
+
     expect(isResult(asyncData)).toBe(false);
   });
 
