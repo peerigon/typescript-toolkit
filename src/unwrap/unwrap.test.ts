@@ -66,7 +66,7 @@ describe("unwrap()", () => {
     });
 
     it("returns the fallback when a fallback is provided", () => {
-      const result = unwrap(undefined, "fallback");
+      const result: "fallback" = unwrap(undefined, "fallback");
       expect(result).toBe("fallback");
     });
   });
@@ -80,7 +80,7 @@ describe("unwrap()", () => {
     });
 
     it("returns the fallback when a fallback is provided", () => {
-      const result = unwrap(null, "fallback");
+      const result: "fallback" = unwrap(null, "fallback");
       expect(result).toBe("fallback");
     });
   });
@@ -110,16 +110,17 @@ describe("unwrap()", () => {
 
     it("returns the fallback when there is no data and a fallback is provided", () => {
       const error = result.error({ error: new Error("test error") });
-      const unwrapped = unwrap(error, "fallback");
+      const unwrapped: "fallback" = unwrap(error, "fallback");
       expect(unwrapped).toBe("fallback");
     });
 
     it("returns the fallback when there is data and a fallback is provided", () => {
-      const error = result.error({
-        error: new Error("test error"),
+      const error = new Error("test error");
+      const errorResult = result.error({
+        error,
         data: "test data",
       });
-      const unwrapped = unwrap(error, "fallback");
+      const unwrapped: "fallback" = unwrap(errorResult, "fallback");
       expect(unwrapped).toBe("fallback");
     });
   });

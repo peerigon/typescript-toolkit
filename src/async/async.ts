@@ -27,7 +27,10 @@ import { Result } from "./../result/result.ts";
 export type Async<
   Data = unknown,
   GivenError extends GenericError = GenericError,
-> = Async.Pending<Data> | Async.Success<Data> | Async.Error<GivenError, Data>;
+> =
+  | Async.Pending<Data | undefined>
+  | Async.Success<Data>
+  | Async.Error<GivenError, Data | undefined>;
 
 export const Async = {
   Status: {
@@ -56,7 +59,7 @@ export namespace Async {
    * Represents a pending result where data is being loaded.
    * Pending might have stale data, but there's new data inflight.
    */
-  export type Pending<Data = never> = Readonly<{
+  export type Pending<Data = undefined> = Readonly<{
     status: Status.Pending;
     /** Is true when there's data */
     isSuccess: false;
@@ -65,7 +68,7 @@ export namespace Async {
     /** Is true when the request is pending */
     isPending: true;
     /** Potentially stale data from a previous result */
-    data: undefined | Data;
+    data: Data;
     error: null;
   }>;
 
@@ -84,7 +87,7 @@ export namespace Async {
    */
   export type Error<
     GivenError extends GenericError = GenericError,
-    Data = never,
+    Data = undefined,
   > = Result.Error<GivenError, Data> &
     Readonly<{
       /** Is true when the request is pending */
@@ -98,7 +101,7 @@ export namespace Async {
  * @param data - Potentially stale data from a previous result
  * @returns The pending async result
  */
-const asyncPending = <Data>({
+const asyncPending = <const Data>({
   data,
 }: Pick<Partial<Async.Pending<Data>>, "data"> = {}): Async.Pending<Data> => {
   return Object.create(pendingPrototype, {
@@ -106,7 +109,7 @@ const asyncPending = <Data>({
   }) as Async.Pending<Data>;
 };
 
-const pendingPrototype: Async.Pending<undefined> & {
+const pendingPrototype: Async.Pending & {
   toString: () => string;
 } = {
   status: Async.Status.Pending,
@@ -130,7 +133,7 @@ const pendingPrototype: Async.Pending<undefined> & {
  * @param data - The data to store in the result
  * @returns The successful async result
  */
-const asyncSuccess = <Data>({
+const asyncSuccess = <const Data>({
   data,
 }: Pick<Async.Success<Data>, "data">): Async.Success<Data> => {
   return Object.create(successPrototype, {
@@ -159,7 +162,7 @@ const successPrototype: Async.Success<undefined> & {
  * @param data - Potentially stale data from a previous result
  * @returns The failed async result
  */
-const asyncError = <GivenError extends Error, Data = never>({
+const asyncError = <const GivenError extends Error, const Data = never>({
   error: givenError,
   data,
 }: Pick<Async.Error<GivenError, Data>, "error"> &
@@ -173,7 +176,7 @@ const asyncError = <GivenError extends Error, Data = never>({
   }) as Async.Error<GivenError, Data>;
 };
 
-const errorPrototype: Async.Error<GenericError, undefined> & {
+const errorPrototype: Async.Error & {
   toString: () => string;
 } = {
   status: Async.Status.Error,

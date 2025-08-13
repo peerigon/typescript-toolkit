@@ -9,7 +9,7 @@ import { stringify } from "../lib/string";
 export type Result<
   Data = unknown,
   GivenError extends GenericError = GenericError,
-> = Result.Success<Data> | Result.Error<GivenError>;
+> = Result.Success<Data> | Result.Error<GivenError, Data>;
 
 export const Result = {
   Status: {
@@ -47,7 +47,7 @@ export namespace Result {
    */
   export type Error<
     GivenError extends GenericError = GenericError,
-    Data = never,
+    Data = undefined,
   > = Readonly<{
     status: Status.Error;
     /** Is true when there's data */
@@ -55,7 +55,7 @@ export namespace Result {
     /** Is true when there's an error */
     isError: true;
     /** Potentially stale data from a previous result */
-    data: undefined | Data;
+    data: Data;
     /** The error that occurred */
     error: GivenError;
   }>;
@@ -134,7 +134,7 @@ const isError = (error: unknown): error is GenericError => {
  * @param data - The data to store in the result
  * @returns The successful result
  */
-const success = <Data>({ data }: Pick<Result.Success<Data>, "data">) => {
+const success = <const Data>({ data }: Pick<Result.Success<Data>, "data">) => {
   return Object.create(successPrototype, {
     data: { value: data, enumerable: true },
   }) as Result.Success<Data>;
@@ -160,7 +160,7 @@ const successPrototype: Result.Success<undefined> & {
  * @param data - Potentially stale data from a previous result
  * @returns The failed result
  */
-const error = <GivenError extends GenericError, Data = never>({
+const error = <const GivenError extends GenericError, const Data = never>({
   error,
   data,
 }: Pick<Result.Error<GivenError, Data>, "error"> &

@@ -2,17 +2,25 @@ import { isAsync, type Async } from "../async/async.ts";
 import { stringify } from "../lib/string.ts";
 import { isResult, type Result } from "../result/result.ts";
 
-export function unwrap<Value>(
-  maybeValue: Value | Result<Value> | Async<Value>,
+export function unwrap<Value, GivenError extends Error>(
+  maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,
 ): Value;
-export function unwrap<Value, Fallback>(
-  maybeValue: Value | Result<Value> | Async<Value>,
+export function unwrap<Value, GivenError extends Error, const Fallback>(
+  maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,
   fallback: Fallback,
-): Value | Fallback;
+): Value extends
+  | Result.Success<infer WrappedValue>
+  | Async.Pending<infer WrappedValue>
+  ? WrappedValue
+  :
+      | (Value extends Result.Error<GivenError, Value>
+          ? never
+          : NonNullable<Value>)
+      | Fallback;
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
-export function unwrap<Value, Fallback>(
-  maybeValue: Value | Result<Value> | Async<Value>,
-  fallback?: Fallback,
+export function unwrap<Value, GivenError extends Error, Fallback>(
+  maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,
+  fallback?: Value,
 ): Value | Fallback {
   const hasFallback = arguments.length > 1;
 

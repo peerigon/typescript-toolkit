@@ -33,10 +33,10 @@ describe("result", () => {
 
     it("is compatible with tanstack query's QueryObserverSuccessResult", () => {
       const tanstackResult = {} as QueryObserverSuccessResult<string>;
-      const _result: Result.Success<string> = tanstackResult;
+      const resultSuccess: Result.Success<string> = tanstackResult;
 
       // Dummy assertion
-      expect(_result).toBeDefined();
+      expect(resultSuccess).toBeDefined();
     });
 
     it("has a string representation (simple data)", () => {
@@ -60,6 +60,14 @@ describe("result", () => {
       expect(String(successResult)).toMatchInlineSnapshot(
         `"Result.Success({"name":"John","age":30,"active":true})"`,
       );
+    });
+
+    it("infers the data type as const", () => {
+      const successResult = result.success({ data: "some data" });
+      const inferredData: "some data" = successResult.data;
+
+      // Dummy assertion
+      expect(inferredData).toBeDefined();
     });
   });
 
@@ -108,10 +116,10 @@ describe("result", () => {
         string,
         TestError
       >;
-      const _result: Result.Error<TestError> = tanstackResult;
+      const resultError: Result.Error<TestError> = tanstackResult;
 
       // Dummy assertion
-      expect(_result).toBeDefined();
+      expect(resultError).toBeDefined();
     });
 
     it("has a string representation (short message)", () => {
@@ -130,6 +138,20 @@ describe("result", () => {
       expect(String(errorResult)).toMatchInlineSnapshot(
         `"Result.Error("some error that is longer than the default limit …)"`,
       );
+    });
+
+    it("infers the error and data type as const", () => {
+      const error = new TypeError("some error");
+      const errorResult = result.error({
+        error,
+        data: "some data",
+      });
+      const inferredData: "some data" = errorResult.data;
+      const inferredError: TypeError = errorResult.error;
+
+      // Dummy assertion
+      expect(inferredData).toBeDefined();
+      expect(inferredError).toBeDefined();
     });
   });
 

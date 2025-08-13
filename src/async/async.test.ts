@@ -43,18 +43,18 @@ describe("async", () => {
 
     it("is compatible with tanstack query's QueryObserverLoadingResult", () => {
       const tanstackResult = {} as QueryObserverLoadingResult<string>;
-      const _asyncPending: Async.Pending = tanstackResult;
+      const asyncPending: Async.Pending = tanstackResult;
 
       // Dummy assertion
-      expect(_asyncPending).toBeDefined();
+      expect(asyncPending).toBeDefined();
     });
 
     it("is compatible with tanstack query's QueryObserverPendingResult", () => {
       const tanstackResult = {} as QueryObserverPendingResult<string>;
-      const _asyncPending: Async.Pending = tanstackResult;
+      const asyncPending: Async.Pending = tanstackResult;
 
       // Dummy assertion
-      expect(_asyncPending).toBeDefined();
+      expect(asyncPending).toBeDefined();
     });
 
     it("has a string representation (no data)", () => {
@@ -84,6 +84,14 @@ describe("async", () => {
         `"Async.Pending({"name":"John","age":30,"active":true})"`,
       );
     });
+
+    it("infers the data type as const", () => {
+      const asyncPending = async.pending({ data: "some data" });
+      const inferredData: "some data" = asyncPending.data;
+
+      // Dummy assertion
+      expect(inferredData).toBeDefined();
+    });
   });
 
   describe("success()", () => {
@@ -111,18 +119,18 @@ describe("async", () => {
 
     it("is compatible with Result.Success", () => {
       const asyncSuccess = async.success({ data: "test data" });
-      const _resultSuccess: Result.Success<string> = asyncSuccess;
+      const resultSuccess: Result.Success<string> = asyncSuccess;
 
       // Dummy assertion to ensure type compatibility
-      expect(_resultSuccess).toBeDefined();
+      expect(resultSuccess).toBeDefined();
     });
 
     it("is compatible with tanstack query's QueryObserverSuccessResult", () => {
       const tanstackResult = {} as QueryObserverSuccessResult<string>;
-      const _asyncSuccess: Async.Success<string> = tanstackResult;
+      const asyncSuccess: Async.Success<string> = tanstackResult;
 
       // Dummy assertion
-      expect(_asyncSuccess).toBeDefined();
+      expect(asyncSuccess).toBeDefined();
     });
 
     it("has a string representation (simple data)", () => {
@@ -142,6 +150,14 @@ describe("async", () => {
       expect(String(asyncSuccess)).toMatchInlineSnapshot(
         `"Async.Success({"name":"John","age":30,"active":true})"`,
       );
+    });
+
+    it("infers the data type as const", () => {
+      const asyncSuccess = async.success({ data: "some data" });
+      const inferredData: "some data" = asyncSuccess.data;
+
+      // Dummy assertion
+      expect(inferredData).toBeDefined();
     });
   });
 
@@ -191,10 +207,10 @@ describe("async", () => {
         isCustomError = true;
       }
       const asyncError = async.error({ error: new CustomError("test error") });
-      const _resultError: Result.Error<CustomError> = asyncError;
+      const resultError: Result.Error<CustomError> = asyncError;
 
       // Dummy assertion to ensure type compatibility
-      expect(_resultError).toBeDefined();
+      expect(resultError).toBeDefined();
     });
 
     it("is compatible with tanstack query's QueryObserverLoadingErrorResult", () => {
@@ -202,10 +218,10 @@ describe("async", () => {
         string,
         TestError
       >;
-      const _asyncError: Async.Error<TestError> = tanstackResult;
+      const asyncError: Async.Error<TestError> = tanstackResult;
 
       // Dummy assertion
-      expect(_asyncError).toBeDefined();
+      expect(asyncError).toBeDefined();
     });
 
     it("has a string representation (short message)", () => {
@@ -232,6 +248,20 @@ describe("async", () => {
       expect(String(asyncError)).toMatchInlineSnapshot(
         `"Async.Error("some error that is longer than the default limit …)"`,
       );
+    });
+
+    it("infers the error and data type as const", () => {
+      const error = new TypeError("some error");
+      const asyncError = async.error({
+        error,
+        data: "some data",
+      });
+      const inferredData: "some data" = asyncError.data;
+      const inferredError: TypeError = asyncError.error;
+
+      // Dummy assertion
+      expect(inferredData).toBeDefined();
+      expect(inferredError).toBeDefined();
     });
   });
 
@@ -263,10 +293,10 @@ describe("async", () => {
 
   it("is compatible with tanstack query's UseQueryResult", () => {
     const tanstackResult = {} as QueryObserverResult<string>;
-    const _async: Async<string> = tanstackResult;
+    const async: Async<string> = tanstackResult;
 
     // Dummy assertion
-    expect(_async).toBeDefined();
+    expect(async).toBeDefined();
   });
 });
 
