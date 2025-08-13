@@ -42,7 +42,7 @@ describe("result", () => {
     it("has a string representation (simple data)", () => {
       const successResult = result.success({ data: "some data" });
 
-      expect(successResult.toString()).toMatchInlineSnapshot(
+      expect(String(successResult)).toMatchInlineSnapshot(
         `"Result.Success("some data")"`,
       );
     });
@@ -57,7 +57,7 @@ describe("result", () => {
         data: complexData,
       });
 
-      expect(successResult.toString()).toMatchInlineSnapshot(
+      expect(String(successResult)).toMatchInlineSnapshot(
         `"Result.Success({"name":"John","age":30,"active":true})"`,
       );
     });
@@ -116,7 +116,7 @@ describe("result", () => {
 
     it("has a string representation (short message)", () => {
       const errorResult = result.error({ error: new Error("some error") });
-      expect(errorResult.toString()).toMatchInlineSnapshot(
+      expect(String(errorResult)).toMatchInlineSnapshot(
         `"Result.Error("some error")"`,
       );
     });
@@ -127,7 +127,7 @@ describe("result", () => {
           "some error that is longer than the default limit it should be truncated",
         ),
       });
-      expect(errorResult.toString()).toMatchInlineSnapshot(
+      expect(String(errorResult)).toMatchInlineSnapshot(
         `"Result.Error("some error that is longer than the default limit …)"`,
       );
     });

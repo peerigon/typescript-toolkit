@@ -56,6 +56,34 @@ describe("async", () => {
       // Dummy assertion
       expect(_asyncPending).toBeDefined();
     });
+
+    it("has a string representation (no data)", () => {
+      const asyncPending = async.pending();
+      expect(String(asyncPending)).toMatchInlineSnapshot(`"Async.Pending()"`);
+    });
+
+    it("has a string representation (simple data)", () => {
+      const asyncPending = async.pending({ data: "some data" });
+
+      expect(String(asyncPending)).toMatchInlineSnapshot(
+        `"Async.Pending("some data")"`,
+      );
+    });
+
+    it("has a string representation (complex data)", () => {
+      const complexData = {
+        name: "John",
+        age: 30,
+        active: true,
+      };
+      const asyncPending = async.pending({
+        data: complexData,
+      });
+
+      expect(String(asyncPending)).toMatchInlineSnapshot(
+        `"Async.Pending({"name":"John","age":30,"active":true})"`,
+      );
+    });
   });
 
   describe("success()", () => {
@@ -95,6 +123,25 @@ describe("async", () => {
 
       // Dummy assertion
       expect(_asyncSuccess).toBeDefined();
+    });
+
+    it("has a string representation (simple data)", () => {
+      const asyncSuccess = async.success({ data: "some data" });
+      expect(String(asyncSuccess)).toMatchInlineSnapshot(
+        `"Async.Success("some data")"`,
+      );
+    });
+
+    it("has a string representation (complex data)", () => {
+      const complexData = {
+        name: "John",
+        age: 30,
+        active: true,
+      };
+      const asyncSuccess = async.success({ data: complexData });
+      expect(String(asyncSuccess)).toMatchInlineSnapshot(
+        `"Async.Success({"name":"John","age":30,"active":true})"`,
+      );
     });
   });
 
@@ -159,6 +206,32 @@ describe("async", () => {
 
       // Dummy assertion
       expect(_asyncError).toBeDefined();
+    });
+
+    it("has a string representation (short message)", () => {
+      const error = new Error("some error");
+      const asyncError = async.error({ error });
+
+      // Removing the stack so that our snapshot is not polluted with the test file path
+      error.stack = "";
+
+      expect(String(asyncError)).toMatchInlineSnapshot(
+        `"Async.Error("some error")"`,
+      );
+    });
+
+    it("has a string representation (long message)", () => {
+      const error = new Error(
+        "some error that is longer than the default limit it should be truncated",
+      );
+      const asyncError = async.error({ error });
+
+      // Removing the stack so that our snapshot is not polluted with the test file path
+      error.stack = "";
+
+      expect(String(asyncError)).toMatchInlineSnapshot(
+        `"Async.Error("some error that is longer than the default limit …)"`,
+      );
     });
   });
 

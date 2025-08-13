@@ -4,6 +4,9 @@ import { Result } from "./../result/result.ts";
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
 
+// This module uses prototypes to create objects for the Async.Pending, Async.Success and Async.Error types.
+// This way unimportant properties won't show up in the debugger and we keep the memory footprint low.
+
 /**
  * Represents some async data that could be in the following states:
  *
@@ -113,7 +116,11 @@ const pendingPrototype: Async.Pending<undefined> & {
   data: undefined,
   error: null,
   toString() {
-    return `Async.Pending(${stringify(this.data)})`;
+    return `Async.Pending(${
+      // This is a prototype method. `this` might point to an instance.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      this.data === undefined ? "" : stringify(this.data)
+    })`;
   },
 } as const;
 

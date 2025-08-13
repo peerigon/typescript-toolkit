@@ -2,6 +2,10 @@ import { stringify } from "../lib/string";
 
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
+
+// This module uses prototypes to create objects for the Result.Success and Result.Error types.
+// This way unimportant properties won't show up in the debugger and we keep the memory footprint low.
+
 export type Result<
   Data = unknown,
   GivenError extends GenericError = GenericError,
