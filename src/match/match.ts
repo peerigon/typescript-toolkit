@@ -39,7 +39,7 @@ const catchSymbol = Symbol("match.catch");
  * ```
  */
 export const match: {
-  <Value extends string | number | symbol, Result>(
+  <Value extends string | number | symbol, const Result>(
     value: Value,
     cases: MatchCases<Value, Result>,
   ): Result;
@@ -48,7 +48,7 @@ export const match: {
 } = <Value extends string | number | symbol, Result>(
   value: Value,
   cases: MatchCases<Value, Result>,
-) => {
+): Result => {
   if (value in cases) {
     return cases[value] as Result;
   }
@@ -58,7 +58,7 @@ export const match: {
   }
 
   if (catchSymbol in cases) {
-    return cases[catchSymbol];
+    return cases[catchSymbol] as Result;
   }
 
   throw new Error(
@@ -70,6 +70,5 @@ match.default = defaultSymbol;
 match.catch = catchSymbol;
 
 type MatchCases<Value extends string | number | symbol, Result> =
-  | Record<Value, Result>
-  | (Partial<Record<Value, Result>> & Record<typeof defaultSymbol, Result>)
-  | Record<Value | typeof catchSymbol, Result>;
+  | (Record<Value, Result> & Partial<Record<typeof catchSymbol, Result>>)
+  | (Record<typeof defaultSymbol, Result> & Partial<Record<Value, Result>>);
