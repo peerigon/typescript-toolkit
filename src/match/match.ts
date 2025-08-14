@@ -12,7 +12,7 @@ const catchSymbol = Symbol("match.catch");
  *
  * @example
  * ```ts
- * match("A", {
+ * match("A").case({
  *   A: "result A",
  * }); // "result A"
  * ```
@@ -22,7 +22,7 @@ const catchSymbol = Symbol("match.catch");
  *
  * @example
  * ```ts
- * match("A", {
+ * match("A").case({
  *   [match.default]: "default result",
  * }); // "default result"
  * ```
@@ -32,39 +32,33 @@ const catchSymbol = Symbol("match.catch");
  *
  * @example
  * ```ts
- * match("B" as "A", {
+ * match("B" as "A").case({
  *   A: "result A",
  *   [match.catch]: "unknown runtime value",
  * }); // "unknown runtime value"
  * ```
  */
-export const match: {
-  <Value extends string | number | symbol, const Result>(
-    value: Value,
-    cases: MatchCases<Value, Result>,
-  ): Result;
-  default: typeof defaultSymbol;
-  catch: typeof catchSymbol;
-} = <Value extends string | number | symbol, Result>(
+export const match = <Value extends string | number | symbol>(
   value: Value,
-  cases: MatchCases<Value, Result>,
-): Result => {
-  if (value in cases) {
-    return cases[value] as Result;
-  }
+) => ({
+  case: <Result>(cases: MatchCases<Value, Result>): Result => {
+    if (value in cases) {
+      return cases[value] as Result;
+    }
 
-  if (defaultSymbol in cases) {
-    return cases[defaultSymbol];
-  }
+    if (defaultSymbol in cases) {
+      return cases[defaultSymbol];
+    }
 
-  if (catchSymbol in cases) {
-    return cases[catchSymbol] as Result;
-  }
+    if (catchSymbol in cases) {
+      return cases[catchSymbol] as Result;
+    }
 
-  throw new Error(
-    `No match found for ${String(value)}. Expected one of: ${Object.keys(cases).join(", ")}`,
-  );
-};
+    throw new Error(
+      `No match found for ${String(value)}. Expected one of: ${Object.keys(cases).join(", ")}`,
+    );
+  },
+});
 
 match.default = defaultSymbol;
 match.catch = catchSymbol;

@@ -62,22 +62,15 @@ describe("Enum.define()", () => {
     // TODO: Maybe SomeEnum.match(). Then match.default and match.catch could also be used together
     it("works with match()", () => {
       const arrow = (direction: Direction) => {
-        return match(direction, {
-          North: "up",
-          // South: "down",
-          East: "right",
-          West: "left",
+        return match(direction).case({
+          [Direction.North]: "up",
+          // [Direction.South]: "down",
+          [Direction.East]: "right",
+          [Direction.West]: "left",
         });
       };
 
-      // const arrow = match(direction, {
-      //   North: "up",
-      //   // South: "down",
-      //   East: "right",
-      //   West: "left",
-      // });
-
-      expect(arrow).toBe("up");
+      expect(arrow(Direction.North)).toBe("up");
     });
   });
 

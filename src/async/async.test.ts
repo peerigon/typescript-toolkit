@@ -267,7 +267,7 @@ describe("async", () => {
 
   it("works with match() for all states", () => {
     const pendingResult = async.pending() as Async;
-    const pendingResultMatched = match(pendingResult.status, {
+    const pendingResultMatched = match(pendingResult.status).case({
       pending: "pending",
       success: "success",
       error: "error",
@@ -275,7 +275,7 @@ describe("async", () => {
     expect(pendingResultMatched).toBe("pending");
 
     const asyncSuccess = async.success({ data: "some data" }) as Async;
-    const asyncSuccessMatched = match(asyncSuccess.status, {
+    const asyncSuccessMatched = match(asyncSuccess.status).case({
       pending: "pending",
       success: "success",
       error: "error",
@@ -283,7 +283,7 @@ describe("async", () => {
     expect(asyncSuccessMatched).toBe("success");
 
     const errorData = async.error({ error: new Error("some error") }) as Async;
-    const errorResultMatched = match(errorData.status, {
+    const errorResultMatched = match(errorData.status).case({
       pending: "pending",
       success: "success",
       error: "error",

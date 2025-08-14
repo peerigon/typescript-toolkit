@@ -269,7 +269,7 @@ describe("result", () => {
   it("works with match()", () => {
     const successResult = result.success({ data: "some data" }) as Result;
 
-    const isSuccess = match(successResult.status, {
+    const isSuccess = match(successResult.status).case({
       success: true,
       error: false,
     });
