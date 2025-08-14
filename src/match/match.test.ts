@@ -1,3 +1,6 @@
+// This test uses @ts-expect-error to test for specific type errors
+// Do not remove them as they are assertions on expected type errors
+
 import { describe, expect, it } from "vitest";
 import { match } from "./match.ts";
 
@@ -56,5 +59,16 @@ describe("match()", () => {
       },
     );
     expect(result).toBe("unknown runtime value");
+  });
+
+  it("allows to pass an explicit Value type parameter", () => {
+    const result: "result A" = match<"A" | "B">("A")
+      // @ts-expect-error By passing a wider type parameter, we should get a type error here
+      .case({
+        A: "result A",
+      });
+
+    // Dummy assertion
+    expect(result).toBe("result A");
   });
 });

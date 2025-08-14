@@ -1,3 +1,6 @@
+// This test uses @ts-expect-error to test for specific type errors
+// Do not remove them as they are assertions on expected type errors
+
 import { describe, expect, it } from "vitest";
 import { match } from "../match/match.ts";
 import { Enum } from "./enum.ts";
