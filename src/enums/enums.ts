@@ -1,7 +1,7 @@
 const defineBrandedEnum = <
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
   const Brand extends symbol,
-  const Definition extends Record<string, EnumOrdinal | true>,
+  const Definition extends Record<string, EnumsOrdinal | true>,
 >(
   brand: Brand,
   definition: Definition,
@@ -27,7 +27,7 @@ const defineBrandedEnum = <
 const enumBrand = Symbol("Enum");
 
 const defineEnum = <
-  const Definition extends Record<string, EnumOrdinal | true>,
+  const Definition extends Record<string, EnumsOrdinal | true>,
 >(
   definition: Definition,
 ) => {
@@ -36,9 +36,9 @@ const defineEnum = <
 
 defineEnum.branded = defineBrandedEnum;
 
-type EnumOrdinal = string | number | symbol;
-export type Enum<Definition> = Definition[keyof Definition];
+type EnumsOrdinal = string | number | symbol;
+export type Enums<Definition> = Definition[keyof Definition];
 
-export const Enum = {
+export const enums = {
   define: defineEnum,
 };
