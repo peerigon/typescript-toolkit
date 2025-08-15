@@ -101,7 +101,7 @@ export namespace Async {
  * @param data - Potentially stale data from a previous result
  * @returns The pending async result
  */
-const asyncPending = <const Data>({
+const asyncPending = <const Data = undefined>({
   data,
 }: Pick<Partial<Async.Pending<Data>>, "data"> = {}): Async.Pending<Data> => {
   return Object.create(pendingPrototype, {

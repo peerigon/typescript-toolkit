@@ -5,18 +5,21 @@ import { isResult, type Result } from "../result/result.ts";
 export function unwrap<Value, GivenError extends Error>(
   maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,
 ): Value;
+export function unwrap<Value>(
+  maybeValue:
+    | Result.Success<Value>
+    | Async.Success<Value>
+    | Async.Pending<Value>,
+  fallback: unknown,
+): Value;
+export function unwrap<Value, GivenError extends Error, const Fallback>(
+  maybeValue: Result.Error<GivenError, Value>,
+  fallback: Fallback,
+): Fallback;
 export function unwrap<Value, GivenError extends Error, const Fallback>(
   maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,
   fallback: Fallback,
-): Value extends
-  | Result.Success<infer WrappedValue>
-  | Async.Pending<infer WrappedValue>
-  ? WrappedValue
-  :
-      | (Value extends Result.Error<GivenError, Value>
-          ? never
-          : NonNullable<Value>)
-      | Fallback;
+): NonNullable<Value> | Fallback;
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function unwrap<Value, GivenError extends Error, Fallback>(
   maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,

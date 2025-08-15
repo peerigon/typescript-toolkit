@@ -85,6 +85,14 @@ describe("async", () => {
       );
     });
 
+    it("infers undefined as data when no data is provided", () => {
+      const asyncPending = async.pending();
+      const inferredData: undefined = asyncPending.data;
+
+      // Dummy assertion
+      expect(inferredData).toBe(undefined);
+    });
+
     it("infers the data type as const", () => {
       const asyncPending = async.pending({ data: "some data" });
       const inferredData: "some data" = asyncPending.data;
