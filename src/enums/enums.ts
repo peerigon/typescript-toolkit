@@ -1,4 +1,4 @@
-const defineBrandedEnum = <
+const defineBrandedEnums = <
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
   const Brand extends symbol,
   const Definition extends Record<string, EnumsOrdinal | true>,
@@ -6,7 +6,7 @@ const defineBrandedEnum = <
   brand: Brand,
   definition: Definition,
 ) => {
-  const enumDefinition = Object.fromEntries(
+  const enumsDefinition = Object.fromEntries(
     Object.entries(definition).map(([key, value]) => [
       key,
       value === true ? key : value,
@@ -19,26 +19,26 @@ const defineBrandedEnum = <
     };
   };
 
-  Object.freeze(enumDefinition);
+  Object.freeze(enumsDefinition);
 
-  return enumDefinition;
+  return enumsDefinition;
 };
 
-const enumBrand = Symbol("Enum");
+const enumsBrand = Symbol("enums");
 
-const defineEnum = <
+const defineEnums = <
   const Definition extends Record<string, EnumsOrdinal | true>,
 >(
   definition: Definition,
 ) => {
-  return defineBrandedEnum(enumBrand, definition);
+  return defineBrandedEnums(enumsBrand, definition);
 };
 
-defineEnum.branded = defineBrandedEnum;
+defineEnums.branded = defineBrandedEnums;
 
 type EnumsOrdinal = string | number | symbol;
 export type Enums<Definition> = Definition[keyof Definition];
 
 export const enums = {
-  define: defineEnum,
+  define: defineEnums,
 };
