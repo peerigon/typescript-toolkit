@@ -10,7 +10,7 @@ export const assert = <Value>(
   message?: string | (() => string) | false,
 ): asserts value is NonNullable<Value> & Exclude<Value, false> => {
   if (value === undefined || value === null || value === false) {
-    throwTypeError(value, message);
+    throwTypeError(value, message, "neither null, undefined, nor false");
   }
 };
 
@@ -23,18 +23,26 @@ export const assert = <Value>(
  */
 assert.truthy = (value: unknown, message?: Message): asserts value => {
   if (!value) {
-    throwTypeError(value, message);
+    throwTypeError(value, message, "truthy value");
   }
 };
 
-type Message = string | (() => string) | false;
+type Message = string | (() => string) | false | undefined;
 
-const throwTypeError = (value: unknown, message?: Message) => {
+const throwTypeError = (
+  value: unknown,
+  message: Message,
+  expectation: string,
+) => {
   throw new TypeError(
     typeof message === "function"
       ? message()
       : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         message ||
-        `Assertion failed: expected truthy value, got ${String(value)}`,
+        `Assertion failed: expected ${expectation}, but got ${
+          // Conversion to string is necessary because JSON.stringify(undefined) returns undefined
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion
+          String(JSON.stringify(value))
+        }`,
   );
 };

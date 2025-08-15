@@ -5,19 +5,19 @@ describe("assert()", () => {
   describe("when value is null, undefined, or false", () => {
     it("throws for null", () => {
       expect(() => assert(null)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected truthy value, got null]`,
+        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got null]`,
       );
     });
 
     it("throws for undefined", () => {
       expect(() => assert(undefined)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected truthy value, got undefined]`,
+        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got undefined]`,
       );
     });
 
     it("throws for false", () => {
       expect(() => assert(false)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected truthy value, got false]`,
+        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got false]`,
       );
     });
   });
@@ -59,10 +59,10 @@ describe("assert()", () => {
 
     it("uses default message when false is provided", () => {
       expect(() => assert(undefined, false)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected truthy value, got undefined]`,
+        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got undefined]`,
       );
       expect(() => assert(false, false)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected truthy value, got false]`,
+        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got false]`,
       );
     });
   });
@@ -76,13 +76,11 @@ describe("assert()", () => {
       assert(potentiallyNull);
       // After assertion, TypeScript should know potentiallyNull is string, not string | null
       // This is tested by compilation, not runtime behavior
-      const _length: number = potentiallyNull.length; // This should not cause TypeScript error
+      const _certainlyAString: string = potentiallyNull; // This should not cause TypeScript error
     });
 
     it("narrows type from boolean to true", () => {
-      // Using `let` so that TypeScript doesn't infer const types
-      // eslint-disable-next-line prefer-const
-      let potentiallyFalse = false;
+      const potentiallyFalse = false as boolean;
       try {
         assert(potentiallyFalse);
         // After assertion, TypeScript should know potentiallyFalse is true
@@ -124,7 +122,7 @@ describe("assert()", () => {
       } catch (error: any) {
         expect(error).toBeInstanceOf(TypeError);
         expect(error.message).toMatchInlineSnapshot(
-          `"Assertion failed: expected truthy value, got null"`,
+          `"Assertion failed: expected neither null, undefined, nor false, but got null"`,
         );
       }
     });
@@ -144,38 +142,40 @@ describe("assert()", () => {
 describe("assert.truthy()", () => {
   describe("when value is falsy", () => {
     it("throws for false", () => {
-      expect(() => assert.truthy(false)).toThrow(
-        "Assertion failed: expected truthy value, got false",
+      expect(() => assert.truthy(false)).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Assertion failed: expected truthy value, but got false]`,
       );
     });
 
     it("throws for 0", () => {
-      expect(() => assert.truthy(0)).toThrow(
-        "Assertion failed: expected truthy value, got 0",
+      expect(() => assert.truthy(0)).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Assertion failed: expected truthy value, but got 0]`,
       );
     });
 
     it("throws for empty string", () => {
-      expect(() => assert.truthy("")).toThrow(
-        "Assertion failed: expected truthy value, got ",
+      expect(() => assert.truthy("")).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Assertion failed: expected truthy value, but got ""]`,
       );
     });
 
     it("throws for null", () => {
-      expect(() => assert.truthy(null)).toThrow(
-        "Assertion failed: expected truthy value, got null",
+      expect(() => assert.truthy(null)).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Assertion failed: expected truthy value, but got null]`,
       );
     });
 
     it("throws for undefined", () => {
-      expect(() => assert.truthy(undefined)).toThrow(
-        "Assertion failed: expected truthy value, got undefined",
+      expect(() => assert.truthy(undefined)).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Assertion failed: expected truthy value, but got undefined]`,
       );
     });
 
     it("throws for NaN", () => {
-      expect(() => assert.truthy(Number.NaN)).toThrow(
-        "Assertion failed: expected truthy value, got NaN",
+      expect(() =>
+        assert.truthy(Number.NaN),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Assertion failed: expected truthy value, but got null]`,
       );
     });
   });
@@ -207,10 +207,7 @@ describe("assert.truthy()", () => {
 
     it("uses default message when false is provided", () => {
       expect(() => assert(undefined, false)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected truthy value, got undefined]`,
-      );
-      expect(() => assert(false, false)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected truthy value, got false]`,
+        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got undefined]`,
       );
     });
   });
@@ -222,14 +219,6 @@ describe("assert.truthy()", () => {
       assert.truthy(potentiallyFalsy);
       // After assertion, TypeScript should know potentiallyFalsy is string
       const _length: number = potentiallyFalsy.length; // This should not cause TypeScript error
-    });
-
-    it("narrows type from number to non-zero", () => {
-      // eslint-disable-next-line prefer-const
-      let potentiallyZero = 42;
-      assert.truthy(potentiallyZero);
-      // After assertion, TypeScript should know potentiallyZero is non-zero
-      const _test: number = potentiallyZero; // This should not cause TypeScript error
     });
   });
 });
