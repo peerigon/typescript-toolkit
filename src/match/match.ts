@@ -1,3 +1,5 @@
+import { enums, type Enums } from "../enums/enums.ts";
+
 const defaultSymbol = Symbol("match.default");
 const catchSymbol = Symbol("match.catch");
 
@@ -66,3 +68,19 @@ match.catch = catchSymbol;
 type MatchCases<Value extends string | number | symbol, Result> =
   | (Record<Value, Result> & Partial<Record<typeof catchSymbol, Result>>)
   | (Record<typeof defaultSymbol, Result> & Partial<Record<Value, Result>>);
+
+const Direction = enums.define({
+  North: true,
+  South: true,
+  East: true,
+  West: true,
+});
+type Direction = Enums<typeof Direction>;
+
+// TODO: Should show error
+const _cases: Record<Direction, string> = {
+  [Direction.North]: "up",
+  [Direction.South]: "down",
+  // [Direction.East]: "right",
+  [Direction.West]: "left",
+};
