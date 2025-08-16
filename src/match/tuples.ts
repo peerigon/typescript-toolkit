@@ -1,3 +1,4 @@
+/* eslint-disable func-style */
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
 
 import { enums, type Enums } from "../enums/enums.ts";
@@ -7,31 +8,43 @@ import { need } from "./../need/need";
 const defaultSymbol = Symbol("match.default");
 const catchSymbol = Symbol("match.catch");
 
-const match = <const Value>(value: Value) => {
+function match<const Value extends PropertyKey>(
+  value: NotBranded<Value>,
+): {
+  case: <const Result>(cases: CasesAsRecord<Value, Result>) => Result;
+};
+function match<const Value>(value: Value): {
+  case: {
+    <const Result>(
+      cases: CasesAsTuples<
+        readonly [Value, Result],
+        readonly [typeof defaultSymbol, Result]
+      >,
+    ): Result;
+    <
+      const Result,
+      const Cases extends CasesAsTuples<
+        readonly [Value, Result],
+        readonly [typeof catchSymbol | Value, Result]
+      >,
+    >(
+      cases: If<
+        IsExact<
+          Exclude<ExtractValueFromCases<Cases>, typeof catchSymbol>,
+          Value
+        >,
+        {
+          then: Cases;
+          else: never;
+        }
+      >,
+    ): Result;
+  };
+};
+function match<const Value>(value: Value): any {
   function _case<const Result>(
-    cases: CasesAsTuples<
-      readonly [Value, Result],
-      readonly [typeof defaultSymbol, Result]
-    >,
-  ): Result;
-  function _case<
-    const Result,
-    const Cases extends CasesAsTuples<
-      readonly [Value, Result],
-      readonly [typeof catchSymbol | Value, Result]
-    >,
-  >(
-    cases: If<
-      IsExact<Exclude<ExtractValueFromCases<Cases>, typeof catchSymbol>, Value>,
-      { then: Cases; else: never }
-    >,
-  ): Result;
-  // function _case<const Value extends RecordKey, const Result>(
-  //   cases: CasesAsRecord<Value, Result>,
-  // ): Result;
-  function _case<const Value, const Result>(
     cases:
-      | (Value extends RecordKey ? CasesAsRecord<Value, Result> : never)
+      | CasesAsRecord<Value & PropertyKey, Result>
       | CasesAsTuples<
           readonly [Value, Result],
           readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
@@ -96,7 +109,7 @@ const match = <const Value>(value: Value) => {
   return {
     case: _case,
   };
-};
+}
 
 const throwNoMatch = (value: unknown, possibleValues: Array<unknown>) => {
   throw new Error(
@@ -128,6 +141,8 @@ type IsExact<Type1, Type2> = [Type1] extends [Type2]
     : false
   : false;
 
+type NotBranded<Type> = Type extends Record<symbol, any> ? never : Type;
+
 type ExtractValueFromCases<GivenCases extends CasesAsTuples> =
   GivenCases[number][0];
 
@@ -145,52 +160,11 @@ _result = match(value).case({
   b: false,
 });
 
-_result = match(value).case({
-  a: true,
-});
-
-_result = match(value).case([
-  ["a", true],
-  ["b", false],
-]);
-
 _result = match(value).case(
-  // @ts-expect-error Should show a type error here because not all
-  [
-    // ["a", true],
-    ["b", false],
-  ],
-);
-
-_result = match(value).case([
-  ["b", false],
-  [defaultSymbol, true],
-]);
-
-_result = match(value).case([[defaultSymbol, true]]);
-
-_result = match(value).case(
-  // @ts-expect-error Should show a type error here because there must be at least one default case
-  [],
-);
-
-_result = match(value).case([
-  ["a", true],
-  ["b", false],
-  [catchSymbol, false],
-]);
-
-_result = match(value).case(
-  // @ts-expect-error Should show a type error here because catch doesn't free us from implementing all cases
-  [
-    ["a", true],
-    [catchSymbol, false],
-  ],
-);
-
-_result = match(value).case(
-  // @ts-expect-error Should show a type error here because catch doesn't free us from implementing all cases
-  [[catchSymbol, false]],
+  // @ts-expect-error Should show a type error here because not all cases are covered
+  {
+    a: true,
+  },
 );
 
 const Direction = enums.define({
@@ -200,10 +174,69 @@ const Direction = enums.define({
   Right: "right",
 });
 type Direction = Enums<typeof Direction>;
-
 const direction = Direction.Up as Direction;
-
 let _directionResult: string;
+
+_directionResult = match(direction).case([
+  [Direction.Up, "up"],
+  [Direction.Down, "down"],
+  [Direction.Left, "left"],
+  [Direction.Right, "right"],
+]);
+
+_result = match(value).case(
+  // @ts-expect-error Should show a type error here because not all cases are covered
+  [
+    // ["a", true],
+    ["b", false],
+  ],
+);
+
+_result = match(value).case(
+  // @ts-expect-error Should show a type error here because the record notation should be used instead of tuples
+  [
+    ["b", false],
+    [defaultSymbol, true],
+  ],
+);
+
+_result = match(value).case({
+  b: false,
+  [defaultSymbol]: true,
+});
+
+_result = match(value).case(
+  // @ts-expect-error Should show a type error here because there must be at least one default case
+  [],
+);
+
+_result = match(value).case(
+  // @ts-expect-error Should show a type error here because the record notation should be used instead of tuples
+  [
+    ["a", true],
+    ["b", false],
+    [catchSymbol, false],
+  ],
+);
+
+_result = match(value).case({
+  a: true,
+  b: false,
+  [catchSymbol]: false,
+});
+
+_result = match(value).case(
+  // @ts-expect-error Should show a type error here because catch doesn't free us from implementing all cases
+  {
+    a: true,
+    [catchSymbol]: false,
+  },
+);
+
+_result = match(value).case({
+  // @ts-expect-error Should show a type error here because catch doesn't free us from implementing all cases
+  [catchSymbol]: false,
+});
 
 const _casesAsConst = [
   ["a", true],
