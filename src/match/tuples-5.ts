@@ -1,5 +1,5 @@
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
-
+/* eslint-disable func-style */
 import { enums, type Enums } from "../enums/enums.ts";
 import { stringify } from "../lib/string.ts";
 import { need } from "./../need/need";
@@ -8,34 +8,13 @@ const defaultSymbol = Symbol("match.default");
 const catchSymbol = Symbol("match.catch");
 
 const match = <const Value>(value: Value) => {
-  function _case<const Result>(
-    cases: Cases<
-      readonly [Value, Result],
-      readonly [typeof defaultSymbol, Result]
-    >,
-  ): Result;
   function _case<
     const Result,
-    const GivenCases extends Cases<
+    const Cases extends readonly [
+      ...ReadonlyArray<readonly [Value, Result]>,
       readonly [Value, Result],
-      readonly [typeof catchSymbol | Value, Result]
-    >,
-  >(
-    cases: If<
-      IsExact<
-        Exclude<ExtractValueFromCases<GivenCases>, typeof catchSymbol>,
-        Value
-      >,
-      GivenCases,
-      never
-    >,
-  ): Result;
-  function _case<const Value, const Result>(
-    cases: Cases<
-      readonly [Value, Result],
-      readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
-    >,
-  ): Result {
+    ],
+  >(cases: AssertIsExact<ExtractValueFromCases<Cases>, Value, Cases>): Result {
     for (let i = 0; i < cases.length - 1; i++) {
       const [valueInCase, resultInCase] = cases[i]!;
 
@@ -66,20 +45,18 @@ const match = <const Value>(value: Value) => {
 
 type ValueOf<GivenRecord> = GivenRecord[keyof GivenRecord];
 
-type Cases<
-  Tuple extends readonly [any, any] = readonly [any, any],
-  LastTuple extends readonly [any, any] = Tuple,
-> = readonly [...ReadonlyArray<Tuple>, LastTuple];
-
-type If<ValueToTest, Then, Else> = ValueToTest extends true ? Then : Else;
-
-type IsExact<Type1, Type2> = [Type1] extends [Type2]
+type AssertIsExact<Type1, Type2, Type3> = [Type1] extends [Type2]
   ? [Type2] extends [Type1]
-    ? true
-    : false
-  : false;
+    ? Type3
+    : never
+  : never;
 
-type ExtractValueFromCases<GivenCases extends Cases> = GivenCases[number][0];
+type ExtractValueFromCases<
+  Cases extends readonly [
+    ...ReadonlyArray<readonly [any, any]>,
+    readonly [any, any],
+  ],
+> = Cases[number][0];
 
 const _Example1 = {
   A: "a",
@@ -146,15 +123,19 @@ const direction = Direction.Up as Direction;
 
 let _directionResult: string;
 
-const _casesAsConst = [
-  ["a", true],
-  ["b", false],
-  [catchSymbol, false],
+type DirectionUnion =
+  | typeof Direction.Up
+  | typeof Direction.Down
+  | typeof Direction.Left
+  | typeof Direction.Right;
+
+const casesAsConst = [
+  [Direction.Up, "up"],
+  [Direction.Down, "down"],
+  [Direction.Left, "left"],
+  [Direction.Right, "right"],
 ] as const;
-type _CasesAsConst = Exclude<
-  ExtractValueFromCases<typeof _casesAsConst>,
-  typeof catchSymbol
->;
+type _CasesAsConst = ExtractValueFromCases<typeof casesAsConst>;
 type _Overload = [...Array<[Direction, string]>, [Direction, string]];
 
 const _directionTest: _Overload = [
@@ -166,17 +147,7 @@ const _directionTest: _Overload = [
 
 _directionResult = match(direction).case([
   [Direction.Up, "up"],
-  [Direction.Down, "down"],
+  // [Direction.Down, "down"],
   [Direction.Left, "left"],
   [Direction.Right, "right"],
 ]);
-
-_directionResult = match(direction).case(
-  // @ts-expect-error Should show a type error here because not all enum cases are covered
-  [
-    [Direction.Up, "up"],
-    // [Direction.Down, "down"],
-    [Direction.Left, "left"],
-    [Direction.Right, "right"],
-  ],
-);
