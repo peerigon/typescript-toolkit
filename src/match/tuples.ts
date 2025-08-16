@@ -9,29 +9,25 @@ const catchSymbol = Symbol("match.catch");
 
 const match = <const Value>(value: Value) => {
   function _case<const Result>(
-    cases: Cases<
+    cases: CasesAsTuples<
       readonly [Value, Result],
       readonly [typeof defaultSymbol, Result]
     >,
   ): Result;
   function _case<
     const Result,
-    const GivenCases extends Cases<
+    const Cases extends CasesAsTuples<
       readonly [Value, Result],
       readonly [typeof catchSymbol | Value, Result]
     >,
   >(
     cases: If<
-      IsExact<
-        Exclude<ExtractValueFromCases<GivenCases>, typeof catchSymbol>,
-        Value
-      >,
-      GivenCases,
-      never
+      IsExact<Exclude<ExtractValueFromCases<Cases>, typeof catchSymbol>, Value>,
+      { then: Cases; else: never }
     >,
   ): Result;
   function _case<const Value, const Result>(
-    cases: Cases<
+    cases: CasesAsTuples<
       readonly [Value, Result],
       readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
     >,
@@ -66,12 +62,15 @@ const match = <const Value>(value: Value) => {
 
 type ValueOf<GivenRecord> = GivenRecord[keyof GivenRecord];
 
-type Cases<
+type CasesAsTuples<
   Tuple extends readonly [any, any] = readonly [any, any],
   LastTuple extends readonly [any, any] = Tuple,
 > = readonly [...ReadonlyArray<Tuple>, LastTuple];
 
-type If<ValueToTest, Then, Else> = ValueToTest extends true ? Then : Else;
+type If<
+  ValueToTest,
+  Body extends { then: any; else: any },
+> = ValueToTest extends true ? Body["then"] : Body["else"];
 
 type IsExact<Type1, Type2> = [Type1] extends [Type2]
   ? [Type2] extends [Type1]
@@ -79,7 +78,8 @@ type IsExact<Type1, Type2> = [Type1] extends [Type2]
     : false
   : false;
 
-type ExtractValueFromCases<GivenCases extends Cases> = GivenCases[number][0];
+type ExtractValueFromCases<GivenCases extends CasesAsTuples> =
+  GivenCases[number][0];
 
 const _Example1 = {
   A: "a",
@@ -89,6 +89,11 @@ const _Example1 = {
 const value = "a" as ValueOf<typeof _Example1>;
 
 let _result: boolean;
+
+_result = match(value).case({
+  a: true,
+  b: false,
+});
 
 _result = match(value).case([
   ["a", true],
