@@ -26,33 +26,71 @@ const match = <const Value>(value: Value) => {
       { then: Cases; else: never }
     >,
   ): Result;
+  // function _case<const Value extends RecordKey, const Result>(
+  //   cases: CasesAsRecord<Value, Result>,
+  // ): Result;
   function _case<const Value, const Result>(
-    cases: CasesAsTuples<
-      readonly [Value, Result],
-      readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
-    >,
+    cases:
+      | (Value extends RecordKey ? CasesAsRecord<Value, Result> : never)
+      | CasesAsTuples<
+          readonly [Value, Result],
+          readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
+        >,
   ): Result {
-    for (let i = 0; i < cases.length - 1; i++) {
-      const [valueInCase, resultInCase] = cases[i]!;
+    if (Array.isArray(cases)) {
+      const casesAsTuples = cases as CasesAsTuples<
+        readonly [Value, Result],
+        readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
+      >;
 
-      if (value === valueInCase) {
-        return resultInCase;
+      for (let i = 0; i < casesAsTuples.length - 1; i++) {
+        const [valueInCase, resultInCase] = casesAsTuples[i]!;
+
+        if (value === valueInCase) {
+          return resultInCase;
+        }
       }
-    }
 
-    const [valueInLastCase, resultInLastCase] = need(cases.at(-1));
+      const [valueInLastCase, resultInLastCase] = need(casesAsTuples.at(-1));
 
-    if (
-      value === valueInLastCase ||
-      valueInLastCase === defaultSymbol ||
-      valueInLastCase === catchSymbol
+      if (
+        value === valueInLastCase ||
+        valueInLastCase === defaultSymbol ||
+        valueInLastCase === catchSymbol
+      ) {
+        return resultInLastCase;
+      }
+
+      throwNoMatch(
+        value,
+        casesAsTuples.map(([value]) => value),
+      );
+    } else if (
+      (typeof value === "string" ||
+        typeof value === "number" ||
+        typeof value === "symbol") &&
+      typeof cases === "object" &&
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      cases !== null
     ) {
-      return resultInLastCase;
+      const casesAsRecord = cases as CasesAsRecord<PropertyKey, Result>;
+
+      if (value in casesAsRecord) {
+        return casesAsRecord[value];
+      }
+
+      if (defaultSymbol in casesAsRecord) {
+        return casesAsRecord[defaultSymbol]!;
+      }
+
+      if (catchSymbol in casesAsRecord) {
+        return casesAsRecord[catchSymbol]!;
+      }
+
+      throwNoMatch(value, Object.keys(casesAsRecord));
     }
 
-    throw new Error(
-      `No match found for ${stringify(value)}. Expected one of: ${cases.map(([value]) => stringify(value)).join(", ")}`,
-    );
+    throw new TypeError("Unexpected value or cases type");
   }
 
   return {
@@ -60,7 +98,19 @@ const match = <const Value>(value: Value) => {
   };
 };
 
+const throwNoMatch = (value: unknown, possibleValues: Array<unknown>) => {
+  throw new Error(
+    `No match found for ${stringify(value)}. Expected one of: ${possibleValues.map((possibleValue) => stringify(possibleValue)).join(", ")}`,
+  );
+};
+
 type ValueOf<GivenRecord> = GivenRecord[keyof GivenRecord];
+
+type RecordKey = string | number | symbol;
+
+type CasesAsRecord<Value extends RecordKey, Result> =
+  | (Record<Value, Result> & Partial<Record<typeof catchSymbol, Result>>)
+  | (Record<typeof defaultSymbol, Result> & Partial<Record<Value, Result>>);
 
 type CasesAsTuples<
   Tuple extends readonly [any, any] = readonly [any, any],
@@ -93,6 +143,10 @@ let _result: boolean;
 _result = match(value).case({
   a: true,
   b: false,
+});
+
+_result = match(value).case({
+  a: true,
 });
 
 _result = match(value).case([
