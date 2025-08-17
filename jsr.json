@@ -3,7 +3,15 @@
   "version": "0.0.0-semantically-released",
   "license": "MIT",
   "exports": {
-    "./match": "./src/match/match.ts"
+    "./assert": "./src/assert/assert.ts",
+    "./async": "./src/async/async.ts",
+    "./dedupe": "./src/dedupe/dedupe.ts",
+    "./enums": "./src/enums/enums.ts",
+    "./match": "./src/match/match.ts",
+    "./need": "./src/need/need.ts",
+    "./reject": "./src/reject/reject.ts",
+    "./result": "./src/result/result.ts",
+    "./unwrap": "./src/unwrap/unwrap.ts"
   },
   "publish": {
     "include": ["src", "CHANGELOG.md", "README.md"],
