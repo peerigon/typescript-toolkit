@@ -1,16 +1,22 @@
+import { getErrorMessage, type ErrorMessage } from "../lib/error-message.ts";
+import { simpleStringify } from "../lib/string.ts";
+
 /**
  * Asserts that a given `value` is not `null`, `undefined`, or `false`,
  * and narrows its type.
  *
  * Unlike regular truthiness checks, `assert` only rejects `null`, `undefined`,
  * and `false` while allowing other falsy values like `0`, `""`, and `NaN` to pass through.
+ *
+ * @param value - The value that shouldn't be `null`, `undefined`, or `false`.
+ * @param errorMessage - The error message to throw if the value is `null`, `undefined`, or `false`.
  */
 export const assert = <Value>(
   value: Value,
-  message?: string | (() => string) | false,
+  errorMessage?: ErrorMessage,
 ): asserts value is NonNullable<Value> & Exclude<Value, false> => {
   if (value === undefined || value === null || value === false) {
-    throwTypeError(value, message, "neither null, undefined, nor false");
+    throwTypeError(value, errorMessage, "neither null, undefined, nor false");
   }
 };
 
@@ -20,29 +26,29 @@ export const assert = <Value>(
  *
  * This function performs a standard truthiness check, rejecting
  * all falsy values: `false`, `0`, `-0`, `0n`, `""`, `null`, `undefined`, and `NaN`.
+ *
+ * @param value - The value to assert the truthy check on.
+ * @param errorMessage - The error message to throw if the value is falsy.
  */
-assert.truthy = (value: unknown, message?: Message): asserts value => {
+assert.truthy = (
+  value: unknown,
+  errorMessage?: ErrorMessage,
+): asserts value => {
   if (!value) {
-    throwTypeError(value, message, "truthy value");
+    throwTypeError(value, errorMessage, "truthy value");
   }
 };
 
-type Message = string | (() => string) | false | undefined;
-
 const throwTypeError = (
   value: unknown,
-  message: Message,
+  errorMessage: ErrorMessage,
   expectation: string,
 ) => {
   throw new TypeError(
-    typeof message === "function"
-      ? message()
-      : // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        message ||
-        `Assertion failed: expected ${expectation}, but got ${
-          // Conversion to string is necessary because JSON.stringify(undefined) returns undefined
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion
-          String(JSON.stringify(value))
-        }`,
+    getErrorMessage(
+      errorMessage,
+      () =>
+        `Assertion failed: expected ${expectation}, but got ${simpleStringify(value)}`,
+    ),
   );
 };

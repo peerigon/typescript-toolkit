@@ -1,5 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { stringify } from "./string.ts";
+import { simpleStringify, stringify } from "./string.ts";
+
+describe("simpleStringify()", () => {
+  it("stringifies primitive values", () => {
+    expect(simpleStringify(true)).toBe(`true`);
+    expect(simpleStringify(false)).toBe(`false`);
+    expect(simpleStringify(null)).toBe(`null`);
+    expect(simpleStringify(undefined)).toBe(`undefined`);
+    expect(simpleStringify(42)).toBe(`42`);
+    expect(simpleStringify(Number.NaN)).toBe(`NaN`);
+    expect(simpleStringify(Infinity)).toBe(`Infinity`);
+    expect(simpleStringify(-Infinity)).toBe(`-Infinity`);
+    expect(simpleStringify(Symbol("test"))).toBe(`Symbol(test)`);
+    expect(simpleStringify("hello")).toBe(`"hello"`);
+    expect(simpleStringify(BigInt(123))).toBe(`123`);
+  });
+
+  it("stringifies complex objects", () => {
+    expect(simpleStringify({ name: "John", age: 30 }))
+      // Yes, [object Object] is expected here because we are using String(value)
+      .toMatchInlineSnapshot(`"[object Object]"`);
+    expect(simpleStringify([1, 2, 3])).toMatchInlineSnapshot(`"1,2,3"`);
+  });
+});
 
 describe("stringify()", () => {
   describe("basic functionality", () => {

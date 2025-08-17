@@ -1,9 +1,17 @@
+import { getErrorMessage, type ErrorMessage } from "../lib/error-message.ts";
+import { simpleStringify } from "../lib/string.ts";
+
 export const need = <Value>(
   value: Value,
-  message = `Expected value to be defined, but got ${value}`,
+  errorMessage?: ErrorMessage,
 ): NonNullable<Value> => {
   if (value === undefined || value === null) {
-    throw new TypeError(message);
+    throw new TypeError(
+      getErrorMessage(
+        errorMessage,
+        () => `Expected value to be defined, but got ${simpleStringify(value)}`,
+      ),
+    );
   }
   return value;
 };

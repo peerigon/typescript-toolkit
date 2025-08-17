@@ -54,6 +54,13 @@ describe("need()", () => {
       );
     });
 
+    // This catches errors when the value is stringified for the default error message
+    // In a previous implementation, we were interpolating `${value}` which would throw
+    // an error if the value is not stringifyable.
+    it("handles values well that are not stringifyable", () => {
+      expect(() => need(Symbol("test"))).not.toThrow();
+    });
+
     it("includes the actual value in default error message for undefined", () => {
       expect(() => need(undefined)).toThrow(
         "Expected value to be defined, but got undefined",

@@ -175,7 +175,7 @@ describe("assert.truthy()", () => {
       expect(() =>
         assert.truthy(Number.NaN),
       ).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected truthy value, but got null]`,
+        `[TypeError: Assertion failed: expected truthy value, but got NaN]`,
       );
     });
   });

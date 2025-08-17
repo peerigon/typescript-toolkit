@@ -1,4 +1,17 @@
 /**
+ * Stringify a value to a string using String(value).
+ *
+ * @param value - The value to stringify.
+ * @returns The stringified value.
+ */
+export const simpleStringify = (value: unknown): string => {
+  if (typeof value === "string") {
+    return `"${value}"`;
+  }
+  return String(value);
+};
+
+/**
  * Stringify a value to a string using JSON.stringify.
  * Fallback to String(value) if JSON.stringify fails.
  *
@@ -28,7 +41,7 @@ export const stringify = (
 
   // Empty string should also use String(value)
   // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-  stringified ||= String(value);
+  stringified ||= simpleStringify(value);
 
   return limit === 0
     ? ""
