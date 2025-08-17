@@ -39,7 +39,7 @@ Current utilities include:
 - `assert` - Type assertion helpers
 - `result` - Result type for error handling
 - `async` - Async utilities
-- `raise` - Error throwing utilities
+- `reject` - Error throwing utilities
 - `need` - Required value utilities
 - `unwrap` - Unwrapping utilities
 - `enums` - Enum utilities

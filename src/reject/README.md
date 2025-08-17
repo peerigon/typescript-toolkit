@@ -1,4 +1,4 @@
-## `raise(error)`
+## `reject(error)`
 
 ✅ Zero dependencies
 
@@ -7,11 +7,10 @@ Returns a function that throws the given error.
 ### Usage
 
 ```ts
-import { raise } from "@peerigon/fractals-typescript/raise";
+import { reject } from "@peerigon/fractals-typescript/reject";
 
 // Create a function that throws a copy of an existing error
-const error = new Error("Something went wrong");
-const throwError = raise(error);
+const throwError = reject(new Error("Something went wrong"));
 
 // When called, throws a copy of the original error with correct stack trace
 throwError(); // Error: Something went wrong
@@ -22,7 +21,7 @@ throwError(); // Error: Something went wrong
 You can also pass a function that creates a new error instance:
 
 ```ts
-const throwError = raise(() => new Error("Custom error message"));
+const throwError = reject(() => new Error("Custom error message"));
 ```
 
 ### API Reference
@@ -39,10 +38,10 @@ The returned function uses `Error.captureStackTrace()` to ensure that the stack 
 
 ```ts
 const error = new Error("test");
-const throwError = raise(error);
+const throwError = reject(error);
 
 function someFunction() {
-  throwError(); // Stack trace will show this line, not the raise() call
+  throwError(); // Stack trace will show this line, not the reject() call
 }
 
 someFunction();

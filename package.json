@@ -16,7 +16,8 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    "./match": "./dist/match/match.js"
+    "./match": "./dist/match/match.js",
+    "./reject": "./dist/reject/reject.js"
   },
   "files": [
     "dist",

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { raise } from "./raise.ts";
+import { reject } from "./reject.ts";
 
-describe("raise()", () => {
+describe("reject()", () => {
   class CustomError extends Error {
     override readonly name = "CustomError";
     constructor() {
@@ -11,7 +11,7 @@ describe("raise()", () => {
 
   it("returns a function that throws a copy of the error", () => {
     const error = new Error("test");
-    const fn = raise(error);
+    const fn = reject(error);
     const caughtError = catchError(fn);
 
     expect(propertiesOf(caughtError)).toMatchObject(propertiesOf(error));
@@ -19,14 +19,14 @@ describe("raise()", () => {
   });
 
   it("supports passing a function as error constructor", () => {
-    const fn = raise(() => new CustomError());
+    const fn = reject(() => new CustomError());
     const caughtError = catchError(fn);
     expect(caughtError).toBeInstanceOf(CustomError);
   });
 
   it("provides the correct error stack when the error is passed as an object", () => {
     const error = new CustomError();
-    const fn = raise(error);
+    const fn = reject(error);
     const { stack } = catchError(fn);
 
     // Should contain the error.name and error.message
@@ -39,7 +39,7 @@ describe("raise()", () => {
 
   it("provides the correct error stack when the error is passed as a function", () => {
     const bla = () => new CustomError();
-    const fn = raise(bla);
+    const fn = reject(bla);
     const { stack } = catchError(fn);
 
     // Should contain the error.name and error.message

@@ -4,7 +4,7 @@
  * You can also pass a function that returns a new error object.
  * In that case no copy is made.
  */
-export const raise = (error: Error | (() => Error)) => {
+export const reject = (error: Error | (() => Error)) => {
   const createError =
     typeof error === "function" ? error : () => Object.create(error) as Error;
 

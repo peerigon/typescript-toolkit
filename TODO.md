@@ -1,9 +1,5 @@
-- Rename Result/Async error() -> failure()
-- Rename raise() -> fail()
-- Test and document passing a mixed type to match() (2 Enums, with undefined)
-- Finish unwrap
-- Add use-case docs for raise()
 - Defining errors with code / captureStackTrace
 - Match for error codes
 - Implement async.case
+- Add missing documentation
 - Use `interface` instead of `type`?
