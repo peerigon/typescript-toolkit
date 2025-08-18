@@ -1,6 +1,4 @@
-## `dedupe(array)`
-
-✅ Zero dependencies
+## `dedupe`
 
 Remove duplicate values from an array using JavaScript's native `Set` for efficient deduplication. Preserves the order of first occurrence for each unique value.
 

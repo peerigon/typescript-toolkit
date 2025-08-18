@@ -1,6 +1,4 @@
-## `assert(value, message?)`
-
-✅ Zero dependencies
+## `assert`
 
 Assert that a given `value` is not `null`, `undefined`, or `false`, and narrow its type. This function provides both runtime validation and TypeScript type narrowing.
 

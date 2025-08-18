@@ -1,6 +1,4 @@
-## `reject(error)`
-
-✅ Zero dependencies
+## `reject`
 
 Returns a function that throws the given error.
 

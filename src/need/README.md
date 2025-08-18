@@ -1,6 +1,4 @@
-## `need(value, message?)`
-
-✅ Zero dependencies
+## `need`
 
 Assert that the given `value` is not `null` or `undefined` and return it with a narrowed type.
 
