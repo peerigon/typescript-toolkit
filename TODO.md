@@ -1,5 +1,11 @@
+- Enum complex values
+- Enum reflection
+- unwrap with Result/Async should throw error of that result
 - Defining errors with code / captureStackTrace
 - Match for error codes
-- Implement async.case
+- Check for useQuery compatibility
+- Implement result.case (adjust docs "Pattern matching with status")
+- Implement async.case (adjust docs "Pattern matching with status")
 - Add missing documentation
+- Badge with kb for each export?
 - Use `interface` instead of `type`?

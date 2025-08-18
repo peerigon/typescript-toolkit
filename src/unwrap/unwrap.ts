@@ -2,6 +2,31 @@ import { isAsync, type Async } from "../async/async.ts";
 import { stringify } from "../lib/string.ts";
 import { isResult, type Result } from "../result/result.ts";
 
+/**
+ * Unwrap a value from Result, Async, or nullable types, returning the underlying value or throwing an error.
+ *
+ * This function safely extracts values from wrapped types like Result and Async,
+ * handling null/undefined values and providing fallback mechanisms.
+ *
+ * @param maybeValue - The value to unwrap (can be a plain value, Result, or Async)
+ * @param fallback - Optional fallback value to return instead of throwing
+ * @returns The unwrapped value or fallback
+ * @throws {TypeError} When the value cannot be unwrapped and no fallback is provided
+ *
+ * @example
+ * ```ts
+ * // Basic unwrapping
+ * const value = unwrap("hello"); // "hello"
+ * const nullValue = unwrap(null, "default"); // "default"
+ *
+ * // With Result types
+ * const success = result.success({ data: "success" });
+ * const data = unwrap(success); // "success"
+ *
+ * const error = result.error({ error: new Error("failed") });
+ * const fallback = unwrap(error, "default"); // "default"
+ * ```
+ */
 export function unwrap<Value, GivenError extends Error>(
   maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,
 ): Value;
