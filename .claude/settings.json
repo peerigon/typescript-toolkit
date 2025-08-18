@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run test:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm test)",
+      "mcp__typescript-lsp__*",
+      "mcp__vitest-server__*"
+    ],
+    "deny": []
+  },
+  "enabledMcpjsonServers": ["vitest-server", "typescript-lsp"]
+}
