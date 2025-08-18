@@ -9,37 +9,27 @@ Assert that the given `value` is not `null` or `undefined` and return it with a 
 ```ts
 import { need } from "@peerigon/fractals-typescript/need";
 
-// Basic usage - throws if value is null or undefined
 const userName: string | undefined = getUserName();
-const safeUserName: string = need(userName); // Type is now string, not string | undefined
+
+// Call need() to remove undefined | null from the type
+// Throws a TypeError at runtime if the value is null or undefined.
+const safeUserName: string = need(userName);
 
 // With custom error message
 const safeConfig = need(config, "Configuration is required but not found");
 
-// Working with optional properties
-type User = {
-  id: string;
-  email?: string;
-};
-
-const user: User = getUser();
-const email: string = need(
-  user.email,
-  "User email is required for this operation",
+// Custom error message can also be a function that will
+// only be evaluated when the error is thrown
+const safeConfig = need(
+  config,
+  () => "This is an expensive message to generate",
 );
-```
 
-### Error Handling
-
-The function throws a `TypeError` when the value is `null` or `undefined`:
-
-```ts
-// Default error messages
-need(null); // TypeError: Expected value to be defined, but got null
-need(undefined); // TypeError: Expected value to be defined, but got undefined
-
-// Custom error message
-need(null, "Value cannot be empty"); // TypeError: Value cannot be empty
+// Custom error messages just for the development build (using Vite's import.meta.env.DEV)
+const safeConfig = need(
+  config,
+  import.meta.env.DEV && "Minifiers will remove this message for prod",
+);
 ```
 
 ### API Reference
@@ -56,17 +46,3 @@ need(null, "Value cannot be empty"); // TypeError: Value cannot be empty
 **Returns**: `NonNullable<Value>` - The same value with `null` and `undefined` removed from the type.
 
 **Throws**: `TypeError` if the value is `null` or `undefined`.
-
-### ⚠️ When to Use
-
-Use `need()` when:
-
-- You expect a value to be defined but the type system can't guarantee it
-- You want to fail fast with a clear error message when required data is missing
-- You need to narrow types from nullable to non-nullable
-- You're working with external APIs that might return nullable values
-
-**Don't use `need()` when**:
-
-- You can handle the null/undefined case gracefully with conditional logic
-- The nullable state is part of normal program flow (use optional chaining or conditional checks instead)
