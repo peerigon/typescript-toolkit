@@ -1,8 +1,8 @@
 ## `result`
 
-Type-safe error handling using the [`Result` pattern](https://imhoff.blog/posts/using-results-in-typescript), eliminating the need for try-catch blocks. Results can be either successful (with `data`) or failed (with an `error`), making error states explicit in the type system.
+Type-safe error handling using the [`Result` pattern](https://imhoff.blog/posts/using-results-in-typescript), eliminating the need for try-catch blocks.
 
-A key feature of this implementation is its compatibility with [tanstack query](https://tanstack.com/query). The return type of `useQuery` is compatible with `Result`, allowing you to use the result pattern seamlessly in your React applications (or other frontend frameworks that can work with tanstack query).
+Results can be either successful (with `data`) or failed (with an `error`), making error states explicit in the type system. For async results that can have a pending state, take a look at [`async`](../async/README.md).
 
 ### Usage
 
@@ -78,7 +78,7 @@ if (fetchUserResult.isSuccess) {
 ```ts
 import { match } from "@peerigon/fractals-typescript/match";
 
-function handleResult<T>(result: Result<T>) {
+function handleResult<Data>(result: Result<Data>) {
   return match(result.status).case({
     success: () => `Data: ${result.data}`,
     error: () => `Error: ${result.error.message}`,

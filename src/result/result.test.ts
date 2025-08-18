@@ -242,6 +242,18 @@ describe("result", () => {
       expect(fnResult.error!.message).toBe(errorMessage);
     });
 
+    it("even catches synchronously thrown errors", async () => {
+      const fn = () => {
+        throw new Error("Synchronous error");
+      };
+
+      const fnResult = await result.fromAsync(fn);
+
+      expect(fnResult.isError).toBe(true);
+      expect(fnResult.error).toBeInstanceOf(Error);
+      expect(fnResult.error!.message).toBe("Synchronous error");
+    });
+
     it("rethrows when async function rejects with non-Error values", async () => {
       const fn = async (thing: any) => {
         throw thing;
