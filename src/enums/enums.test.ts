@@ -62,7 +62,7 @@ describe("enums", () => {
       });
     });
 
-    it("supports mixed ordinal types", () => {
+    it("supports primitive values", () => {
       const MixedEnum = enums.define({
         StringValue: true,
         NumberValue: 42,
@@ -82,6 +82,38 @@ describe("enums", () => {
       processMixed("StringValue");
       // @ts-expect-error - Cannot mix values from the enum
       processMixed(42);
+    });
+
+    it("supports complex values like objects, arrays, and functions", () => {
+      const configObject = { name: "config", value: 123 } as const;
+      const dataArray = [1, 2, 3] as const;
+      const handlerFunction = () => "handler";
+
+      const ComplexEnum = enums.define({
+        Object: configObject,
+        Array: dataArray,
+        Function: handlerFunction,
+      });
+      type ComplexEnum = Enums<typeof ComplexEnum>;
+
+      expect(ComplexEnum.Object).toBe(configObject);
+      expect(ComplexEnum.Array).toBe(dataArray);
+      expect(ComplexEnum.Function).toBe(handlerFunction);
+
+      let _complexEnum: ComplexEnum;
+
+      // Should work because we're accessing the value as branded enum
+      _complexEnum = ComplexEnum.Object;
+      _complexEnum = ComplexEnum.Array;
+      _complexEnum = ComplexEnum.Function;
+
+      // Should show a type error because we're accessing the value as a plain object
+      // @ts-expect-error - Cannot use direct reference
+      _complexEnum = configObject;
+      // @ts-expect-error - Cannot use direct reference
+      _complexEnum = dataArray;
+      // @ts-expect-error - Cannot use direct reference
+      _complexEnum = handlerFunction;
     });
   });
 

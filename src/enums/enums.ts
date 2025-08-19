@@ -1,7 +1,6 @@
 const defineBrandedEnums = <
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
   const Brand extends symbol,
-  const Definition extends Record<string, EnumsOrdinal | true>,
+  const Definition extends Record<string, unknown>,
 >(
   brand: Brand,
   definition: Definition,
@@ -15,7 +14,7 @@ const defineBrandedEnums = <
     [Key in keyof Definition]: (Definition[Key] extends true
       ? Key
       : Definition[Key]) & {
-      readonly [brand]: Brand;
+      readonly brand: Brand;
     };
   };
 
@@ -26,17 +25,13 @@ const defineBrandedEnums = <
 
 const enumsBrand = Symbol("enums");
 
-const defineEnums = <
-  const Definition extends Record<string, EnumsOrdinal | true>,
->(
+const defineEnums = <const Definition extends Record<string, unknown>>(
   definition: Definition,
 ) => {
   return defineBrandedEnums(enumsBrand, definition);
 };
 
 defineEnums.branded = defineBrandedEnums;
-
-type EnumsOrdinal = string | number | symbol;
 
 /**
  * Extract the union type of all enum values from an enum definition.

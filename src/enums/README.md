@@ -54,6 +54,35 @@ console.log(Status.Inactive); // 0
 console.log(Status.Unknown); // Symbol(unknown)
 ```
 
+#### Complex enum values
+
+Enums can also use complex values like objects, arrays, and functions:
+
+```ts
+const configObject = { name: "config", value: 123 };
+const dataArray = [1, 2, 3];
+const handlerFunction = () => "handler";
+
+const ComplexEnum = enums.define({
+  Default: true,
+  Config: configObject,
+  Data: dataArray,
+  Handler: handlerFunction,
+  Nested: { settings: { theme: "dark" } },
+});
+type ComplexEnum = Enums<typeof ComplexEnum>;
+
+console.log(ComplexEnum.Default); // "Default"
+console.log(ComplexEnum.Config); // { name: "config", value: 123 }
+console.log(ComplexEnum.Data); // [1, 2, 3]
+console.log(ComplexEnum.Handler()); // "handler"
+console.log(ComplexEnum.Nested); // { settings: { theme: "dark" } }
+
+// Reference equality is preserved
+console.log(ComplexEnum.Config === configObject); // true
+console.log(ComplexEnum.Data === dataArray); // true
+```
+
 #### Type safety
 
 `enums.define` creates ["branded" types](https://egghead.io/blog/using-branded-types-in-typescript) for each option. This means that you must reference the enum property and can't assign the primitive value directly:
