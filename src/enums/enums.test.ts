@@ -2,7 +2,6 @@
 // Do not remove them as they are assertions on expected type errors
 
 import { describe, expect, it } from "vitest";
-import { match } from "../match/match.ts";
 import { enums, type Enums } from "./enums.ts";
 
 describe("enums", () => {
@@ -60,21 +59,6 @@ describe("enums", () => {
         processDirection("North");
         // @ts-expect-error - Cannot assign number
         processDirection(1);
-      });
-
-      // TODO: Make this work, should show a type error
-      // TODO: Maybe SomeEnum.match(). Then match.default and match.catch could also be used together
-      it("works with match()", () => {
-        const arrow = (direction: Direction) => {
-          return match(direction).case({
-            [Direction.North]: "up",
-            // [Direction.South]: "down",
-            [Direction.East]: "right",
-            [Direction.West]: "left",
-          });
-        };
-
-        expect(arrow(Direction.North)).toBe("up");
       });
     });
 

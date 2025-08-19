@@ -1,5 +1,7 @@
 - Enum complex values
 - Enum reflection
+- match: Get rid of object case API?
+- Use Object.is() in match? (NaN case!)
 - unwrap with Result/Async should throw error of that result
 - Defining errors with code / captureStackTrace
 - Match for error codes

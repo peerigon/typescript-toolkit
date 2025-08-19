@@ -223,5 +223,34 @@ describe("match()", () => {
       );
       expect(result()).toBe("array");
     });
+
+    it("shows a type error when a case is covered that doesn't exist", () => {
+      const result: string = match<"a">("a").case(
+        // @ts-expect-error Should show a type error here because "b" case doesn't exist
+        [
+          ["a", "a"],
+          ["b", "b"],
+        ],
+      );
+      expect(result).toBe("a");
+    });
+
+    it("shows a type error when the `undefined` case is not covered", () => {
+      const value = "a" as "a" | undefined;
+      const result: string = match(value).case(
+        // @ts-expect-error Should show a type error here because the undefined case is not covered
+        [["a", "a"]],
+      );
+      expect(result).toBe("a");
+    });
+
+    it("allows to cover the undefined case", () => {
+      const value = undefined as "a" | undefined;
+      const result: string = match(value).case([
+        ["a", "a"],
+        [undefined, "undefined"],
+      ]);
+      expect(result).toBe("undefined");
+    });
   });
 });
