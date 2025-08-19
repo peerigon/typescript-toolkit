@@ -281,12 +281,12 @@ describe("result", () => {
   it("works with match()", () => {
     const successResult = result.success({ data: "some data" }) as Result;
 
-    const isSuccess = match(successResult.status).case({
-      success: true,
-      error: false,
-    });
+    const isSuccess: 1 | 2 = match(successResult.status).case([
+      ["success", 1],
+      ["error", 2],
+    ]);
 
-    expect(isSuccess).toBe(true);
+    expect(isSuccess).toBe(1);
   });
 });
 

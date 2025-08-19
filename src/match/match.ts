@@ -15,18 +15,9 @@ const catchSymbol = Symbol("match.catch");
  * but has a decisive advantage: TypeScript issues a type error if not all cases have been
  * implemented. An error is also thrown at runtime if a value doesn't match any case.
  *
- * ## The API comes in two flavors:
+ * ## Usage:
  *
- * ### 1. Record-based matching (for string, number, or symbol values)
- * @example
- * ```ts
- * match<"A" | "B">("A").case({
- *   A: "result A",
- *   B: "result B",
- * }); // "result A"
- * ```
- *
- * ### 2. Tuple-based matching (for enums or complex values)
+ * Match uses tuple-based matching, ideal for enums or any type of values:
  * @example
  * ```ts
  * const Direction = enums.define({ Up: "North", Down: "South" });
@@ -44,10 +35,10 @@ const catchSymbol = Symbol("match.catch");
  *
  * @example
  * ```ts
- * match<"A" | "B">("A").case({
- *   B: "result B",
- *   [match.default]: "default result",
- * }); // "default result"
+ * match<"A" | "B">("A").case([
+ *   ["B", "result B"],
+ *   [match.default, "default result"],
+ * ]); // "default result"
  * ```
  *
  * `match.catch` - Handles unexpected runtime values while still requiring all compile-time
@@ -56,40 +47,35 @@ const catchSymbol = Symbol("match.catch");
  *
  * @example
  * ```ts
- * match("C" as "A" | "B").case({
- *   A: "result A",
- *   B: "result B",
- *   [match.catch]: "unknown value",
- * }); // "unknown value"
+ * match("C" as "A" | "B").case([
+ *   ["A", "result A"],
+ *   ["B", "result B"],
+ *   [match.catch, "unknown value"],
+ * ]); // "unknown value"
  * ```
  */
-function match<const Value extends PropertyKey>(
-  value: NotBranded<Value>,
-): {
-  case: <const Result>(cases: CasesAsRecord<Value, Result>) => Result;
-};
 function match<const Value>(value: Value): {
   case: {
     <const Result>(
-      cases: CasesAsTuples<
+      cases: Cases<
         readonly [Value, Result],
         readonly [typeof defaultSymbol, Result]
       >,
     ): Result;
     <
       const Result,
-      const Cases extends CasesAsTuples<
+      const GivenCases extends Cases<
         readonly [Value, Result],
         readonly [typeof catchSymbol | Value, Result]
       >,
     >(
       cases: If<
         IsExact<
-          Exclude<ExtractValueFromCases<Cases>, typeof catchSymbol>,
+          Exclude<ExtractValueFromCases<GivenCases>, typeof catchSymbol>,
           Value
         >,
         {
-          then: Cases;
+          then: GivenCases;
           else: never;
         }
       >,
@@ -98,67 +84,32 @@ function match<const Value>(value: Value): {
 };
 function match<const Value>(value: Value): any {
   function _case<const Result>(
-    cases:
-      | CasesAsRecord<Value & PropertyKey, Result>
-      | CasesAsTuples<
-          readonly [Value, Result],
-          readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
-        >,
+    cases: Cases<
+      readonly [Value, Result],
+      readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
+    >,
   ): Result {
-    if (Array.isArray(cases)) {
-      const casesAsTuples = cases as CasesAsTuples<
-        readonly [Value, Result],
-        readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
-      >;
+    for (let i = 0; i < cases.length - 1; i++) {
+      const [valueInCase, resultInCase] = cases[i]!;
 
-      for (let i = 0; i < casesAsTuples.length - 1; i++) {
-        const [valueInCase, resultInCase] = casesAsTuples[i]!;
-
-        if (value === valueInCase) {
-          return resultInCase;
-        }
+      if (value === valueInCase) {
+        return resultInCase;
       }
-
-      const [valueInLastCase, resultInLastCase] = need(casesAsTuples.at(-1));
-
-      if (
-        value === valueInLastCase ||
-        valueInLastCase === defaultSymbol ||
-        valueInLastCase === catchSymbol
-      ) {
-        return resultInLastCase;
-      }
-
-      throwNoMatch(
-        value,
-        casesAsTuples.map(([value]) => value),
-      );
-    } else if (
-      (typeof value === "string" ||
-        typeof value === "number" ||
-        typeof value === "symbol") &&
-      typeof cases === "object" &&
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      cases !== null
-    ) {
-      const casesAsRecord = cases as CasesAsRecord<PropertyKey, Result>;
-
-      if (value in casesAsRecord) {
-        return casesAsRecord[value];
-      }
-
-      if (defaultSymbol in casesAsRecord) {
-        return casesAsRecord[defaultSymbol]!;
-      }
-
-      if (catchSymbol in casesAsRecord) {
-        return casesAsRecord[catchSymbol]!;
-      }
-
-      throwNoMatch(value, Object.keys(casesAsRecord));
     }
 
-    throw new TypeError("Unexpected value or cases type");
+    const [valueInLastCase, resultInLastCase] = need(cases.at(-1));
+
+    if (
+      value === valueInLastCase ||
+      valueInLastCase === defaultSymbol ||
+      valueInLastCase === catchSymbol
+    ) {
+      return resultInLastCase;
+    }
+
+    throw new Error(
+      `No match found for ${stringify(value)}. Expected one of: ${cases.map(([possibleValue]) => stringify(possibleValue)).join(", ")}`,
+    );
   }
 
   return {
@@ -166,19 +117,7 @@ function match<const Value>(value: Value): any {
   };
 }
 
-const throwNoMatch = (value: unknown, possibleValues: Array<unknown>) => {
-  throw new Error(
-    `No match found for ${stringify(value)}. Expected one of: ${possibleValues.map((possibleValue) => stringify(possibleValue)).join(", ")}`,
-  );
-};
-
-type RecordKey = string | number | symbol;
-
-type CasesAsRecord<Value extends RecordKey, Result> =
-  | (Record<Value, Result> & Partial<Record<typeof catchSymbol, Result>>)
-  | (Record<typeof defaultSymbol, Result> & Partial<Record<Value, Result>>);
-
-type CasesAsTuples<
+type Cases<
   Tuple extends readonly [any, any] = readonly [any, any],
   LastTuple extends readonly [any, any] = Tuple,
 > = readonly [...ReadonlyArray<Tuple>, LastTuple];
@@ -194,10 +133,7 @@ type IsExact<Type1, Type2> = [Type1] extends [Type2]
     : false
   : false;
 
-type NotBranded<Type> = Type extends Record<symbol, any> ? never : Type;
-
-type ExtractValueFromCases<GivenCases extends CasesAsTuples> =
-  GivenCases[number][0];
+type ExtractValueFromCases<GivenCases extends Cases> = GivenCases[number][0];
 
 match.default = defaultSymbol;
 match.catch = catchSymbol;

@@ -275,28 +275,28 @@ describe("async", () => {
 
   it("works with match() for all states", () => {
     const pendingResult = async.pending() as Async;
-    const pendingResultMatched = match(pendingResult.status).case({
-      pending: "pending",
-      success: "success",
-      error: "error",
-    });
-    expect(pendingResultMatched).toBe("pending");
+    const pendingResultMatched: 0 | 1 | 2 = match(pendingResult.status).case([
+      ["pending", 0],
+      ["success", 1],
+      ["error", 2],
+    ]);
+    expect(pendingResultMatched).toBe(0);
 
     const asyncSuccess = async.success({ data: "some data" }) as Async;
-    const asyncSuccessMatched = match(asyncSuccess.status).case({
-      pending: "pending",
-      success: "success",
-      error: "error",
-    });
-    expect(asyncSuccessMatched).toBe("success");
+    const asyncSuccessMatched: 0 | 1 | 2 = match(asyncSuccess.status).case([
+      ["pending", 0],
+      ["success", 1],
+      ["error", 2],
+    ]);
+    expect(asyncSuccessMatched).toBe(1);
 
     const errorData = async.error({ error: new Error("some error") }) as Async;
-    const errorResultMatched = match(errorData.status).case({
-      pending: "pending",
-      success: "success",
-      error: "error",
-    });
-    expect(errorResultMatched).toBe("error");
+    const errorResultMatched: 0 | 1 | 2 = match(errorData.status).case([
+      ["pending", 0],
+      ["success", 1],
+      ["error", 2],
+    ]);
+    expect(errorResultMatched).toBe(2);
   });
 
   it("is compatible with tanstack query's UseQueryResult", () => {

@@ -6,26 +6,7 @@ This function works similarly to a regular `switch`/`case` statement, but has a 
 
 ### Usage
 
-The API comes in two flavors:
-
-#### Record-based matching (for simple values)
-
-Use an object to map values to results when matching strings, numbers, or symbols:
-
-```ts
-import { match } from "@peerigon/fractals-typescript/match";
-
-const value = "A" as "A" | "B";
-
-match(value).case({
-  A: "result A",
-  B: "result B",
-}); // "result A"
-```
-
-#### Tuple-based matching (for enums and complex values)
-
-Use an array of tuples when matching enums or other complex values:
+Value -> Result mappings are defined as an array of tuples (`Array<[Value, Result]>`), which is the JavaScript way to represent key-value pairs:
 
 ```ts
 import { match } from "@peerigon/fractals-typescript/match";
@@ -40,6 +21,18 @@ match(Direction.Up).case([
 ]); // "going up"
 ```
 
+You can also match against `undefined`:
+
+```ts
+const maybeDirection: Direction | undefined = undefined;
+
+match(maybeDirection).case([
+  [Direction.Up, "going up"],
+  [Direction.Down, "going down"],
+  [undefined, "no direction"],
+]); // "no direction"
+```
+
 #### Using `match.default` for default cases
 
 `match.default` can be used to specify a default case. When `match.default` is used, no type error is emitted for missing cases anymore. Use this when there's a reasonable default value.
@@ -47,10 +40,10 @@ match(Direction.Up).case([
 ```ts
 const value = "A" as "A" | "B";
 
-match<"A" | "B">("A").case({
-  B: "result B",
-  [match.default]: "default result",
-}); // "default result"
+match<"A" | "B">("A").case([
+  ["B", "result B"],
+  [match.default, "default result"],
+]); // "default result"
 ```
 
 #### Using `match.catch` for unknown runtime values
@@ -58,11 +51,11 @@ match<"A" | "B">("A").case({
 `match.catch` can be used to specify a catch case for unknown runtime values. With `match.catch` no runtime error is thrown but you still need to specify all cases for type safety. Use this when you need type safety but want to handle edge cases at runtime without throwing errors.
 
 ```ts
-match("C" as "A" | "B").case({
-  A: "result A",
-  B: "result B",
-  [match.catch]: "unknown value",
-}); // "unknown value"
+match("C" as "A" | "B").case([
+  ["A", "result A"],
+  ["B", "result B"],
+  [match.catch, "unknown value"],
+]); // "unknown value"
 ```
 
 ### API Reference
@@ -79,15 +72,9 @@ match("C" as "A" | "B").case({
 
 **Cases format**:
 
-- **Record format**: `{ [key: Value]: Result }` - For string, number, or symbol values
-- **Tuple format**: `[[value, result], ...]` - For any type of values including enums
+- **Tuple format**: `[[value, result], ...]` - An array of tuples mapping values to results
 
 **Special symbols**:
 
 - `match.default`: Provides a default result when no other case matches
 - `match.catch`: Handles unexpected runtime values while still requiring all compile-time cases
-
-### ⚠️ Limitations
-
-1. **Record format type restrictions**: Only works with string, number, or symbol values. Complex types and branded types (like enums) require tuple format
-2. **Number/string ambiguity**: In record format, the number `1` and string `"1"` cannot be distinguished as object keys.
