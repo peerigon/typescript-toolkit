@@ -130,4 +130,31 @@ describe("match()", () => {
     ]);
     expect(result).toBe("undefined");
   });
+
+  it("correctly matches NaN values (using Object.is)", () => {
+    const result: string = match(Number.NaN).case([
+      [Number.NaN, "found NaN"],
+      [match.default, "not NaN"],
+    ]);
+    expect(result).toBe("found NaN");
+  });
+
+  it("distinguishes between +0 and -0 (using Object.is)", () => {
+    // Test positive zero (0 and +0 are the same value)
+    const resultPositive: string = match(
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-conversion
+      +0,
+    ).case([
+      [-0, "negative zero"],
+      [0, "positive zero"],
+    ]);
+    expect(resultPositive).toBe("positive zero");
+
+    // Test negative zero
+    const resultNegative: string = match(-0).case([
+      [0, "positive zero"],
+      [-0, "negative zero"],
+    ]);
+    expect(resultNegative).toBe("negative zero");
+  });
 });

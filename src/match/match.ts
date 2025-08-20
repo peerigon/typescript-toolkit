@@ -92,7 +92,7 @@ function match<const Value>(value: Value): any {
     for (let i = 0; i < cases.length - 1; i++) {
       const [valueInCase, resultInCase] = cases[i]!;
 
-      if (value === valueInCase) {
+      if (Object.is(value, valueInCase)) {
         return resultInCase;
       }
     }
@@ -100,7 +100,7 @@ function match<const Value>(value: Value): any {
     const [valueInLastCase, resultInLastCase] = need(cases.at(-1));
 
     if (
-      value === valueInLastCase ||
+      Object.is(value, valueInLastCase) ||
       valueInLastCase === defaultSymbol ||
       valueInLastCase === catchSymbol
     ) {
