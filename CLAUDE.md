@@ -44,6 +44,9 @@ Current utilities include:
 - `unwrap` - Unwrapping utilities
 - `enums` - Enum utilities
 - `dedupe` - Deduplication utilities
+- `errors` - Structured error interface
+
+The `/src/lib` folder contains shared types, functions, and values that may be reused across sub-packages. These are internal utilities not exposed as public exports.
 
 ## Key Development Notes
 
@@ -66,14 +69,10 @@ When adding a new utility:
 
 ## Running Single Tests
 
-To run a specific test file:
+**Important:** Use the Vitest MCP. If that doesn't work:
 
 ```bash
 npm run vitest -- path/to/test.test.ts
-```
-
-To run tests matching a pattern:
-
-```bash
+# or
 npm run vitest -- -t "pattern"
 ```
