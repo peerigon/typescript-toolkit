@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-**Important**: You **must** follow the rules at `./node_modules/@peerigon/configs/ai/rules.mdc` and its language-specific rules referenced in that file.
+**Important**: You **must** follow [these rules](./node_modules/@peerigon/configs/ai/rules.mdc) and its language-specific rules referenced in that file.
 
 ## Project Overview
 

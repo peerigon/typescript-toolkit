@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { errors } from "./errors.js";
 
 const testDomain = "@peerigon/fractals-typescript";
 
@@ -29,12 +30,13 @@ describe("errors", () => {
       });
 
       it("contains the expected error stack", () => {
-        const { stack } = errorDomain.class("NotFound", {
+        const NotFoundError = errorDomain.class("NotFound", {
           message: "Resource not found",
         });
+        const notFoundError = new NotFoundError();
 
         // Should contain the error.name and error.message
-        expect(stack).toContain("NotFound: Resource not found");
+        expect(notFoundError.stack).toContain("NotFound: Resource not found");
       });
 
       it("allows to enhance the error class with a context", () => {

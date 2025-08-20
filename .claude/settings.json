@@ -6,6 +6,7 @@
       "Bash(npm test)",
       "Bash(npx tsc:*)",
       "Bash(npx prettier:*)",
+      "Bash(npx eslint:*)",
       "mcp__typescript-lsp__get_info_on_location",
       "mcp__typescript-lsp__get_completions",
       "mcp__typescript-lsp__get_code_actions",
