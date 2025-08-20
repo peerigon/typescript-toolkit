@@ -20,6 +20,7 @@
     "./async": "./dist/async/async.js",
     "./dedupe": "./dist/dedupe/dedupe.js",
     "./enums": "./dist/enums/enums.js",
+    "./errors": "./dist/errors/errors.js",
     "./match": "./dist/match/match.js",
     "./need": "./dist/need/need.js",
     "./reject": "./dist/reject/reject.js",
@@ -45,7 +46,7 @@
     "release": "semantic-release"
   },
   "devDependencies": {
-    "@peerigon/configs": "https://pkg.pr.new/peerigon/configs/@peerigon/configs@146",
+    "@peerigon/configs": "^7.1.0",
     "@tanstack/query-core": "^5.83.1",
     "@types/node": "^24.2.0",
     "@vitest/coverage-v8": "^3.2.4",

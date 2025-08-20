@@ -1,6 +1,5 @@
 - Enum complex values
 - Enum reflection
-- match: Get rid of object case API?
 - Use Object.is() in match? (NaN case!)
 - unwrap with Result/Async should throw error of that result
 - Defining errors with code / captureStackTrace
@@ -9,5 +8,5 @@
 - Implement result.case (adjust docs "Pattern matching with status")
 - Implement async.case (adjust docs "Pattern matching with status")
 - Add missing documentation
-- Badge with kb for each export?
+- Badge with kb for each export (size-limit)?
 - Use `interface` instead of `type`?
