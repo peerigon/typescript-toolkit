@@ -18,6 +18,7 @@
   "exports": {
     "./assert": "./dist/assert/assert.js",
     "./async": "./dist/async/async.js",
+    "./casing": "./dist/casing/index.js",
     "./dedupe": "./dist/dedupe/dedupe.js",
     "./enums": "./dist/enums/enums.js",
     "./errors": "./dist/errors/errors.js",

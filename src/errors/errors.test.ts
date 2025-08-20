@@ -1,133 +1,93 @@
-import { describe, it, expect } from "vitest";
-import type { StructuredError, ErrorCategory } from "./errors.js";
+import { describe, expect, it } from "vitest";
 
-describe("StructuredError", () => {
-  it("should be JSON serializable", () => {
-    const error: StructuredError = {
-      code: "INVALID_EMAIL",
-      message: "Email address is not valid",
-      category: "VALIDATION",
-      context: {
-        field: "email",
-        value: "invalid@",
-        nested: {
-          array: [1, 2, 3],
-          bool: true,
-          nullValue: null,
-        },
-      },
-      statusCode: 400,
-    };
+const testDomain = "@peerigon/fractals-typescript";
 
-    const serialized = JSON.stringify(error);
-    const deserialized = JSON.parse(serialized);
+describe("errors", () => {
+  describe("domain()", () => {
+    it("creates an error domain", () => {
+      const errorDomain = errors.domain(testDomain);
 
-    expect(deserialized).toEqual(error);
-  });
-
-  it("should only allow valid error categories", () => {
-    const validCategories: ErrorCategory[] = [
-      "VALIDATION",
-      "AUTHENTICATION",
-      "RESOURCE",
-      "EXTERNAL_SERVICE",
-      "BUSINESS_LOGIC",
-      "SYSTEM",
-      "RATE_LIMIT",
-      "DATA_INTEGRITY",
-    ];
-
-    validCategories.forEach((category) => {
-      const error: StructuredError = {
-        code: "TEST_ERROR",
-        message: "Test message",
-        category,
-        context: {},
-        statusCode: 400,
-      };
-
-      expect(error.category).toBe(category);
+      expect(errorDomain).toMatchObject({
+        id: testDomain,
+      });
     });
-  });
 
-  it("should handle empty context", () => {
-    const error: StructuredError = {
-      code: "SIMPLE_ERROR",
-      message: "A simple error",
-      category: "SYSTEM",
-      context: {},
-      statusCode: 500,
-    };
+    describe("class()", () => {
+      const errorDomain = errors.domain(testDomain);
 
-    const serialized = JSON.stringify(error);
-    const deserialized = JSON.parse(serialized);
+      it("creates an error class", () => {
+        const NotFoundError = errorDomain.class("NotFound", {
+          message: "Resource not found",
+        });
+        const notFoundError = new NotFoundError();
 
-    expect(deserialized).toEqual(error);
-  });
+        expect(notFoundError).toMatchObject({
+          code: `${testDomain}/NotFound`,
+          name: "NotFound",
+          message: "Resource not found",
+        });
+      });
 
-  it("should handle complex nested context", () => {
-    const error: StructuredError = {
-      code: "COMPLEX_ERROR",
-      message: "A complex error",
-      category: "BUSINESS_LOGIC",
-      context: {
-        user: {
-          id: 123,
-          name: "John Doe",
-          roles: ["admin", "user"],
-        },
-        metadata: {
-          timestamp: "2024-01-01T00:00:00.000Z",
-          requestId: "abc-123",
-          retryCount: 3,
-          flags: {
-            isRetryable: true,
-            isUserError: false,
+      it("contains the expected error stack", () => {
+        const { stack } = errorDomain.class("NotFound", {
+          message: "Resource not found",
+        });
+
+        // Should contain the error.name and error.message
+        expect(stack).toContain("NotFound: Resource not found");
+      });
+
+      it("allows to enhance the error class with a context", () => {
+        type NotFoundContext = {
+          resource: string;
+          id: string;
+        };
+        const NotFoundError = errorDomain.class<NotFoundContext>("NotFound", {
+          message: ({ context: { resource, id } }) =>
+            `${resource} (${id}) not found`,
+        });
+        const context = {
+          resource: "User",
+          id: "123",
+        } satisfies NotFoundContext;
+        const notFoundError = new NotFoundError({
+          context,
+        });
+
+        expect(notFoundError.context).toBe(context);
+        expect(notFoundError.message).toBe("User (123) not found");
+      });
+
+      it("implements toJSON()", () => {
+        const NotFoundError = errorDomain.class("NotFound", {
+          message: "Resource not found",
+        });
+        const notFoundError = new NotFoundError();
+        const json = notFoundError.toJSON();
+
+        expect(json).toMatchObject({
+          code: notFoundError.code,
+          name: notFoundError.name,
+          message: notFoundError.message,
+          stack: notFoundError.stack,
+        });
+      });
+
+      it("can be serialized as HTTP response", () => {
+        const NotFoundError = errorDomain.class("NotFound", {
+          message: "Resource not found",
+          http: {
+            status: 404,
           },
-        },
-        values: [1, 2, null, "test", true, false],
-      },
-      statusCode: 422,
-    };
+        });
+        const notFoundError = new NotFoundError();
+        const response = notFoundError.toHttpResponse();
 
-    const serialized = JSON.stringify(error);
-    const deserialized = JSON.parse(serialized);
-
-    expect(deserialized).toEqual(error);
-  });
-
-  // Type-level tests (these won't run but ensure TypeScript compilation)
-  it("should enforce JSON-serializable types in context", () => {
-    // This should compile
-    const validError: StructuredError = {
-      code: "VALID",
-      message: "Valid error",
-      category: "VALIDATION",
-      context: {
-        string: "value",
-        number: 42,
-        boolean: true,
-        null: null,
-        array: [1, 2, "three"],
-        object: { nested: "value" },
-      },
-      statusCode: 400,
-    };
-
-    expect(validError).toBeDefined();
-
-    // The following would not compile if uncommented:
-    // const invalidError: StructuredError = {
-    //   code: 'INVALID',
-    //   message: 'Invalid error',
-    //   category: 'VALIDATION',
-    //   context: {
-    //     function: () => {}, // Error: functions are not JSON-serializable
-    //     undefined: undefined, // Error: undefined is not JSON-serializable
-    //     symbol: Symbol('test'), // Error: symbols are not JSON-serializable
-    //     date: new Date(), // Error: Date objects are not in JsonValue type
-    //   },
-    //   statusCode: 400
-    // };
+        expect(response).toMatchObject({
+          status: 404,
+          body: notFoundError.toJSON(),
+        });
+      });
+    });
   });
 });

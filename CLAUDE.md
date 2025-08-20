@@ -45,6 +45,7 @@ Current utilities include:
 - `enums` - Enum utilities
 - `dedupe` - Deduplication utilities
 - `errors` - Structured error interface
+- `casing` - TypeScript literal types and type guards for casing conventions
 
 The `/src/lib` folder contains shared types, functions, and values that may be reused across sub-packages. These are internal utilities not exposed as public exports.
 
