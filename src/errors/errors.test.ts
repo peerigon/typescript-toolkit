@@ -50,22 +50,20 @@ describe("errors", () => {
             status: 404,
           },
         };
-        const NotFoundError = errorDomain
-          .class("NotFound", staticContext)
-          .define({
-            message,
-          });
+        const NotFoundError = errorDomain.class("NotFound").define({
+          context: staticContext,
+          message,
+        });
         const notFoundError = new NotFoundError();
 
         expect(notFoundError.context).toMatchObject(staticContext);
       });
 
       it("allows to enhance the error class with a runtime context", () => {
-        const NotFoundError = errorDomain
-          .class("NotFound")
-          .define<NotFoundContext>({
-            message: ({ resource, id }) => `${resource} (${id}) not found`,
-          });
+        const NotFoundError = errorDomain.class("NotFound").define({
+          message: ({ resource, id }: NotFoundContext) =>
+            `${resource} (${id}) not found`,
+        });
         const context: NotFoundContext = {
           resource: "User",
           id: "123",
@@ -79,12 +77,10 @@ describe("errors", () => {
       });
 
       it("shows a type error if a runtime context is required but not provided", () => {
-        const NotFoundError = errorDomain
-          .class("NotFound")
-          .define<NotFoundContext>({
-            message: ({ resource, id }: NotFoundContext) =>
-              `${resource} (${id}) not found`,
-          });
+        const NotFoundError = errorDomain.class("NotFound").define({
+          message: ({ resource, id }: NotFoundContext) =>
+            `${resource} (${id}) not found`,
+        });
 
         expect(() => {
           // @ts-expect-error RuntimeContext is required but not provided
@@ -98,11 +94,14 @@ describe("errors", () => {
             status: 404,
           },
         };
-        const NotFoundError = errorDomain
-          .class("NotFound", staticContext)
-          .define<NotFoundContext>({
-            message: ({ resource, id }) => `${resource} (${id}) not found`,
-          });
+        const NotFoundError = errorDomain.class("NotFound").define({
+          context: staticContext,
+          message: ({
+            resource,
+            id,
+          }: NotFoundContext & ContextWithHttpResponse) =>
+            `${resource} (${id}) not found`,
+        });
         const runtimeContext: NotFoundContext = {
           resource: "User",
           id: "123",
@@ -164,20 +163,12 @@ describe("errors", () => {
       });
 
       it("passes cause to message function", () => {
-        const NotFoundError = errorDomain
-          .class("NotFound")
-          .define<NotFoundContext>({
-            message: ({ resource, id }, cause) =>
-              `${resource} (${id}) not found${
-                cause ? ` - caused by: ${cause}` : ""
-              }`,
-          });
+        const NotFoundError = errorDomain.class("NotFound").define({
+          message: (context, cause) =>
+            `Resource not found - caused by: ${cause}`,
+        });
         const cause = new Error("Network error");
         const notFoundError = new NotFoundError({
-          context: {
-            resource: "User",
-            id: "123",
-          },
           cause,
         });
 
@@ -223,11 +214,10 @@ describe("errors", () => {
             status: 400,
           },
         };
-        const ValidationError = errorDomain
-          .class("ValidationError", staticContext)
-          .define({
-            message: "Validation failed",
-          });
+        const ValidationError = errorDomain.class("ValidationError").define({
+          context: staticContext,
+          message: "Validation failed",
+        });
         const validationError = new ValidationError();
 
         expect(validationError.context).not.toBe(staticContext);

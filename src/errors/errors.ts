@@ -1,28 +1,33 @@
 const domain = (domainId: string) => {
   return {
     id: domainId,
-    class: <const StaticContext extends Record<string, unknown>>(
-      name: string,
-      staticContext?: StaticContext,
-    ) => {
+    class: (name: string) => {
       const define = <
-        const RuntimeContext extends Record<string, unknown> = Record<
+        // const StaticContext extends Record<string, unknown> = Record<
+        //   string,
+        //   never
+        // >,
+        const FullContext extends Record<string, unknown> = Record<
           string,
           never
         >,
+        const StaticContextKey extends keyof FullContext = never,
       >(staticOptions: {
         message:
           | string
           | ((
-              fullContext: StaticContext & RuntimeContext,
+              fullContext: FullContext,
               cause: ErrorOptions["cause"],
             ) => string);
+        context?: {
+          [Key in StaticContextKey]: FullContext[Key];
+        };
       }) => {
-        type FullContext = StaticContext & RuntimeContext;
+        type RuntimeContext = Omit<FullContext, StaticContextKey>;
 
         return class StructuredError extends Error {
           constructor(
-            ...args: RuntimeContext extends Record<string, never>
+            ...args: Record<string, never> extends RuntimeContext
               ?
                   | []
                   | [
@@ -37,7 +42,7 @@ const domain = (domainId: string) => {
             };
 
             const fullContext = {
-              ...staticContext,
+              ...staticOptions.context,
               ...runtimeContext,
             } as FullContext;
 
