@@ -30,7 +30,8 @@ describe("async", () => {
           isSuccess: false,
           isError: false,
           isPending: true,
-          error: null
+          error: null,
+          [Symbol(@peerigon/fractals-typescript/async/Async)]: true
         }"
       `);
     });
@@ -120,7 +121,9 @@ describe("async", () => {
           isSuccess: true,
           isError: false,
           isPending: false,
-          error: null
+          error: null,
+          [Symbol(@peerigon/fractals-typescript/async/Async)]: true,
+          [Symbol(@peerigon/fractals-typescript/result/Result)]: true
         }"
       `);
     });
@@ -196,7 +199,9 @@ describe("async", () => {
           status: 'error',
           isSuccess: false,
           isError: true,
-          isPending: false
+          isPending: false,
+          [Symbol(@peerigon/fractals-typescript/async/Async)]: true,
+          [Symbol(@peerigon/fractals-typescript/result/Result)]: true
         }"
       `);
     });

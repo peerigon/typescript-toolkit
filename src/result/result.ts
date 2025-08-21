@@ -1,5 +1,5 @@
-import { packageName } from "../lib/package.ts";
 import { stringify } from "../lib/string";
+import { resultBrand } from "./result.lib.ts";
 
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -18,9 +18,6 @@ export const Result = {
     Error: "error",
   },
 } as const;
-
-// Using Symbol.for so that multiple instances of the library are compatible
-const resultBrand = Symbol.for(`${packageName}/result/Result`);
 
 export namespace Result {
   export namespace Status {

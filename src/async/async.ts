@@ -1,4 +1,6 @@
+import { packageName } from "../lib/package.ts";
 import { stringify } from "../lib/string.ts";
+import { resultBrand } from "../result/result.lib.ts";
 import { Result } from "./../result/result.ts";
 
 // Namespaces are only used to group related types together.
@@ -40,11 +42,8 @@ export const Async = {
   },
 } as const;
 
-const STATUS = [
-  Async.Status.Pending,
-  Async.Status.Success,
-  Async.Status.Error,
-] as const;
+// Using Symbol.for so that multiple instances of the library are compatible
+const asyncBrand = Symbol.for(`${packageName}/async/Async`);
 
 export namespace Async {
   export namespace Status {
@@ -53,7 +52,7 @@ export namespace Async {
     export type Error = typeof Async.Status.Error;
   }
 
-  export type Status = Result.Status | typeof Async.Status.Pending;
+  export type Status = Status.Pending | Status.Success | Status.Error;
 
   /**
    * Represents a pending result where data is being loaded.
@@ -127,6 +126,13 @@ const pendingPrototype: Async.Pending & {
   },
 } as const;
 
+Object.defineProperties(pendingPrototype, {
+  [asyncBrand]: {
+    value: true,
+    enumerable: false,
+  },
+});
+
 /**
  * Creates an async in the success state
  *
@@ -154,6 +160,18 @@ const successPrototype: Async.Success<undefined> & {
     return `Async.Success(${stringify(this.data)})`;
   },
 } as const;
+
+Object.defineProperties(successPrototype, {
+  [asyncBrand]: {
+    value: true,
+    enumerable: false,
+  },
+  // Also add the resultBrand since Async.Success extends Result.Success
+  [resultBrand]: {
+    value: true,
+    enumerable: false,
+  },
+});
 
 /**
  * Creates an async result in the error state.
@@ -190,6 +208,18 @@ const errorPrototype: Async.Error & {
   },
 } as const;
 
+Object.defineProperties(errorPrototype, {
+  [asyncBrand]: {
+    value: true,
+    enumerable: false,
+  },
+  // Also add the resultBrand since Async.Error extends Result.Error
+  [resultBrand]: {
+    value: true,
+    enumerable: false,
+  },
+});
+
 export const async = {
   pending: asyncPending,
   success: asyncSuccess,
@@ -204,20 +234,9 @@ export const async = {
  */
 export const isAsync = (maybeValue: unknown): maybeValue is Async => {
   return (
-    maybeValue !== undefined &&
     maybeValue !== null &&
     typeof maybeValue === "object" &&
-    "isSuccess" in maybeValue &&
-    typeof maybeValue.isSuccess === "boolean" &&
-    "isError" in maybeValue &&
-    typeof maybeValue.isError === "boolean" &&
-    "isPending" in maybeValue &&
-    typeof maybeValue.isPending === "boolean" &&
-    "status" in maybeValue &&
-    typeof maybeValue.status === "string" &&
-    "data" in maybeValue &&
-    "error" in maybeValue &&
-    STATUS.includes(maybeValue.status as Async.Status)
+    asyncBrand in maybeValue
   );
 };
 
