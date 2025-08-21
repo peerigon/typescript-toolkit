@@ -13,7 +13,7 @@ describe("errors", () => {
       });
     });
 
-    describe("class().define()", () => {
+    describe("class()", () => {
       type NotFoundContext = {
         resource: string;
         id: string;
@@ -22,26 +22,28 @@ describe("errors", () => {
       const message = "Resource not found";
 
       it("creates an error class", () => {
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           message,
         });
         const notFoundError = new NotFoundError();
 
         expect(notFoundError).toMatchObject({
-          code: `${testDomain}/NotFound`,
-          name: "NotFound",
+          code: `${testDomain}/NotFoundError`,
+          name: "NotFoundError",
           message,
         });
       });
 
       it("contains the expected error stack", () => {
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           message,
         });
         const notFoundError = new NotFoundError();
 
         // Should contain the error.name and error.message
-        expect(notFoundError.stack).toContain("NotFound: Resource not found");
+        expect(notFoundError.stack).toContain(
+          "NotFoundError: Resource not found",
+        );
       });
 
       it("allows to enhance the error class with static context (like http status codes)", () => {
@@ -50,7 +52,7 @@ describe("errors", () => {
             status: 404,
           },
         };
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           context: staticContext,
           message,
         });
@@ -60,7 +62,7 @@ describe("errors", () => {
       });
 
       it("allows to enhance the error class with a runtime context", () => {
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           message: ({ resource, id }: NotFoundContext) =>
             `${resource} (${id}) not found`,
         });
@@ -77,7 +79,7 @@ describe("errors", () => {
       });
 
       it("shows a type error if a runtime context is required but not provided", () => {
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           message: ({ resource, id }: NotFoundContext) =>
             `${resource} (${id}) not found`,
         });
@@ -94,7 +96,7 @@ describe("errors", () => {
             status: 404,
           },
         };
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           context: staticContext,
           message: ({
             resource,
@@ -117,7 +119,7 @@ describe("errors", () => {
       });
 
       it("implements toJSON()", () => {
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           message,
         });
         const notFoundError = new NotFoundError();
@@ -127,12 +129,11 @@ describe("errors", () => {
           code: notFoundError.code,
           name: notFoundError.name,
           message: notFoundError.message,
-          stack: notFoundError.stack,
         });
       });
 
       it("toJSON() excludes context and masks stack for security", () => {
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           message,
         });
         const notFoundError = new NotFoundError();
@@ -143,7 +144,7 @@ describe("errors", () => {
       });
 
       it("error instances are instanceof Error", () => {
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           message,
         });
         const notFoundError = new NotFoundError();
@@ -153,7 +154,7 @@ describe("errors", () => {
       });
 
       it("supports error cause in ErrorOptions", () => {
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           message,
         });
         const cause = new Error("Network error");
@@ -163,7 +164,7 @@ describe("errors", () => {
       });
 
       it("passes cause to message function", () => {
-        const NotFoundError = errorDomain.class("NotFound").define({
+        const NotFoundError = errorDomain.class("NotFoundError", {
           message: (context, cause) =>
             `Resource not found - caused by: ${cause}`,
         });
@@ -173,16 +174,17 @@ describe("errors", () => {
         });
 
         expect(notFoundError.message).toBe(
-          "User (123) not found - caused by: Error: Network error",
+          "Resource not found - caused by: Error: Network error",
         );
       });
 
       it("handles undefined runtime context gracefully", () => {
-        const NotFoundError = errorDomain
-          .class("NotFound")
-          .define<NotFoundContext>({
+        const NotFoundError = errorDomain.class<NotFoundContext>(
+          "NotFoundError",
+          {
             message,
-          });
+          },
+        );
         const notFoundError = new NotFoundError({
           context: undefined,
         });
@@ -191,7 +193,7 @@ describe("errors", () => {
       });
 
       it("preserves error name in stack trace", () => {
-        const CustomError = errorDomain.class("CustomError").define({
+        const CustomError = errorDomain.class("CustomError", {
           message: "Something went wrong",
         });
         const customError = new CustomError();
@@ -200,12 +202,12 @@ describe("errors", () => {
       });
 
       it("error code follows the domain/name pattern", () => {
-        const NotFound = errorDomain.class("NotFound").define({
+        const NotFound = errorDomain.class("NotFoundError", {
           message,
         });
         const validationError = new NotFound();
 
-        expect(validationError.code).toBe(`${testDomain}/NotFound`);
+        expect(validationError.code).toBe(`${testDomain}/NotFoundError`);
       });
 
       it("static context is immutable on instances", () => {
@@ -214,7 +216,7 @@ describe("errors", () => {
             status: 400,
           },
         };
-        const ValidationError = errorDomain.class("ValidationError").define({
+        const ValidationError = errorDomain.class("ValidationError", {
           context: staticContext,
           message: "Validation failed",
         });

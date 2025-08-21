@@ -1,13 +1,14 @@
-- Enum complex values
 - Enum reflection
-- Use Object.is() in match? (NaN case!)
-- unwrap with Result/Async should throw error of that result
-- Defining errors with code / captureStackTrace
-- Match for error codes
 - Check for useQuery compatibility
 - Implement result.case (adjust docs "Pattern matching with status")
 - Implement async.case (adjust docs "Pattern matching with status")
 - Add missing documentation
 - Badge with kb for each export (size-limit)?
-- Split Private / Public context
 - Use `interface` instead of `type`?
+
+## error
+
+- Make fully deseriazable
+- Match for error codes
+- Casing convention
+- Split Private / Public context

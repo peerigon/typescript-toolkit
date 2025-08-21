@@ -1,18 +1,12 @@
 const domain = (domainId: string) => {
   return {
     id: domainId,
-    class: (name: string) => {
-      const define = <
-        // const StaticContext extends Record<string, unknown> = Record<
-        //   string,
-        //   never
-        // >,
-        const FullContext extends Record<string, unknown> = Record<
-          string,
-          never
-        >,
-        const StaticContextKey extends keyof FullContext = never,
-      >(staticOptions: {
+    class: <
+      const FullContext extends Record<string, unknown> = Record<string, never>,
+      const StaticContextKey extends keyof FullContext = never,
+    >(
+      name: `${string}Error`,
+      options: {
         message:
           | string
           | ((
@@ -22,79 +16,74 @@ const domain = (domainId: string) => {
         context?: {
           [Key in StaticContextKey]: FullContext[Key];
         };
-      }) => {
-        type RuntimeContext = Omit<FullContext, StaticContextKey>;
+      },
+    ) => {
+      type RuntimeContext = Omit<FullContext, StaticContextKey>;
 
-        return class StructuredError extends Error {
-          constructor(
-            ...args: Record<string, never> extends RuntimeContext
-              ?
-                  | []
-                  | [
-                      ErrorOptions & {
-                        context?: never;
-                      },
-                    ]
-              : [ErrorOptions & { context: RuntimeContext | undefined }]
-          ) {
-            const { context: runtimeContext, ...errorOptions } = args[0] ?? {
-              cause: undefined,
-            };
+      return class StructuredError extends Error {
+        constructor(
+          ...args: Record<string, never> extends RuntimeContext
+            ?
+                | []
+                | [
+                    ErrorOptions & {
+                      context?: never;
+                    },
+                  ]
+            : [ErrorOptions & { context: RuntimeContext | undefined }]
+        ) {
+          const { context: runtimeContext, ...errorOptions } = args[0] ?? {
+            cause: undefined,
+          };
 
-            const fullContext = {
-              ...staticOptions.context,
-              ...runtimeContext,
-            } as FullContext;
+          const fullContext = {
+            ...options.context,
+            ...runtimeContext,
+          } as FullContext;
 
-            const getMessage = staticOptions.message;
-            const message: string =
-              typeof getMessage === "function"
-                ? getMessage(fullContext, errorOptions.cause)
-                : getMessage;
+          const getMessage = options.message;
+          const message: string =
+            typeof getMessage === "function"
+              ? getMessage(fullContext, errorOptions.cause)
+              : getMessage;
 
-            super(message, errorOptions);
+          super(message, errorOptions);
 
-            const code = `${domainId}/${name}`;
-            const stack = super.stack ?? STACK_NOT_AVAILABLE;
+          // Set the name before accessing stack to ensure it's included in the stack trace
+          this.name = name;
 
-            this.name = name;
-            this.stack = stack;
-            this.#json = {
-              code,
-              name,
-              message,
-              stack,
-              context: fullContext,
-            };
-          }
+          const stack = this.stack ?? STACK_NOT_AVAILABLE;
+          const code = `${domainId}/${name}`;
 
-          override readonly stack: string;
+          this.#json = {
+            code,
+            name,
+            message,
+            stack,
+            context: fullContext,
+          };
+        }
 
-          // False positive, the field is used in the toJSON method
-          // oxlint-disable-next-line no-unused-private-class-members
-          #json: ErrorJson<FullContext>;
+        // False positive, the field is used in the toJSON method
+        // oxlint-disable-next-line no-unused-private-class-members
+        #json: ErrorJson<FullContext>;
 
-          get code() {
-            return this.#json.code;
-          }
+        get code() {
+          return this.#json.code;
+        }
 
-          get context() {
-            return this.#json.context;
-          }
+        get context() {
+          return this.#json.context;
+        }
 
-          toJSON(): ErrorJson<FullContext> {
-            return {
-              ...this.#json,
-              // Do not persist potentially sensitive data by default
-              context: undefined,
-              stack: STACK_NOT_AVAILABLE,
-            };
-          }
-        };
-      };
-
-      return {
-        define,
+        toJSON(): ErrorJson<FullContext> {
+          return {
+            ...this.#json,
+            // Do not persist potentially sensitive data by default
+            context: undefined,
+            stack: STACK_NOT_AVAILABLE,
+          };
+        }
       };
     },
   };
@@ -117,22 +106,3 @@ export type ContextWithHttpResponse = {
 };
 
 const STACK_NOT_AVAILABLE = "Not available";
-
-// type SplitContext<
-//   FullContext extends Record<string, unknown>,
-//   StaticContextKey extends keyof FullContext = never,
-// > = {
-//   FullContext: FullContext;
-//   StaticContext: {
-//     [K in StaticContextKey]: FullContext[K];
-//   };
-//   RuntimeContext: keyof FullContext extends StaticContextKey
-//     ? never
-//     : Omit<FullContext, StaticContextKey>;
-// };
-
-// type Bla = keyof Record<string, unknown>;
-
-// type SplitContextResult = SplitContext<Record<string, unknown>>;
-
-// type RuntimeContext = SplitContextResult["RuntimeContext"];
