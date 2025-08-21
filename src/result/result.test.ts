@@ -26,7 +26,8 @@ describe("result", () => {
           status: 'success',
           isSuccess: true,
           isError: false,
-          error: null
+          error: null,
+          [Symbol(@peerigon/fractals-typescript/result/Result)]: true
         }"
       `);
     });
@@ -97,7 +98,8 @@ describe("result", () => {
           },
           status: 'error',
           isSuccess: false,
-          isError: true
+          isError: true,
+          [Symbol(@peerigon/fractals-typescript/result/Result)]: true
         }"
       `);
     });

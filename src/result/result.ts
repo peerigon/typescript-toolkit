@@ -1,3 +1,4 @@
+import { packageName } from "../lib/package.ts";
 import { stringify } from "../lib/string";
 
 // Namespaces are only used to group related types together.
@@ -18,7 +19,8 @@ export const Result = {
   },
 } as const;
 
-const STATUS = [Result.Status.Success, Result.Status.Error] as const;
+// Using Symbol.for so that multiple instances of the library are compatible
+const resultBrand = Symbol.for(`${packageName}/result/Result`);
 
 export namespace Result {
   export namespace Status {
@@ -26,7 +28,7 @@ export namespace Result {
     export type Error = typeof Result.Status.Error;
   }
 
-  export type Status = (typeof STATUS)[number];
+  export type Status = Status.Success | Status.Error;
 
   /**
    * Represents a successful result that holds some data.
@@ -153,6 +155,13 @@ const successPrototype: Result.Success<undefined> & {
   },
 } as const;
 
+Object.defineProperties(successPrototype, {
+  [resultBrand]: {
+    value: true,
+    enumerable: false,
+  },
+});
+
 /**
  * Creates a result in the error state.
  *
@@ -187,6 +196,13 @@ const errorPrototype: Result.Error & {
   },
 } as const;
 
+Object.defineProperties(errorPrototype, {
+  [resultBrand]: {
+    value: true,
+    enumerable: false,
+  },
+});
+
 export const result = {
   from,
   fromAsync,
@@ -202,18 +218,9 @@ export const result = {
  */
 export const isResult = (maybeValue: unknown): maybeValue is Result => {
   return (
-    maybeValue !== undefined &&
     maybeValue !== null &&
     typeof maybeValue === "object" &&
-    "isSuccess" in maybeValue &&
-    typeof maybeValue.isSuccess === "boolean" &&
-    "isError" in maybeValue &&
-    typeof maybeValue.isError === "boolean" &&
-    "status" in maybeValue &&
-    typeof maybeValue.status === "string" &&
-    "data" in maybeValue &&
-    "error" in maybeValue &&
-    STATUS.includes(maybeValue.status as Result.Status)
+    resultBrand in maybeValue
   );
 };
 
