@@ -1,86 +1,99 @@
 const domain = (domainId: string) => {
   return {
     id: domainId,
-    class: <
-      FullContext extends Record<string, unknown> = Record<string, never>,
-      StaticContextKeys extends keyof FullContext = never,
-    >(
+    class: <StaticContext extends Record<string, unknown>>(
       name: string,
-      staticOptions: {
-        message: string | ((params: { context: FullContext }) => string);
-        context?: StaticContextKeys extends never
-          ? never
-          : {
-              [Key in StaticContextKeys]: FullContext[Key];
-            };
-      },
+      staticOptionsWithStaticContext: {
+        message?:
+          | string
+          | ((params: { context: StaticContext } & ErrorOptions) => string);
+        context?: StaticContext;
+      } = {},
     ) => {
-      type RuntimeContext = keyof FullContext extends StaticContextKeys
-        ? Record<string, never>
-        : Omit<FullContext, StaticContextKeys>;
+      const define = <
+        RuntimeContext extends Record<string, unknown> = Record<string, never>,
+      >(
+        staticOptionsWithRuntimeContext: {
+          message?: (
+            params: { context: RuntimeContext } & ErrorOptions,
+          ) => string;
+        } = {},
+      ) => {
+        type FullContext = StaticContext & RuntimeContext;
 
-      return class StructuredError extends Error {
-        constructor(
-          ...args: RuntimeContext extends Record<string, never>
-            ?
-                | []
-                | [
-                    ErrorOptions & {
-                      context: never;
-                    },
-                  ]
-            : [ErrorOptions & { context: RuntimeContext | undefined }]
-        ) {
-          const { context: runtimeContext, ...errorOptions } = args[0] ?? {};
-          const fullContext = {
-            ...staticOptions.context,
-            ...runtimeContext,
-          } as FullContext; // Can we get rid of the type assertion?
-          const message =
-            typeof staticOptions.message === "string"
-              ? staticOptions.message
-              : staticOptions.message({
-                  context: fullContext,
-                });
+        return class StructuredError extends Error {
+          constructor(
+            ...args: RuntimeContext extends Record<string, never>
+              ?
+                  | []
+                  | [
+                      ErrorOptions & {
+                        context: never;
+                      },
+                    ]
+              : [ErrorOptions & { context: RuntimeContext | undefined }]
+          ) {
+            const { context: runtimeContext, ...errorOptions } = args[0] ?? {};
 
-          super(message, errorOptions);
+            const fullContext = {
+              ...staticOptionsWithStaticContext.context,
+              ...runtimeContext,
+            } as FullContext; // Can we get rid of the type assertion?
 
-          const code = `${domainId}/${name}`;
-          const stack = super.stack ?? STACK_NOT_AVAILABLE;
+            const getMessage =
+              staticOptionsWithRuntimeContext.message ??
+              staticOptionsWithStaticContext.message ??
+              "An error occurred";
+            const message =
+              typeof getMessage === "string"
+                ? getMessage
+                : getMessage({
+                    context: fullContext,
+                  });
 
-          this.name = name;
-          this.stack = stack;
-          this.#json = {
-            code,
-            name,
-            message,
-            stack,
-            context: fullContext,
-          };
-        }
+            super(message, errorOptions);
 
-        override readonly stack: string;
+            const code = `${domainId}/${name}`;
+            const stack = super.stack ?? STACK_NOT_AVAILABLE;
 
-        // False positive, the field is used in the toJSON method
-        // oxlint-disable-next-line no-unused-private-class-members
-        #json: ErrorJson<FullContext>;
+            this.name = name;
+            this.stack = stack;
+            this.#json = {
+              code,
+              name,
+              message,
+              stack,
+              context: fullContext,
+            };
+          }
 
-        get code() {
-          return this.#json.code;
-        }
+          override readonly stack: string;
 
-        get context() {
-          return this.#json.context;
-        }
+          // False positive, the field is used in the toJSON method
+          // oxlint-disable-next-line no-unused-private-class-members
+          #json: ErrorJson<FullContext>;
 
-        toJSON(): ErrorJson<FullContext> {
-          return {
-            ...this.#json,
-            // Do not persist potentially sensitive data by default
-            context: undefined,
-            stack: STACK_NOT_AVAILABLE,
-          };
-        }
+          get code() {
+            return this.#json.code;
+          }
+
+          get context() {
+            return this.#json.context;
+          }
+
+          toJSON(): ErrorJson<FullContext> {
+            return {
+              ...this.#json,
+              // Do not persist potentially sensitive data by default
+              context: undefined,
+              stack: STACK_NOT_AVAILABLE,
+            };
+          }
+        };
+      };
+
+      return {
+        define,
       };
     },
   };

@@ -9,4 +9,5 @@
 - Implement async.case (adjust docs "Pattern matching with status")
 - Add missing documentation
 - Badge with kb for each export (size-limit)?
+- Split Private / Public context
 - Use `interface` instead of `type`?
