@@ -22,11 +22,9 @@ describe("errors", () => {
       const errorDomain = errors.domain(testDomain);
 
       it("creates an error class", () => {
-        const NotFoundError = errorDomain
-          .class("NotFound", {
-            message: "Resource not found",
-          })
-          .define();
+        const NotFoundError = errorDomain.class("NotFound").define({
+          message: "Resource not found",
+        });
         const notFoundError = new NotFoundError();
 
         expect(notFoundError).toMatchObject({
@@ -37,11 +35,9 @@ describe("errors", () => {
       });
 
       it("contains the expected error stack", () => {
-        const NotFoundError = errorDomain
-          .class("NotFound", {
-            message: "Resource not found",
-          })
-          .define();
+        const NotFoundError = errorDomain.class("NotFound").define({
+          message: "Resource not found",
+        });
         const notFoundError = new NotFoundError();
 
         // Should contain the error.name and error.message
@@ -55,11 +51,10 @@ describe("errors", () => {
           },
         };
         const NotFoundError = errorDomain
-          .class("NotFound", {
+          .class("NotFound", staticContext)
+          .define({
             message: "Resource not found",
-            context: staticContext,
-          })
-          .define();
+          });
         const notFoundError = new NotFoundError();
 
         expect(notFoundError.context).toMatchObject(staticContext);
@@ -67,11 +62,10 @@ describe("errors", () => {
 
       it("allows to enhance the error class with a runtime context", () => {
         const NotFoundError = errorDomain
-          .class("NotFound", {
-            message: ({ context: { resource, id } }) =>
-              `${resource} (${id}) not found`,
-          })
-          .define<NotFoundContext>();
+          .class("NotFound")
+          .define<NotFoundContext>({
+            message: ({ resource, id }) => `${resource} (${id}) not found`,
+          });
         const context: NotFoundContext = {
           resource: "User",
           id: "123",
@@ -86,11 +80,11 @@ describe("errors", () => {
 
       it("shows a type error if a runtime context is required but not provided", () => {
         const NotFoundError = errorDomain
-          .class("NotFound", {
-            message: ({ context: { resource, id } }) =>
+          .class("NotFound")
+          .define<NotFoundContext>({
+            message: ({ resource, id }: NotFoundContext) =>
               `${resource} (${id}) not found`,
-          })
-          .define<NotFoundContext>();
+          });
 
         expect(() => {
           // @ts-expect-error RuntimeContext is required but not provided
@@ -105,16 +99,9 @@ describe("errors", () => {
           },
         };
         const NotFoundError = errorDomain
-          .class("NotFound", {
-            context: {
-              http: {
-                status: 404,
-              },
-            },
-          })
+          .class("NotFound", staticContext)
           .define<NotFoundContext>({
-            message: ({ context: { resource, id } }) =>
-              `${resource} (${id}) not found`,
+            message: ({ resource, id }) => `${resource} (${id}) not found`,
           });
         const runtimeContext: NotFoundContext = {
           resource: "User",
@@ -131,11 +118,9 @@ describe("errors", () => {
       });
 
       it("implements toJSON()", () => {
-        const NotFoundError = errorDomain
-          .class("NotFound", {
-            message: "Resource not found",
-          })
-          .define();
+        const NotFoundError = errorDomain.class("NotFound").define({
+          message: "Resource not found",
+        });
         const notFoundError = new NotFoundError();
         const json = notFoundError.toJSON();
 

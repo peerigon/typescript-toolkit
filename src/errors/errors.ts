@@ -1,24 +1,23 @@
 const domain = (domainId: string) => {
   return {
     id: domainId,
-    class: <StaticContext extends Record<string, unknown>>(
+    class: <const StaticContext extends Record<string, unknown>>(
       name: string,
-      staticOptionsWithStaticContext: {
-        message?:
-          | string
-          | ((params: { context: StaticContext } & ErrorOptions) => string);
-        context?: StaticContext;
-      } = {},
+      staticContext?: StaticContext,
     ) => {
       const define = <
-        RuntimeContext extends Record<string, unknown> = Record<string, never>,
-      >(
-        staticOptionsWithRuntimeContext: {
-          message?: (
-            params: { context: RuntimeContext } & ErrorOptions,
-          ) => string;
-        } = {},
-      ) => {
+        const RuntimeContext extends Record<string, unknown> = Record<
+          string,
+          never
+        >,
+      >(staticOptions: {
+        message:
+          | string
+          | ((
+              fullContext: StaticContext & RuntimeContext,
+              cause: ErrorOptions["cause"],
+            ) => string);
+      }) => {
         type FullContext = StaticContext & RuntimeContext;
 
         return class StructuredError extends Error {
@@ -33,23 +32,20 @@ const domain = (domainId: string) => {
                     ]
               : [ErrorOptions & { context: RuntimeContext | undefined }]
           ) {
-            const { context: runtimeContext, ...errorOptions } = args[0] ?? {};
+            const { context: runtimeContext, ...errorOptions } = args[0] ?? {
+              cause: undefined,
+            };
 
             const fullContext = {
-              ...staticOptionsWithStaticContext.context,
+              ...staticContext,
               ...runtimeContext,
-            } as FullContext; // Can we get rid of the type assertion?
+            } as FullContext;
 
-            const getMessage =
-              staticOptionsWithRuntimeContext.message ??
-              staticOptionsWithStaticContext.message ??
-              "An error occurred";
-            const message =
-              typeof getMessage === "string"
-                ? getMessage
-                : getMessage({
-                    context: fullContext,
-                  });
+            const getMessage = staticOptions.message;
+            const message: string =
+              typeof getMessage === "function"
+                ? getMessage(fullContext, errorOptions.cause)
+                : getMessage;
 
             super(message, errorOptions);
 
