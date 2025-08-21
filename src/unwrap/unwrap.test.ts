@@ -108,6 +108,17 @@ describe("unwrap()", () => {
       );
     });
 
+    it("includes the Result instance as cause in the thrown TypeError", () => {
+      const originalError = new Error("test error");
+      const errorResult = result.error({ error: originalError });
+
+      try {
+        unwrap(errorResult);
+      } catch (thrownError) {
+        expect((thrownError as TypeError).cause).toBe(errorResult);
+      }
+    });
+
     it("returns the fallback when there is no data and a fallback is provided", () => {
       const error = result.error({ error: new Error("test error") });
       const unwrapped: "fallback" = unwrap(error, "fallback");
@@ -148,6 +159,16 @@ describe("unwrap()", () => {
       );
     });
 
+    it("includes the Async instance as cause when throwing for pending without data", () => {
+      const asyncData = async.pending();
+
+      try {
+        unwrap(asyncData);
+      } catch (thrownError) {
+        expect((thrownError as TypeError).cause).toBe(asyncData);
+      }
+    });
+
     it("returns data when there is data", () => {
       const asyncData = async.pending({ data: "test data" });
       const unwrapped = unwrap(asyncData);
@@ -168,6 +189,17 @@ describe("unwrap()", () => {
       expect(() => unwrap(asyncData)).toThrowErrorMatchingInlineSnapshot(
         `[TypeError: Cannot unwrap: Async.Error("test error") is not a success and there is no fallback]`,
       );
+    });
+
+    it("includes the Async instance as cause in the thrown TypeError", () => {
+      const originalError = new Error("test error");
+      const asyncError = async.error({ error: originalError });
+
+      try {
+        unwrap(asyncError);
+      } catch (thrownError) {
+        expect((thrownError as TypeError).cause).toBe(asyncError);
+      }
     });
 
     it("throws when there is data and no fallback", () => {

@@ -60,7 +60,9 @@ export function unwrap<Value, GivenError extends Error, Fallback>(
   if (isResult(maybeValue)) {
     if (maybeValue.isError) {
       if (hasFallback) return fallback!;
-      throw new TypeError(typeErrorMessageForResult(maybeValue));
+      throw new TypeError(typeErrorMessageForResult(maybeValue), {
+        cause: maybeValue,
+      });
     }
 
     return maybeValue.data;
@@ -72,7 +74,9 @@ export function unwrap<Value, GivenError extends Error, Fallback>(
       (maybeValue.isPending && maybeValue.data === undefined)
     ) {
       if (hasFallback) return fallback!;
-      throw new TypeError(typeErrorMessageForResult(maybeValue));
+      throw new TypeError(typeErrorMessageForResult(maybeValue), {
+        cause: maybeValue,
+      });
     }
 
     return maybeValue.data as Value; // Why is the type assertion necessary here?
