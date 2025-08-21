@@ -159,4 +159,100 @@ describe("enums", () => {
       expect(Object.isFrozen(Color)).toBe(true);
     });
   });
+
+  describe("parse()", () => {
+    describe("with string enum values", () => {
+      const Direction = enums.define({
+        North: true,
+        South: true,
+        East: true,
+        West: true,
+      });
+      type Direction = Enums<typeof Direction>;
+
+      it("returns the value when it's a valid enum value", () => {
+        const result: Direction = enums.parse(Direction, "North");
+        expect(result).toBe("North");
+        expect(result).toBe(Direction.North);
+
+        // Type should be narrowed to Direction
+        const _direction: Direction = result;
+        expect(_direction).toBe(Direction.North);
+      });
+
+      it("throws TypeError when value is not in enum", () => {
+        expect(() =>
+          enums.parse(Direction, "Northeast"),
+        ).toThrowErrorMatchingInlineSnapshot(
+          `[TypeError: Invalid enum value "Northeast". Expected one of: "North", "South", "East", "West"]`,
+        );
+
+        try {
+          enums.parse(Direction, "Northeast");
+        } catch (error) {
+          expect((error as TypeError).cause).toEqual({
+            enum: Direction,
+            value: "Northeast",
+          });
+        }
+      });
+    });
+
+    describe("with complex values", () => {
+      const configObject = { name: "config", value: 123 } as const;
+      const dataArray = [1, 2, 3] as const;
+      const handlerFunction = () => "handler";
+
+      const ComplexEnum = enums.define({
+        Object: configObject,
+        Array: dataArray,
+        Function: handlerFunction,
+      });
+      type ComplexEnum = Enums<typeof ComplexEnum>;
+
+      it("returns the exact reference when value matches", () => {
+        const objectResult: ComplexEnum = enums.parse(
+          ComplexEnum,
+          configObject,
+        );
+        expect(objectResult).toBe(ComplexEnum.Object);
+        expect(objectResult).toBe(configObject);
+
+        const arrayResult: ComplexEnum = enums.parse(ComplexEnum, dataArray);
+        expect(arrayResult).toBe(ComplexEnum.Array);
+        expect(arrayResult).toBe(dataArray);
+
+        const functionResult: ComplexEnum = enums.parse(
+          ComplexEnum,
+          handlerFunction,
+        );
+        expect(functionResult).toBe(ComplexEnum.Function);
+        expect(functionResult).toBe(handlerFunction);
+      });
+
+      it("throws for similar but different objects", () => {
+        const similarObject = { name: "config", value: 123 };
+        expect(() => enums.parse(ComplexEnum, similarObject)).toThrow(
+          TypeError,
+        );
+
+        const similarArray = [1, 2, 3];
+        expect(() => enums.parse(ComplexEnum, similarArray)).toThrow(TypeError);
+
+        const differentFunction = () => "handler";
+        expect(() => enums.parse(ComplexEnum, differentFunction)).toThrow(
+          TypeError,
+        );
+      });
+    });
+
+    describe("edge cases", () => {
+      it("handles empty enums", () => {
+        const EmptyEnum = enums.define({});
+        expect(() => enums.parse(EmptyEnum, "anything")).toThrow(TypeError);
+        expect(() => enums.parse(EmptyEnum, null)).toThrow(TypeError);
+        expect(() => enums.parse(EmptyEnum, undefined)).toThrow(TypeError);
+      });
+    });
+  });
 });

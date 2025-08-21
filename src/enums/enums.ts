@@ -1,3 +1,5 @@
+import { stringify } from "../lib/string.ts";
+
 const defineBrandedEnums = <
   const Brand extends symbol,
   const Definition extends Record<string, unknown>,
@@ -79,4 +81,41 @@ export const enums = {
    * ```
    */
   define: defineEnums,
+
+  /**
+   * Parse a value to ensure it's a valid enum value.
+   *
+   * @param definition - The enum object created with enums.define
+   * @param value - The value to parse
+   * @returns The value typed as the enum type
+   * @throws {TypeError} If the value is not a valid enum value
+   *
+   * @example
+   * ```ts
+   * const Direction = enums.define({
+   *   North: true,
+   *   South: true
+   * });
+   *
+   * const dir = enums.parse(Direction, "North"); // Returns Direction.North
+   * const invalid = enums.parse(Direction, "West"); // Throws TypeError
+   * ```
+   */
+  parse: <Definition extends Record<string, unknown>>(
+    definition: Definition,
+    value: unknown,
+  ): Enums<Definition> => {
+    const enumValues = Object.values(definition);
+
+    if (enumValues.includes(value)) {
+      return value as Enums<Definition>;
+    }
+
+    throw new TypeError(
+      `Invalid enum value ${stringify(value)}. Expected one of: ${enumValues.map((value) => stringify(value)).join(", ")}`,
+      {
+        cause: { enum: definition, value },
+      },
+    );
+  },
 };
