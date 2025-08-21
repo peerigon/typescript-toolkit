@@ -1,81 +1,48 @@
-export type ErrorDomain = {
-  id: string;
-  class: <Context = Record<string, never>>(
-    name: string,
-    options: ErrorClassOptions<Context>,
-  ) => ErrorClass<Context>;
-};
-
-export type ErrorClassOptions<Context> = {
-  message: Context extends unknown
-    ? string
-    : (params: { context: Context }) => string;
-  http?: {
-    status: number;
-  };
-};
-
-export type ErrorClass<Context = Record<string, never>> = new (
-  params?: Context extends unknown ? undefined : { context: Context },
-) => ErrorInstance<Context>;
-
-export type ErrorInstance<Context = Record<string, never>> = Error & {
-  code: string;
-  name: string;
-  message: string;
-  context: Context;
-  toJSON: () => ErrorJson;
-  toHttpResponse: () => HttpErrorResponse;
-};
-
-export type ErrorJson = {
-  code: string;
-  name: string;
-  message: string;
-  stack?: string;
-};
-
-export type HttpErrorResponse = {
-  status: number;
-  body: ErrorJson;
-};
-
-const domain = (id: string): ErrorDomain => {
+const domain = (domainId: string) => {
   return {
-    id,
-    class: <Context = Record<string, never>>(
+    id: domainId,
+    class: <
+      FullContext extends Record<string, unknown>,
+      StaticContextKeys extends keyof FullContext = never,
+    >(
       name: string,
-      options: ErrorClassOptions<Context>,
-    ): ErrorClass<Context> => {
-      return class CustomError extends Error implements ErrorInstance<Context> {
+      options: {
+        message: string | ((params: { context: FullContext }) => string);
+        context?: {
+          [Key in StaticContextKeys]: FullContext[Key];
+        };
+      },
+    ) => {
+      type RuntimeContext = keyof FullContext extends StaticContextKeys
+        ? never
+        : Omit<FullContext, StaticContextKeys>;
+
+      return class CustomError extends Error {
         code: string;
-        context: Context;
+        context: FullContext;
 
         constructor(
-          params?: Context extends unknown ? undefined : { context: Context },
+          params?: RuntimeContext extends never
+            ? undefined
+            : { context: RuntimeContext },
         ) {
+          const mergedContext = {
+            ...options.context,
+            ...params?.context,
+          } as FullContext; // Can we get rid of the type assertion?
+
           const message =
             typeof options.message === "string"
               ? options.message
-              : (options.message as (params: { context: Context }) => string)({
-                  context: (params as { context: Context }).context,
+              : options.message({
+                  context: mergedContext,
                 });
 
           super(message);
 
           this.name = name;
-          this.code = `${id}/${name}`;
-
-          if (params && "context" in params) {
-            this.context = params.context as Context extends unknown
-              ? never
-              : Context;
-          } else {
-            this.context = {} as Context;
-          }
-
-          // Ensure proper prototype chain
-          Object.setPrototypeOf(this, new.target.prototype);
+          this.code = `${domainId}/${name}`;
+          this.context = mergedContext;
         }
 
         toJSON = (): ErrorJson => {
@@ -86,14 +53,7 @@ const domain = (id: string): ErrorDomain => {
             stack: this.stack,
           };
         };
-
-        toHttpResponse = (): HttpErrorResponse => {
-          return {
-            status: options.http?.status ?? 500,
-            body: this.toJSON(),
-          };
-        };
-      } as ErrorClass<Context>;
+      };
     },
   };
 };
@@ -101,3 +61,37 @@ const domain = (id: string): ErrorDomain => {
 export const errors = {
   domain,
 };
+
+export type ErrorJson = {
+  code: string;
+  name: string;
+  message: string;
+  stack?: string;
+};
+
+export type ContextWithHttpResponse = {
+  http: Pick<Response, "status">;
+};
+
+type SplitContext<
+  FullContext extends Record<string, unknown>,
+  StaticContextKeys extends keyof FullContext = never,
+> = {
+  FullContext: FullContext;
+  StaticContext: {
+    [K in StaticContextKeys]: FullContext[K];
+  };
+  RuntimeContext: keyof FullContext extends StaticContextKeys
+    ? never
+    : Omit<FullContext, StaticContextKeys>;
+};
+
+type Bla = SplitContext<
+  {
+    a: string;
+    b: number;
+  },
+  "a" | "b"
+>;
+
+type RuntimeContext = Bla["RuntimeContext"];
