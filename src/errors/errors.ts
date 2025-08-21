@@ -27,7 +27,7 @@ const domain = (domainId: string) => {
                   | []
                   | [
                       ErrorOptions & {
-                        context: never;
+                        context?: never;
                       },
                     ]
               : [ErrorOptions & { context: RuntimeContext | undefined }]
