@@ -1,7 +1,7 @@
-import { packageName } from "../lib/package.ts";
 import { stringify } from "../lib/string.ts";
 import { resultBrand } from "../result/result.lib.ts";
 import { Result } from "./../result/result.ts";
+import { asyncBrand } from "./async.lib.ts";
 
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -41,9 +41,6 @@ export const Async = {
     Error: Result.Status.Error,
   },
 } as const;
-
-// Using Symbol.for so that multiple instances of the library are compatible
-const asyncBrand = Symbol.for(`${packageName}/async/Async`);
 
 export namespace Async {
   export namespace Status {
@@ -226,18 +223,6 @@ export const async = {
   error: asyncError,
 };
 
-/**
- * Checks if the given value is an async result.
- *
- * @param maybeValue - The value to check
- * @returns True if the value is an async result, false otherwise
- */
-export const isAsync = (maybeValue: unknown): maybeValue is Async => {
-  return (
-    maybeValue !== null &&
-    typeof maybeValue === "object" &&
-    asyncBrand in maybeValue
-  );
-};
+export { isAsync } from "./async.lib.ts";
 
 type GenericError = Error;
