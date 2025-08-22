@@ -118,4 +118,30 @@ export const enums = {
       },
     );
   },
+
+  /**
+   * Get an array of [key, value] tuples from an enum definition.
+   *
+   * @param definition - The enum object created with enums.define
+   * @returns Array of [key, value] tuples
+   *
+   * @example
+   * ```ts
+   * const Direction = enums.define({
+   *   North: true,
+   *   South: true,
+   *   East: "east-value",
+   * });
+   *
+   * const entries = enums.entries(Direction);
+   * // [["North", "North"], ["South", "South"], ["East", "east-value"]]
+   * ```
+   */
+  entries: <Definition extends Record<string, unknown>>(
+    definition: Definition,
+  ): Array<[keyof Definition, Enums<Definition>]> => {
+    return Object.entries(definition) as Array<
+      [keyof Definition, Enums<Definition>]
+    >;
+  },
 };

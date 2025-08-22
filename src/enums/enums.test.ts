@@ -255,4 +255,29 @@ describe("enums", () => {
       });
     });
   });
+
+  describe("entries()", () => {
+    const Direction = enums.define({
+      North: true,
+      South: true,
+      East: true,
+      West: "Wild west",
+    });
+    type Direction = Enums<typeof Direction>;
+
+    it("returns array of [key, value] tuples", () => {
+      const entries = enums.entries(Direction);
+
+      // Preserves insertion orderx
+      expect(entries).toEqual([
+        ["North", "North"],
+        ["South", "South"],
+        ["East", "East"],
+        ["West", "Wild west"],
+      ]);
+
+      // Verify type safety
+      const _typedEntries: Array<[keyof typeof Direction, Direction]> = entries;
+    });
+  });
 });
