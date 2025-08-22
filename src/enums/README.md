@@ -64,19 +64,15 @@ const dataArray = [1, 2, 3];
 const handlerFunction = () => "handler";
 
 const ComplexEnum = enums.define({
-  Default: true,
   Config: configObject,
   Data: dataArray,
   Handler: handlerFunction,
-  Nested: { settings: { theme: "dark" } },
 });
 type ComplexEnum = Enums<typeof ComplexEnum>;
 
-console.log(ComplexEnum.Default); // "Default"
 console.log(ComplexEnum.Config); // { name: "config", value: 123 }
 console.log(ComplexEnum.Data); // [1, 2, 3]
-console.log(ComplexEnum.Handler()); // "handler"
-console.log(ComplexEnum.Nested); // { settings: { theme: "dark" } }
+console.log(ComplexEnum.Handler); // () => "handler"
 
 // Reference equality is preserved
 console.log(ComplexEnum.Config === configObject); // true
@@ -147,6 +143,55 @@ status = Status.Red; // ✅ Valid
 status = Color.Red; // ❌ TypeScript error - cannot mix branded enums
 ```
 
+### Parsing and Validation
+
+Use `enums.parse()` to validate that a value belongs to a specific enum:
+
+```ts
+const Direction = enums.define({
+  North: true,
+  South: true,
+  East: true,
+  West: true,
+});
+type Direction = Enums<typeof Direction>;
+
+// Parse and validate enum values
+function processDirection(input: unknown) {
+  try {
+    const direction = enums.parse(Direction, input);
+    // direction is now typed as Direction
+    console.log(`Valid direction: ${direction}`);
+    return direction;
+  } catch (error) {
+    // error.cause contains { enum: Direction, value: input }
+    console.error(`Invalid direction: ${input}`);
+    throw error;
+  }
+}
+
+processDirection("North"); // ✅ Returns Direction.North
+processDirection("Northeast"); // ❌ Throws TypeError
+processDirection(42); // ❌ Throws TypeError
+```
+
+### Iteration and Introspection
+
+Use `enums.entries()` to get key-value pairs for iteration:
+
+```ts
+const Status = enums.define({
+  Active: "active",
+  Inactive: 0,
+  Pending: true,
+});
+type Status = Enums<typeof Status>;
+
+// Get all [key, value] tuples
+const entries = enums.entries(Status);
+// [["Active", "active"], ["Inactive", 0], ["Pending", "Pending"]]
+```
+
 ### API Reference
 
 #### `enums.define(definition)`
@@ -169,6 +214,29 @@ Creates a branded enum that cannot be mixed with other enums.
 - `definition`: Object defining the enum keys and values
 
 **Returns**: Frozen branded enum object
+
+#### `enums.parse(definition, value)`
+
+Validates that a value is a valid enum value and returns it with the correct type.
+
+**Parameters**:
+
+- `definition`: The enum object created with `enums.define`
+- `value`: The value to validate
+
+**Returns**: The value typed as the enum type
+
+**Throws**: `TypeError` if the value is not valid, with `cause` containing `{ enum, value }`
+
+#### `enums.entries(definition)`
+
+Returns an array of [key, value] tuples from an enum definition.
+
+**Parameters**:
+
+- `definition`: The enum object created with `enums.define`
+
+**Returns**: Array of `[key, value]` tuples where keys are enum property names and values are enum values
 
 #### `Enums<Definition>`
 
