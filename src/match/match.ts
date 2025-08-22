@@ -1,4 +1,3 @@
-/* eslint-disable func-style */
 /* eslint-disable prefer-arrow/prefer-arrow-functions */
 
 import { stringify } from "../lib/string.ts";
@@ -83,37 +82,35 @@ function match<const Value>(value: Value): {
   };
 };
 function match<const Value>(value: Value): any {
-  function _case<const Result>(
-    cases: Cases<
-      readonly [Value, Result],
-      readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
-    >,
-  ): Result {
-    for (let i = 0; i < cases.length - 1; i++) {
-      const [valueInCase, resultInCase] = cases[i]!;
-
-      if (Object.is(value, valueInCase)) {
-        return resultInCase;
-      }
-    }
-
-    const [valueInLastCase, resultInLastCase] = need(cases.at(-1));
-
-    if (
-      Object.is(value, valueInLastCase) ||
-      valueInLastCase === defaultSymbol ||
-      valueInLastCase === catchSymbol
-    ) {
-      return resultInLastCase;
-    }
-
-    throw new Error(
-      `No match found for ${stringify(value)}. Expected one of: ${cases.map(([possibleValue]) => stringify(possibleValue)).join(", ")}`,
-    );
-  }
-
   return {
-    case: _case,
+    case: <const Result>(
+      cases: Cases<
+        readonly [Value, Result],
+        readonly [typeof defaultSymbol | typeof catchSymbol | Value, Result]
+      >,
+    ): Result => {
+      for (let i = 0; i < cases.length - 1; i++) {
+        const [valueInCase, resultInCase] = cases[i]!;
+
+        if (Object.is(value, valueInCase)) {
+          return resultInCase;
+        }
+      }
+
+      const [valueInLastCase, resultInLastCase] = need(cases.at(-1));
+
+      if (
+        Object.is(value, valueInLastCase) ||
+        valueInLastCase === defaultSymbol ||
+        valueInLastCase === catchSymbol
+      ) {
+        return resultInLastCase;
+      }
+
+      throw new Error(
+        `No match found for ${stringify(value)}. Expected one of: ${cases.map(([possibleValue]) => stringify(possibleValue)).join(", ")}`,
+      );
+    },
   };
 }
 
