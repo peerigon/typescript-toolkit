@@ -48,19 +48,6 @@ function processUser(user: User | null) {
 
 [Full documentation →](./src/assert/README.md)
 
-### `async`
-
-Represents an async Result that can be in one of three states: pending, success, or error. Includes stale data support for better UX.
-
-```ts
-import { async } from "@peerigon/fractals-typescript/async";
-
-const userAsync = async.pending<User>();
-// Later: async.success(userData) or async.error(error)
-```
-
-[Full documentation →](./src/async/README.md)
-
 ### `casing`
 
 TypeScript literal types and type guards for different casing conventions: snake_case, PascalCase, camelCase, and kebab-case.
@@ -169,16 +156,25 @@ const userResult = result.success(userData);
 // or: result.error(new Error("User not found"));
 ```
 
+Can also represent async results which are in a pending state:
+
+```ts
+import { result } from "@peerigon/fractals-typescript/result";
+
+const userResult = result.pending<User>(); // Loading state
+// Later: result.success(userData) or result.error(error)
+```
+
 [Full documentation →](./src/result/README.md)
 
 ### `unwrap`
 
-Safely extract values from Result, Async, or nullable types, with optional fallback support.
+Safely extract values from Result or nullable types, with optional fallback support.
 
 ```ts
 import { unwrap } from "@peerigon/fractals-typescript/unwrap";
 
-const value = unwrap(asyncResult, { fallback: "default" });
+const value = unwrap(result, "some default value if result is unwrappable");
 ```
 
 [Full documentation →](./src/unwrap/README.md)

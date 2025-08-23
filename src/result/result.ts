@@ -1,19 +1,40 @@
-import { stringify } from "../lib/string";
+import { stringify } from "../lib/string.ts";
 import { resultBrand } from "./result.lib.ts";
 
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
 
-// This module uses prototypes to create objects for the Result.Success and Result.Error types.
+// This module uses prototypes to create objects for the Result.Pending, Result.Success and Result.Error types.
 // This way unimportant properties won't show up in the debugger and we keep the memory footprint low.
 
+/**
+ * Represents some async data that could be in the following states:
+ *
+ * - initial (not implemented, see below)
+ * - pending
+ * - success
+ * - error
+ *
+ * This type is inspired by https://rametta.org/posts/elm-remote-data/ and has been
+ * designed to be aligned with tanstack query's useQuery() result.
+ * For instance, it can be used by a React component that wants to handle asynchronous
+ * data but does not want to call useQuery directly.
+ *
+ * The initial state has not been implemented because it's not compatible
+ * with tanstack query. If the initial state is needed,
+ * it can be represented as Result | undefined
+ */
 export type Result<
   Data = unknown,
   GivenError extends GenericError = GenericError,
-> = Result.Success<Data> | Result.Error<GivenError, Data>;
+> =
+  | Result.Pending<Data | undefined>
+  | Result.Success<Data>
+  | Result.Error<GivenError, Data | undefined>;
 
 export const Result = {
   Status: {
+    Pending: "pending",
     Success: "success",
     Error: "error",
   },
@@ -21,11 +42,29 @@ export const Result = {
 
 export namespace Result {
   export namespace Status {
+    export type Pending = typeof Result.Status.Pending;
     export type Success = typeof Result.Status.Success;
     export type Error = typeof Result.Status.Error;
   }
 
-  export type Status = Status.Success | Status.Error;
+  export type Status = Status.Pending | Status.Success | Status.Error;
+
+  /**
+   * Represents a pending result where data is being loaded.
+   * Pending might have stale data, but there's new data inflight.
+   */
+  export type Pending<Data = undefined> = Readonly<{
+    status: Status.Pending;
+    /** Is true when there's data */
+    isSuccess: false;
+    /** Is true when there's an error */
+    isError: false;
+    /** Is true when there's no result yet */
+    isPending: true;
+    /** Potentially stale data from a previous result */
+    data: Data;
+    error: null;
+  }>;
 
   /**
    * Represents a successful result that holds some data.
@@ -36,6 +75,8 @@ export namespace Result {
     isSuccess: true;
     /** Is true when there's an error */
     isError: false;
+    /** Is true when there's no result yet */
+    isPending: false;
     data: Data;
     error: null;
   }>;
@@ -53,12 +94,138 @@ export namespace Result {
     isSuccess: false;
     /** Is true when there's an error */
     isError: true;
+    /** Is true when there's no result yet */
+    isPending: false;
     /** Potentially stale data from a previous result */
     data: Data;
     /** The error that occurred */
     error: GivenError;
   }>;
+
+  /**
+   * Represents a synchronous result that can be either success or error (no pending state).
+   */
+  export type Sync<
+    Data = unknown,
+    GivenError extends GenericError = GenericError,
+  > = Success<Data> | Error<GivenError, Data>;
 }
+
+/**
+ * Creates a result in the pending state.
+ *
+ * @param data - Potentially stale data from a previous result
+ * @returns The pending result
+ */
+const pending = <const Data = undefined>({
+  data,
+}: Pick<Partial<Result.Pending<Data>>, "data"> = {}): Result.Pending<Data> => {
+  return Object.create(pendingPrototype, {
+    data: { value: data, enumerable: true },
+  }) as Result.Pending<Data>;
+};
+
+const pendingPrototype: Result.Pending & {
+  toString: () => string;
+} = {
+  status: Result.Status.Pending,
+  isSuccess: false,
+  isError: false,
+  isPending: true,
+  data: undefined,
+  error: null,
+  toString() {
+    return `Result.Pending(${
+      // This is a prototype method. `this` might point to an instance.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      this.data === undefined ? "" : stringify(this.data)
+    })`;
+  },
+} as const;
+
+Object.defineProperties(pendingPrototype, {
+  [resultBrand]: {
+    value: true,
+    enumerable: false,
+  },
+});
+
+/**
+ * Creates a result in the success state.
+ *
+ * @param data - The data to store in the result
+ * @returns The successful result
+ */
+const success = <const Data>({
+  data,
+}: Pick<Result.Success<Data>, "data">): Result.Success<Data> => {
+  return Object.create(successPrototype, {
+    data: { value: data, enumerable: true },
+  }) as Result.Success<Data>;
+};
+
+const successPrototype: Result.Success<undefined> & {
+  toString: () => string;
+} = {
+  status: Result.Status.Success,
+  isSuccess: true,
+  isError: false,
+  isPending: false,
+  data: undefined,
+  error: null,
+  toString() {
+    return `Result.Success(${stringify(this.data)})`;
+  },
+} as const;
+
+Object.defineProperties(successPrototype, {
+  [resultBrand]: {
+    value: true,
+    enumerable: false,
+  },
+});
+
+/**
+ * Creates a result in the error state.
+ *
+ * @param error - The error to store in the result
+ * @param data - Potentially stale data from a previous result
+ * @returns The failed result
+ */
+const error = <const GivenError extends Error, const Data = never>({
+  error: givenError,
+  data,
+}: Pick<Result.Error<GivenError, Data>, "error"> &
+  Pick<Partial<Result.Error<GivenError, Data>>, "data">): Result.Error<
+  GivenError,
+  Data
+> => {
+  return Object.create(errorPrototype, {
+    data: { value: data, enumerable: true },
+    error: { value: givenError, enumerable: true },
+  }) as Result.Error<GivenError, Data>;
+};
+
+const errorPrototype: Result.Error & {
+  toString: () => string;
+} = {
+  status: Result.Status.Error,
+  isSuccess: false,
+  isError: true,
+  isPending: false,
+  data: undefined,
+  error: new Error("Default error"),
+  toString() {
+    return `Result.Error(${stringify(this.error.message)})`;
+  },
+} as const;
+
+Object.defineProperties(errorPrototype, {
+  [resultBrand]: {
+    value: true,
+    enumerable: false,
+  },
+});
 
 /**
  * Calls the function and returns it as result.
@@ -68,7 +235,7 @@ export namespace Result {
  * @param fn - The function to call
  * @returns The result of the function
  */
-const from = <Data>(fn: () => Data): Result<Data> => {
+const from = <Data>(fn: () => Data): Result.Sync<Data> => {
   try {
     return success({ data: fn() });
   } catch (caughtError) {
@@ -90,7 +257,7 @@ const from = <Data>(fn: () => Data): Result<Data> => {
  */
 const fromAsync = async <Data>(
   fn: () => Promise<Data>,
-): Promise<Result<Data>> => {
+): Promise<Result.Sync<Data>> => {
   try {
     return success({ data: await fn() });
   } catch (caughtError) {
@@ -127,82 +294,10 @@ const isError = (error: unknown): error is GenericError => {
   );
 };
 
-/**
- * Creates a result in the success state.
- *
- * @param data - The data to store in the result
- * @returns The successful result
- */
-const success = <const Data>({ data }: Pick<Result.Success<Data>, "data">) => {
-  return Object.create(successPrototype, {
-    data: { value: data, enumerable: true },
-  }) as Result.Success<Data>;
-};
-
-const successPrototype: Result.Success<undefined> & {
-  toString: () => string;
-} = {
-  status: Result.Status.Success,
-  isSuccess: true,
-  isError: false,
-  data: undefined,
-  error: null,
-  toString() {
-    return `Result.Success(${stringify(this.data)})`;
-  },
-} as const;
-
-Object.defineProperties(successPrototype, {
-  [resultBrand]: {
-    value: true,
-    enumerable: false,
-  },
-});
-
-/**
- * Creates a result in the error state.
- *
- * @param error - The error to store in the result
- * @param data - Potentially stale data from a previous result
- * @returns The failed result
- */
-const error = <const GivenError extends GenericError, const Data = never>({
-  error,
-  data,
-}: Pick<Result.Error<GivenError, Data>, "error"> &
-  Partial<Pick<Result.Error<GivenError, Data>, "data">>): Result.Error<
-  GivenError,
-  Data
-> => {
-  return Object.create(errorPrototype, {
-    data: { value: data, enumerable: true },
-    error: { value: error, enumerable: true },
-  }) as Result.Error<GivenError, Data>;
-};
-
-const errorPrototype: Result.Error & {
-  toString: () => string;
-} = {
-  status: Result.Status.Error,
-  isSuccess: false,
-  isError: true,
-  data: undefined,
-  error: new Error("Default error"),
-  toString() {
-    return `Result.Error(${stringify(this.error.message)})`;
-  },
-} as const;
-
-Object.defineProperties(errorPrototype, {
-  [resultBrand]: {
-    value: true,
-    enumerable: false,
-  },
-});
-
 export const result = {
   from,
   fromAsync,
+  pending,
   success,
   error,
 };

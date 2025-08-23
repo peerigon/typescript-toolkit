@@ -37,8 +37,7 @@ Current utilities include:
 
 - `match` - Pattern matching with TypeScript exhaustiveness
 - `assert` - Type assertion helpers
-- `result` - Result type for error handling
-- `async` - Async utilities
+- `result` - Result type for error handling with pending, success, and error states
 - `reject` - Error throwing utilities
 - `need` - Required value utilities
 - `unwrap` - Unwrapping utilities

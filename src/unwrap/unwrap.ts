@@ -1,14 +1,13 @@
-import { isAsync, type Async } from "../async/async.ts";
 import { stringify } from "../lib/string.ts";
 import { isResult, type Result } from "../result/result.ts";
 
 /**
- * Unwrap a value from Result, Async, or nullable types, returning the underlying value or throwing an error.
+ * Unwrap a value from Result or nullable types, returning the underlying value or throwing an error.
  *
- * This function safely extracts values from wrapped types like Result and Async,
+ * This function safely extracts values from wrapped types like Result,
  * handling null/undefined values and providing fallback mechanisms.
  *
- * @param maybeValue - The value to unwrap (can be a plain value, Result, or Async)
+ * @param maybeValue - The value to unwrap (can be a plain value or Result)
  * @param fallback - Optional fallback value to return instead of throwing
  * @returns The unwrapped value or fallback
  * @throws {TypeError} When the value cannot be unwrapped and no fallback is provided
@@ -28,13 +27,10 @@ import { isResult, type Result } from "../result/result.ts";
  * ```
  */
 export function unwrap<Value, GivenError extends Error>(
-  maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,
+  maybeValue: Value | Result<Value, GivenError>,
 ): Value;
 export function unwrap<Value>(
-  maybeValue:
-    | Result.Success<Value>
-    | Async.Success<Value>
-    | Async.Pending<Value>,
+  maybeValue: Result.Success<Value> | Result.Pending<Value>,
   fallback: unknown,
 ): Value;
 export function unwrap<Value, GivenError extends Error, const Fallback>(
@@ -42,12 +38,12 @@ export function unwrap<Value, GivenError extends Error, const Fallback>(
   fallback: Fallback,
 ): Fallback;
 export function unwrap<Value, GivenError extends Error, const Fallback>(
-  maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,
+  maybeValue: Value | Result<Value, GivenError>,
   fallback: Fallback,
 ): NonNullable<Value> | Fallback;
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function unwrap<Value, GivenError extends Error, Fallback>(
-  maybeValue: Value | Result<Value, GivenError> | Async<Value, GivenError>,
+  maybeValue: Value | Result<Value, GivenError>,
   fallback?: Value,
 ): Value | Fallback {
   const hasFallback = arguments.length > 1;
@@ -58,6 +54,18 @@ export function unwrap<Value, GivenError extends Error, Fallback>(
   }
 
   if (isResult(maybeValue)) {
+    // Handle pending state
+    if ("isPending" in maybeValue && maybeValue.isPending) {
+      if (maybeValue.data === undefined) {
+        if (hasFallback) return fallback!;
+        throw new TypeError(typeErrorMessageForResult(maybeValue), {
+          cause: maybeValue,
+        });
+      }
+      return maybeValue.data as Value;
+    }
+
+    // Handle error state
     if (maybeValue.isError) {
       if (hasFallback) return fallback!;
       throw new TypeError(typeErrorMessageForResult(maybeValue), {
@@ -65,21 +73,8 @@ export function unwrap<Value, GivenError extends Error, Fallback>(
       });
     }
 
+    // Handle success state
     return maybeValue.data;
-  }
-
-  if (isAsync(maybeValue)) {
-    if (
-      maybeValue.isError ||
-      (maybeValue.isPending && maybeValue.data === undefined)
-    ) {
-      if (hasFallback) return fallback!;
-      throw new TypeError(typeErrorMessageForResult(maybeValue), {
-        cause: maybeValue,
-      });
-    }
-
-    return maybeValue.data as Value; // Why is the type assertion necessary here?
   }
 
   return maybeValue;

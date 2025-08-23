@@ -1,35 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { async } from "../async/async.ts";
 import { result } from "../result/result.ts";
 import { unwrap } from "./unwrap.ts";
 
 describe("unwrap()", () => {
   describe("with different values", () => {
     it("returns a string", () => {
-      const result: "hello" = unwrap("hello");
-      expect(result).toBe("hello");
+      const resultValue: "hello" = unwrap("hello");
+      expect(resultValue).toBe("hello");
     });
 
     it("returns a number", () => {
-      const result: 42 = unwrap(42);
-      expect(result).toBe(42);
+      const resultValue: 42 = unwrap(42);
+      expect(resultValue).toBe(42);
     });
 
     it("returns a boolean", () => {
-      const result: true = unwrap(true);
-      expect(result).toBe(true);
+      const resultValue: true = unwrap(true);
+      expect(resultValue).toBe(true);
     });
 
     it("returns an object", () => {
       const object = { key: "value" };
-      const result: { key: string } = unwrap(object);
-      expect(result).toBe(object);
+      const resultValue: { key: string } = unwrap(object);
+      expect(resultValue).toBe(object);
     });
 
     it("returns an array", () => {
       const array = [1, 2, 3];
-      const result: Array<number> = unwrap(array);
-      expect(result).toBe(array);
+      const resultValue: Array<number> = unwrap(array);
+      expect(resultValue).toBe(array);
     });
 
     it("returns falsy values", () => {
@@ -40,20 +39,20 @@ describe("unwrap()", () => {
 
     it("returns functions", () => {
       const func = () => "test";
-      const result = unwrap(func);
-      expect(result).toBe(func);
+      const resultValue = unwrap(func);
+      expect(resultValue).toBe(func);
     });
 
     it("returns symbols", () => {
       const sym = Symbol("test");
-      const result = unwrap(sym);
-      expect(result).toBe(sym);
+      const resultValue = unwrap(sym);
+      expect(resultValue).toBe(sym);
     });
 
     it("returns bigints", () => {
       const bigIntValue = BigInt(123);
-      const result = unwrap(bigIntValue);
-      expect(result).toBe(bigIntValue);
+      const resultValue = unwrap(bigIntValue);
+      expect(resultValue).toBe(bigIntValue);
     });
   });
 
@@ -66,8 +65,8 @@ describe("unwrap()", () => {
     });
 
     it("returns the fallback when a fallback is provided", () => {
-      const result: "fallback" = unwrap(undefined, "fallback");
-      expect(result).toBe("fallback");
+      const resultValue: "fallback" = unwrap(undefined, "fallback");
+      expect(resultValue).toBe("fallback");
     });
   });
 
@@ -80,8 +79,8 @@ describe("unwrap()", () => {
     });
 
     it("returns the fallback when a fallback is provided", () => {
-      const result: "fallback" = unwrap(null, "fallback");
-      expect(result).toBe("fallback");
+      const resultValue: "fallback" = unwrap(null, "fallback");
+      expect(resultValue).toBe("fallback");
     });
   });
 
@@ -136,95 +135,95 @@ describe("unwrap()", () => {
     });
   });
 
-  describe("from async.success()", () => {
+  describe("from result.success() with pending state", () => {
     it("returns data", () => {
-      const asyncData = async.success({ data: "test data" });
-      const unwrapped = unwrap(asyncData);
+      const successData = result.success({ data: "test data" });
+      const unwrapped = unwrap(successData);
       expect(unwrapped).toBe("test data");
     });
 
     it("returns data even when data is undefined", () => {
-      const result = async.success({ data: undefined });
-      const unwrapped = unwrap(result);
+      const resultValue = result.success({ data: undefined });
+      const unwrapped = unwrap(resultValue);
       expect(unwrapped).toBe(undefined);
     });
   });
 
-  describe("from async.pending()", () => {
+  describe("from result.pending()", () => {
     it("throws when there is no data and no fallback", () => {
-      const asyncData = async.pending();
-      expect(() => unwrap(asyncData)).toThrow(TypeError);
-      expect(() => unwrap(asyncData)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Cannot unwrap: Async.Pending() is not a success and there is no fallback]`,
+      const pendingData = result.pending();
+      expect(() => unwrap(pendingData)).toThrow(TypeError);
+      expect(() => unwrap(pendingData)).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Cannot unwrap: Result.Pending() is not a success and there is no fallback]`,
       );
     });
 
-    it("includes the Async instance as cause when throwing for pending without data", () => {
-      const asyncData = async.pending();
+    it("includes the Result instance as cause when throwing for pending without data", () => {
+      const pendingData = result.pending();
 
       try {
-        unwrap(asyncData);
+        unwrap(pendingData);
       } catch (thrownError) {
-        expect((thrownError as TypeError).cause).toBe(asyncData);
+        expect((thrownError as TypeError).cause).toBe(pendingData);
       }
     });
 
     it("returns data when there is data", () => {
-      const asyncData = async.pending({ data: "test data" });
-      const unwrapped = unwrap(asyncData);
+      const pendingData = result.pending({ data: "test data" });
+      const unwrapped = unwrap(pendingData);
       expect(unwrapped).toBe("test data");
     });
 
     it("returns the fallback when there is no data and a fallback is provided", () => {
-      const asyncData = async.pending();
-      const unwrapped = unwrap(asyncData, "fallback");
+      const pendingData = result.pending();
+      const unwrapped = unwrap(pendingData, "fallback");
       expect(unwrapped).toBe("fallback");
     });
   });
 
-  describe("from async.error()", () => {
+  describe("from result.error() with pending state", () => {
     it("throws when there is no data and no fallback", () => {
-      const asyncData = async.error({ error: new Error("test error") });
-      expect(() => unwrap(asyncData)).toThrow(TypeError);
-      expect(() => unwrap(asyncData)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Cannot unwrap: Async.Error("test error") is not a success and there is no fallback]`,
+      const errorData = result.error({ error: new Error("test error") });
+      expect(() => unwrap(errorData)).toThrow(TypeError);
+      expect(() => unwrap(errorData)).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Cannot unwrap: Result.Error("test error") is not a success and there is no fallback]`,
       );
     });
 
-    it("includes the Async instance as cause in the thrown TypeError", () => {
+    it("includes the Result instance as cause in the thrown TypeError", () => {
       const originalError = new Error("test error");
-      const asyncError = async.error({ error: originalError });
+      const errorResult = result.error({ error: originalError });
 
       try {
-        unwrap(asyncError);
+        unwrap(errorResult);
       } catch (thrownError) {
-        expect((thrownError as TypeError).cause).toBe(asyncError);
+        expect((thrownError as TypeError).cause).toBe(errorResult);
       }
     });
 
     it("throws when there is data and no fallback", () => {
-      const asyncData = async.error({
+      const errorData = result.error({
         error: new Error("test error"),
         data: "test data",
       });
-      expect(() => unwrap(asyncData)).toThrow(TypeError);
-      expect(() => unwrap(asyncData)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Cannot unwrap: Async.Error("test error") is not a success and there is no fallback]`,
+      expect(() => unwrap(errorData)).toThrow(TypeError);
+      expect(() => unwrap(errorData)).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Cannot unwrap: Result.Error("test error") is not a success and there is no fallback]`,
       );
     });
 
     it("returns the fallback when there is no data and a fallback is provided", () => {
-      const asyncData = async.error({ error: new Error("test error") });
-      const unwrapped = unwrap(asyncData, "fallback");
+      const errorData = result.error({ error: new Error("test error") });
+      const unwrapped = unwrap(errorData, "fallback");
       expect(unwrapped).toBe("fallback");
     });
 
     it("returns the fallback when there is data and a fallback is provided", () => {
-      const asyncData = async.error({
+      const errorData = result.error({
         error: new Error("test error"),
         data: "test data",
       });
-      const unwrapped = unwrap(asyncData, "fallback");
+      const unwrapped = unwrap(errorData, "fallback");
       expect(unwrapped).toBe("fallback");
     });
   });

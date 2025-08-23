@@ -2,7 +2,13 @@
 
 Type-safe error handling using the [`Result` pattern](https://imhoff.blog/posts/using-results-in-typescript), eliminating the need for try-catch blocks.
 
-Results can be either successful (with `data`) or failed (with an `error`), making error states explicit in the type system. For async results that can have a pending state, take a look at [`async`](../async/README.md).
+Results can be in one of three states:
+
+- **Pending**: Data is being loaded (with optional stale data)
+- **Success**: Operation completed successfully with data
+- **Error**: Operation failed with an error (and optional stale data)
+
+For synchronous results that don't need a pending state, use `Result.Sync<T>` which is a union of just `Result.Success` and `Result.Error`.
 
 ### Usage
 
@@ -73,6 +79,22 @@ if (fetchUserResult.isSuccess) {
 }
 ```
 
+#### Pending state for loading data
+
+Create results in a pending state while data is being loaded:
+
+```ts
+// Create pending result without data
+const loadingResult = result.pending();
+console.log(loadingResult.isPending); // true
+console.log(loadingResult.data); // undefined
+
+// Create pending result with stale data from previous load
+loadingResult = result.pending({ data: "stale data" });
+console.log(loadingResult.isPending); // true
+console.log(loadingResult.data); // "stale data"
+```
+
 #### Pattern matching with status
 
 ```ts
@@ -80,6 +102,8 @@ import { match } from "@peerigon/fractals-typescript/match";
 
 function handleResult<Data>(result: Result<Data>) {
   return match(result.status).case({
+    pending: () =>
+      `Loading... ${result.data ? `(showing: ${result.data})` : ""}`,
     success: () => `Data: ${result.data}`,
     error: () => `Error: ${result.error.message}`,
   });
@@ -130,6 +154,16 @@ Creates a result in the success state.
 
 **Returns**: `Result.Success<Data>`
 
+#### `result.pending(options)`
+
+Creates a result in the pending state.
+
+**Parameters**:
+
+- `options.data` (optional): Stale data from a previous operation
+
+**Returns**: `Result.Pending<Data>`
+
 #### `result.error(options)`
 
 Creates a result in the error state.
@@ -143,25 +177,25 @@ Creates a result in the error state.
 
 #### `result.from(fn)`
 
-Executes a function and wraps the result or error in a Result type.
+Executes a function and wraps the result or error in a `Result.Sync` type (without pending state).
 
 **Parameters**:
 
 - `fn`: Function to execute (must be synchronous)
 
-**Returns**: `Result<Data>` - Success if function returns, Error if function throws an Error
+**Returns**: `Result.Sync<Data>` - Success if function returns, Error if function throws an Error
 
 **Note**: Only catches Error instances (from all realms). Other thrown values are re-thrown.
 
 #### `result.fromAsync(fn)`
 
-Executes an async function and wraps the resolved value or rejection in a Result type.
+Executes an async function and wraps the resolved value or rejection in a `Result.Sync` type (without pending state).
 
 **Parameters**:
 
 - `fn`: Async function to execute
 
-**Returns**: `Promise<Result<Data>>` - Success if promise resolves, Error if promise rejects with an Error
+**Returns**: `Promise<Result.Sync<Data>>` - Success if promise resolves, Error if promise rejects with an Error
 
 **Note**: Only catches Error instances (from all realms). Other rejection values are re-thrown.
 
@@ -179,21 +213,33 @@ Type guard to check if a value is a Result.
 
 #### `Result<Data, Error>`
 
-The main result type with two possible states:
+The main result type with three possible states:
 
 ```ts
-type Result<Data, Error> = Result.Success<Data> | Result.Error<Error, Data>;
+type Result<Data, Error> =
+  | Result.Pending<Data>
+  | Result.Success<Data>
+  | Result.Error<Error, Data>;
+```
+
+#### `Result.Sync<Data, Error>`
+
+A synchronous result type with only two states (no pending):
+
+```ts
+type Result.Sync<Data, Error> = Result.Success<Data> | Result.Error<Error, Data>;
 ```
 
 #### State Properties
 
 All result states include these properties:
 
-- `status`: `"success" | "error"`
+- `status`: `"pending" | "success" | "error"`
 - `isSuccess`: `boolean` - True only for success state
 - `isError`: `boolean` - True only for error state
+- `isPending`: `boolean` - True only for pending state
 - `data`: The data (type varies by state)
-- `error`: The error (null for success state)
+- `error`: The error (null for success and pending states)
 
 ### ⚠️ Behavior Notes
 

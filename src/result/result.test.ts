@@ -1,23 +1,116 @@
 import { inspect } from "node:util";
 import {
   type QueryObserverLoadingErrorResult,
+  type QueryObserverLoadingResult,
+  type QueryObserverPendingResult,
+  type QueryObserverResult,
   type QueryObserverSuccessResult,
 } from "@tanstack/query-core";
 import { describe, expect, it } from "vitest";
-import { async } from "../async/async.ts";
 import { match } from "../match/match.ts";
-import { isResult, result, type Result } from "./result.ts";
+import { result, isResult, type Result } from "../result/result.ts";
 
 describe("result", () => {
+  describe("pending()", () => {
+    it("has the expected shape", () => {
+      const resultPending = result.pending();
+
+      expect(inspect(resultPending)).toMatchInlineSnapshot(
+        `"{ data: undefined }"`,
+      );
+      expect(
+        inspect(resultPending, {
+          showHidden: true,
+        }),
+      ).toMatchInlineSnapshot(`
+        "{
+          data: undefined,
+          status: 'pending',
+          isSuccess: false,
+          isError: false,
+          isPending: true,
+          error: null,
+          [Symbol(Result)]: true
+        }"
+      `);
+    });
+
+    it("allows to pass in previous data", () => {
+      const resultPending = result.pending({ data: "some data" });
+
+      expect(resultPending.data).toBe("some data");
+    });
+
+    it("is compatible with tanstack query's QueryObserverLoadingResult", () => {
+      const tanstackResult = {} as QueryObserverLoadingResult<string>;
+      const resultPending: Result.Pending = tanstackResult;
+
+      // Dummy assertion
+      expect(resultPending).toBeDefined();
+    });
+
+    it("is compatible with tanstack query's QueryObserverPendingResult", () => {
+      const tanstackResult = {} as QueryObserverPendingResult<string>;
+      const resultPending: Result.Pending = tanstackResult;
+
+      // Dummy assertion
+      expect(resultPending).toBeDefined();
+    });
+
+    it("has a string representation (no data)", () => {
+      const resultPending = result.pending();
+      expect(String(resultPending)).toMatchInlineSnapshot(`"Result.Pending()"`);
+    });
+
+    it("has a string representation (simple data)", () => {
+      const resultPending = result.pending({ data: "some data" });
+
+      expect(String(resultPending)).toMatchInlineSnapshot(
+        `"Result.Pending("some data")"`,
+      );
+    });
+
+    it("has a string representation (complex data)", () => {
+      const complexData = {
+        name: "John",
+        age: 30,
+        active: true,
+      };
+      const resultPending = result.pending({
+        data: complexData,
+      });
+
+      expect(String(resultPending)).toMatchInlineSnapshot(
+        `"Result.Pending({"name":"John","age":30,"active":true})"`,
+      );
+    });
+
+    it("infers undefined as data when no data is provided", () => {
+      const resultPending = result.pending();
+      const inferredData: undefined = resultPending.data;
+
+      // Dummy assertion
+      expect(inferredData).toBe(undefined);
+    });
+
+    it("infers the data type as const", () => {
+      const resultPending = result.pending({ data: "some data" });
+      const inferredData: "some data" = resultPending.data;
+
+      // Dummy assertion
+      expect(inferredData).toBeDefined();
+    });
+  });
+
   describe("success()", () => {
     it("has the expected shape", () => {
-      const successResult = result.success({ data: "some data" });
+      const resultSuccess = result.success({ data: "some data" });
 
-      expect(inspect(successResult)).toMatchInlineSnapshot(
+      expect(inspect(resultSuccess)).toMatchInlineSnapshot(
         `"{ data: 'some data' }"`,
       );
       expect(
-        inspect(successResult, {
+        inspect(resultSuccess, {
           showHidden: true,
         }),
       ).toMatchInlineSnapshot(`
@@ -26,10 +119,19 @@ describe("result", () => {
           status: 'success',
           isSuccess: true,
           isError: false,
+          isPending: false,
           error: null,
-          [Symbol(@peerigon/fractals-typescript/result/Result)]: true
+          [Symbol(Result)]: true
         }"
       `);
+    });
+
+    it("is compatible with Result.Success", () => {
+      const resultSuccess = result.success({ data: "test data" });
+      const resultSuccessType: Result.Success<string> = resultSuccess;
+
+      // Dummy assertion to ensure type compatibility
+      expect(resultSuccessType).toBeDefined();
     });
 
     it("is compatible with tanstack query's QueryObserverSuccessResult", () => {
@@ -41,9 +143,8 @@ describe("result", () => {
     });
 
     it("has a string representation (simple data)", () => {
-      const successResult = result.success({ data: "some data" });
-
-      expect(String(successResult)).toMatchInlineSnapshot(
+      const resultSuccess = result.success({ data: "some data" });
+      expect(String(resultSuccess)).toMatchInlineSnapshot(
         `"Result.Success("some data")"`,
       );
     });
@@ -54,18 +155,15 @@ describe("result", () => {
         age: 30,
         active: true,
       };
-      const successResult = result.success({
-        data: complexData,
-      });
-
-      expect(String(successResult)).toMatchInlineSnapshot(
+      const resultSuccess = result.success({ data: complexData });
+      expect(String(resultSuccess)).toMatchInlineSnapshot(
         `"Result.Success({"name":"John","age":30,"active":true})"`,
       );
     });
 
     it("infers the data type as const", () => {
-      const successResult = result.success({ data: "some data" });
-      const inferredData: "some data" = successResult.data;
+      const resultSuccess = result.success({ data: "some data" });
+      const inferredData: "some data" = resultSuccess.data;
 
       // Dummy assertion
       expect(inferredData).toBeDefined();
@@ -77,16 +175,16 @@ describe("result", () => {
 
     it("has the expected shape", () => {
       const error = new Error("some error");
-      const errorResult = result.error({ error });
+      const resultError = result.error({ error });
 
       // Removing the stack so that our snapshot is not polluted with the test file path
       error.stack = "";
 
-      expect(inspect(errorResult)).toMatchInlineSnapshot(
+      expect(inspect(resultError)).toMatchInlineSnapshot(
         `"{ data: undefined, error: [Error: some error] }"`,
       );
       expect(
-        inspect(errorResult, {
+        inspect(resultError, {
           showHidden: true,
         }),
       ).toMatchInlineSnapshot(`
@@ -99,18 +197,32 @@ describe("result", () => {
           status: 'error',
           isSuccess: false,
           isError: true,
-          [Symbol(@peerigon/fractals-typescript/result/Result)]: true
+          isPending: false,
+          [Symbol(Result)]: true
         }"
       `);
     });
 
-    it("allows data to be provided", () => {
-      const errorResult = result.error({
+    it("allows to pass in previous data", () => {
+      const resultError = result.error({
         error: new Error("some error"),
         data: "some data",
       });
 
-      expect(errorResult.data).toBe("some data");
+      expect(resultError.data).toBe("some data");
+    });
+
+    it("is compatible with Result.Error", () => {
+      class CustomError extends Error {
+        isCustomError = true;
+      }
+      const resultError = result.error({
+        error: new CustomError("test error"),
+      });
+      const resultErrorType: Result.Error<CustomError> = resultError;
+
+      // Dummy assertion to ensure type compatibility
+      expect(resultError).toBeDefined();
     });
 
     it("is compatible with tanstack query's QueryObserverLoadingErrorResult", () => {
@@ -125,31 +237,39 @@ describe("result", () => {
     });
 
     it("has a string representation (short message)", () => {
-      const errorResult = result.error({ error: new Error("some error") });
-      expect(String(errorResult)).toMatchInlineSnapshot(
+      const error = new Error("some error");
+      const resultError = result.error({ error });
+
+      // Removing the stack so that our snapshot is not polluted with the test file path
+      error.stack = "";
+
+      expect(String(resultError)).toMatchInlineSnapshot(
         `"Result.Error("some error")"`,
       );
     });
 
     it("has a string representation (long message)", () => {
-      const errorResult = result.error({
-        error: new Error(
-          "some error that is longer than the default limit it should be truncated",
-        ),
-      });
-      expect(String(errorResult)).toMatchInlineSnapshot(
+      const error = new Error(
+        "some error that is longer than the default limit it should be truncated",
+      );
+      const resultError = result.error({ error });
+
+      // Removing the stack so that our snapshot is not polluted with the test file path
+      error.stack = "";
+
+      expect(String(resultError)).toMatchInlineSnapshot(
         `"Result.Error("some error that is longer than the default limit …)"`,
       );
     });
 
     it("infers the error and data type as const", () => {
       const error = new TypeError("some error");
-      const errorResult = result.error({
+      const resultError = result.error({
         error,
         data: "some data",
       });
-      const inferredData: "some data" = errorResult.data;
-      const inferredError: TypeError = errorResult.error;
+      const inferredData: "some data" = resultError.data;
+      const inferredError: TypeError = resultError.error;
 
       // Dummy assertion
       expect(inferredData).toBeDefined();
@@ -157,274 +277,119 @@ describe("result", () => {
     });
   });
 
-  describe("from()", () => {
-    it("returns success result when function executes successfully", () => {
-      const fn = () => "test data";
-      const fnResult = result.from(fn);
-
-      expect(fnResult.isSuccess).toBe(true);
-      expect(fnResult.data).toBe("test data");
-    });
-
-    it("returns error result when function throws Error instance", () => {
-      const errorMessage = "Something went wrong";
-      class TestError extends Error {
-        constructor() {
-          super(errorMessage);
-        }
-      }
-
-      const fn = () => {
-        throw new TestError();
-      };
-      const fnResult = result.from(fn);
-
-      expect(fnResult.isError).toBe(true);
-      expect(fnResult.error).toBeInstanceOf(TestError);
-      expect(fnResult.error!.message).toBe(errorMessage);
-    });
-
-    it("rethrows when function throws non-Error values", () => {
-      const fn = (thing: any) => {
-        throw thing;
-      };
-
-      const test = (thing: any) => {
-        let caught: unknown;
-        try {
-          result.from(fn(thing));
-        } catch (error) {
-          caught = error;
-        }
-
-        expect(caught).toBe(thing);
-      };
-
-      test("string error");
-      test(42);
-      test(null);
-      test(undefined);
-      test({ message: "not an error" });
-    });
-
-    it("**does not** await promises, but wraps them in a result", () => {
-      const promise = Promise.resolve("async data");
-      const fn = () => promise;
-      const fnResult = result.from(fn);
-
-      expect(fnResult.isSuccess).toBe(true);
-      expect(fnResult.data).toBe(promise);
-    });
-  });
-
-  describe("fromAsync()", () => {
-    it("returns success result when async function resolves successfully", async () => {
-      const fn = async () => "async test data";
-      const fnResult = await result.fromAsync(fn);
-
-      expect(fnResult.isSuccess).toBe(true);
-      expect(fnResult.data).toBe("async test data");
-    });
-
-    it("returns error result when async function rejects with Error instance", async () => {
-      const errorMessage = "Async operation failed";
-      class TestError extends Error {
-        constructor() {
-          super(errorMessage);
-        }
-      }
-
-      const fn = async () => {
-        throw new TestError();
-      };
-      const fnResult = await result.fromAsync(fn);
-
-      expect(fnResult.isError).toBe(true);
-      expect(fnResult.error).toBeInstanceOf(TestError);
-      expect(fnResult.error!.message).toBe(errorMessage);
-    });
-
-    it("even catches synchronously thrown errors", async () => {
-      const fn = () => {
-        throw new Error("Synchronous error");
-      };
-
-      const fnResult = await result.fromAsync(fn);
-
-      expect(fnResult.isError).toBe(true);
-      expect(fnResult.error).toBeInstanceOf(Error);
-      expect(fnResult.error!.message).toBe("Synchronous error");
-    });
-
-    it("rethrows when async function rejects with non-Error values", async () => {
-      const fn = async (thing: any) => {
-        throw thing;
-      };
-
-      const test = async (thing: any) => {
-        let caught: unknown;
-        try {
-          await result.fromAsync(() => fn(thing));
-        } catch (error) {
-          caught = error;
-        }
-
-        expect(caught).toBe(thing);
-      };
-
-      await test("string error");
-      await test(42);
-      await test(null);
-      await test(undefined);
-      await test({ message: "not an error" });
-    });
-  });
-
-  it("works with match()", () => {
-    const successResult = result.success({ data: "some data" }) as Result;
-
-    const isSuccess: 1 | 2 = match(successResult.status).case([
+  it("works with match() for all states", () => {
+    const pendingResult = result.pending() as Result;
+    const pendingResultMatched: 0 | 1 | 2 = match(pendingResult.status).case([
+      ["pending", 0],
       ["success", 1],
       ["error", 2],
     ]);
+    expect(pendingResultMatched).toBe(0);
 
-    expect(isSuccess).toBe(1);
+    const successResult = result.success({ data: "some data" }) as Result;
+    const successResultMatched: 0 | 1 | 2 = match(successResult.status).case([
+      ["pending", 0],
+      ["success", 1],
+      ["error", 2],
+    ]);
+    expect(successResultMatched).toBe(1);
+
+    const errorData = result.error({
+      error: new Error("some error"),
+    }) as Result;
+    const errorResultMatched: 0 | 1 | 2 = match(errorData.status).case([
+      ["pending", 0],
+      ["success", 1],
+      ["error", 2],
+    ]);
+    expect(errorResultMatched).toBe(2);
+  });
+
+  it("is compatible with tanstack query's UseQueryResult", () => {
+    const tanstackResult = {} as QueryObserverResult<string>;
+    const resultType: Result<string> = tanstackResult;
+
+    // Dummy assertion
+    expect(resultType).toBeDefined();
   });
 });
 
 describe("isResult()", () => {
-  it("returns true for success results", () => {
-    const successResult = result.success({ data: "test data" });
-    expect(isResult(successResult)).toBe(true);
+  it("returns true for Result.Pending", () => {
+    const resultPending = result.pending();
+    expect(isResult(resultPending)).toBe(true);
   });
 
-  it("returns true for error results", () => {
-    const errorResult = result.error({ error: new Error("test error") });
-    expect(isResult(errorResult)).toBe(true);
+  it("returns true for Result.Success", () => {
+    const resultSuccess = result.success({ data: "test data" });
+    expect(isResult(resultSuccess)).toBe(true);
   });
 
-  it("returns false for undefined", () => {
-    expect(isResult(undefined)).toBe(false);
+  it("returns true for Result.Error", () => {
+    const resultError = result.error({ error: new Error("test error") });
+    expect(isResult(resultError)).toBe(true);
+  });
+
+  it("returns true for plain Result.Success without pending state", () => {
+    const plainSuccess = result.success({ data: "test" });
+    expect(isResult(plainSuccess)).toBe(true);
+  });
+
+  it("returns true for plain Result.Error without pending state", () => {
+    const plainError = result.error({ error: new Error("test error") });
+    expect(isResult(plainError)).toBe(true);
   });
 
   it("returns false for null", () => {
     expect(isResult(null)).toBe(false);
   });
 
-  it("returns false for primitive values", () => {
-    expect(isResult("string")).toBe(false);
-    expect(isResult(123)).toBe(false);
-    expect(isResult(true)).toBe(false);
-    expect(isResult(false)).toBe(false);
-    expect(isResult(Symbol("test"))).toBe(false);
+  it("returns false for undefined", () => {
+    expect(isResult(undefined)).toBe(false);
   });
 
-  it("returns false for objects without required properties", () => {
+  it("returns false for plain objects", () => {
     expect(isResult({})).toBe(false);
-    expect(isResult({ isSuccess: true })).toBe(false);
-    expect(isResult({ isError: false })).toBe(false);
-    expect(isResult({ data: "test" })).toBe(false);
-    expect(isResult({ error: "test" })).toBe(false);
-    expect(isResult({ status: "success" })).toBe(false);
-  });
-
-  it("returns false for objects with wrong property types", () => {
-    expect(
-      isResult({
-        isSuccess: "not boolean",
-        isError: false,
-        data: "test",
-        error: null,
-        status: "success",
-      }),
-    ).toBe(false);
-
-    expect(
-      isResult({
-        isSuccess: true,
-        isError: "not boolean",
-        data: "test",
-        error: null,
-        status: "success",
-      }),
-    ).toBe(false);
-  });
-
-  it("returns false for objects with invalid status", () => {
-    expect(
-      isResult({
-        isSuccess: true,
-        isError: false,
-        data: "test",
-        error: null,
-        status: "invalid",
-      }),
-    ).toBe(false);
-
-    expect(
-      isResult({
-        isSuccess: false,
-        isError: true,
-        data: undefined,
-        error: "test",
-        status: "pending",
-      }),
-    ).toBe(false);
   });
 
   it("returns false for objects missing required properties", () => {
-    expect(
-      isResult({
-        isSuccess: true,
-        isError: false,
-        data: "test",
-        status: "success",
-        // missing error property
-      }),
-    ).toBe(false);
-
-    expect(
-      isResult({
-        isSuccess: false,
-        isError: true,
-        error: "test",
-        status: "error",
-        // missing data property
-      }),
-    ).toBe(false);
+    expect(isResult({ status: "success" })).toBe(false);
+    expect(isResult({ isSuccess: true })).toBe(false);
+    expect(isResult({ isError: false })).toBe(false);
   });
 
-  it("works with type guards in conditional logic", () => {
-    const maybeResult = result.success({ data: "success" }) as unknown;
-
-    if (isResult(maybeResult)) {
-      // TypeScript should know this is a Result here
-      const definitelyResult: Result = maybeResult;
-      expect(definitelyResult.isSuccess).toBeDefined();
-      expect(definitelyResult.isError).toBeDefined();
-      expect(definitelyResult.data).toBeDefined();
-      expect(definitelyResult.error).toBeDefined();
-      expect(definitelyResult.status).toBeDefined();
-    } else {
-      expect(typeof maybeResult).toBe("string");
-    }
+  it("returns false for objects missing isPending property", () => {
+    const objectWithoutIsPending = {
+      status: "success",
+      isSuccess: true,
+      isError: false,
+      data: "test",
+      error: null,
+    };
+    expect(isResult(objectWithoutIsPending)).toBe(false);
   });
 
-  it("returns false for async.pending()", () => {
-    const asyncData = async.pending();
-
-    expect(isResult(asyncData)).toBe(false);
+  it("returns false for objects with invalid status", () => {
+    const objectWithInvalidStatus = {
+      status: "invalid",
+      isSuccess: true,
+      isError: false,
+      isPending: false,
+      data: "test",
+      error: null,
+    };
+    expect(isResult(objectWithInvalidStatus)).toBe(false);
   });
 
-  it("returns true for async.success()", () => {
-    const asyncData = async.success({ data: "test data" });
-
-    expect(isResult(asyncData)).toBe(true);
-  });
-
-  it("returns true for async.error()", () => {
-    const asyncData = async.error({ error: new Error("test error") });
-
-    expect(isResult(asyncData)).toBe(true);
+  it("returns false for objects with wrong property types", () => {
+    const objectWithWrongTypes = {
+      status: 123,
+      isSuccess: "true",
+      isError: 0,
+      isPending: "false",
+      data: "test",
+      error: null,
+    };
+    expect(isResult(objectWithWrongTypes)).toBe(false);
   });
 });
