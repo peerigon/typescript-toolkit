@@ -1,5 +1,8 @@
 ## `result`
 
+- 📦 Below 600 Bytes
+- ✅ Zero dependencies
+
 Type-safe error handling using the [`Result` pattern](https://imhoff.blog/posts/using-results-in-typescript), eliminating the need for try-catch blocks.
 
 Results can be in one of three states:

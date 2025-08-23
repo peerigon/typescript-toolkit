@@ -1,5 +1,8 @@
 ## `need`
 
+- 📦 Below 150 Bytes
+- ✅ Zero dependencies
+
 Assert that the given `value` is not `null` or `undefined` and return it with a narrowed type.
 
 ### Usage

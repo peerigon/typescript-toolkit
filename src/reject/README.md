@@ -1,5 +1,8 @@
 ## `reject`
 
+- 📦 Below 100 Bytes
+- ✅ Zero dependencies
+
 Returns a function that throws the given error.
 
 ### Usage

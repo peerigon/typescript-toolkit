@@ -3,5 +3,50 @@
     "name": "@peerigon/fractals-typescript/assert",
     "path": "dist/assert/assert.js",
     "limit": "200 B"
+  },
+  {
+    "name": "@peerigon/fractals-typescript/casing",
+    "path": "dist/casing/index.js",
+    "limit": "100 B"
+  },
+  {
+    "name": "@peerigon/fractals-typescript/dedupe",
+    "path": "dist/dedupe/dedupe.js",
+    "limit": "50 B"
+  },
+  {
+    "name": "@peerigon/fractals-typescript/enums",
+    "path": "dist/enums/enums.js",
+    "limit": "350 B"
+  },
+  {
+    "name": "@peerigon/fractals-typescript/errors",
+    "path": "dist/errors/errors.js",
+    "limit": "300 B"
+  },
+  {
+    "name": "@peerigon/fractals-typescript/match",
+    "path": "dist/match/match.js",
+    "limit": "400 B"
+  },
+  {
+    "name": "@peerigon/fractals-typescript/need",
+    "path": "dist/need/need.js",
+    "limit": "150 B"
+  },
+  {
+    "name": "@peerigon/fractals-typescript/reject",
+    "path": "dist/reject/reject.js",
+    "limit": "100 B"
+  },
+  {
+    "name": "@peerigon/fractals-typescript/result",
+    "path": "dist/result/result.js",
+    "limit": "600 B"
+  },
+  {
+    "name": "@peerigon/fractals-typescript/unwrap",
+    "path": "dist/unwrap/unwrap.js",
+    "limit": "550 B"
   }
 ]

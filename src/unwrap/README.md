@@ -1,5 +1,8 @@
 ## `unwrap`
 
+- 📦 Below 550 Bytes
+- ✅ Zero dependencies
+
 Safely extract values from [`Result`](../result/README.md), [`Async`](../async/README.md), or nullable types, with optional fallback support. Provides a unified interface for unwrapping different wrapped value types.
 
 ### Usage

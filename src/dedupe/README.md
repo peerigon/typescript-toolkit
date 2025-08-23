@@ -1,5 +1,8 @@
 ## `dedupe`
 
+- 📦 Below 50 Bytes
+- ✅ Zero dependencies
+
 Remove duplicate values from an array using JavaScript's native `Set` for efficient deduplication. Preserves the order of first occurrence for each unique value.
 
 ### Usage

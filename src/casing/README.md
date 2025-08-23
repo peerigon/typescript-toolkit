@@ -1,5 +1,8 @@
 ## `casing`
 
+- 📦 Below 100 Bytes
+- ✅ Zero dependencies
+
 TypeScript literal types and type guards for different casing conventions. This module provides precise types for `SNAKE_CASE`, `PascalCase`, `camelCase`, and `kebab-case` strings, along with runtime type guards to verify strings conform to these conventions.
 
 ### Usage

@@ -1,5 +1,8 @@
 ## `match`
 
+- 📦 Below 400 Bytes
+- ✅ Zero dependencies
+
 Match the given `value` against cases and return the matching result. This function provides exhaustive pattern matching with TypeScript, ensuring all cases are handled at compile time.
 
 This function works similarly to a regular `switch`/`case` statement, but has a decisive advantage: TypeScript issues a type error if not all cases have been implemented. An error is also thrown at runtime if a value doesn't match any case.
