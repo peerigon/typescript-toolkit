@@ -1,0 +1,7 @@
+[
+  {
+    "name": "@peerigon/fractals-typescript/assert",
+    "path": "dist/assert/assert.js",
+    "limit": "200 B"
+  }
+]

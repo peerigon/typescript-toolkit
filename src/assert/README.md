@@ -1,5 +1,8 @@
 ## `assert`
 
+- 📦 Below 200 Bytes
+- ✅ Zero dependencies
+
 Assert that a given `value` is not `null`, `undefined`, or `false`, and narrow its type. This function provides both runtime validation and TypeScript type narrowing.
 
 Unlike regular truthiness checks, `assert` only rejects `null`, `undefined`, and `false` while allowing other falsy values like `0`, `""`, and `NaN` to pass through. Use `assert.truthy` if you need to check for truthiness.
