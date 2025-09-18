@@ -1,6 +1,6 @@
 import type { Result } from "./result.ts";
 
-export const resultBrand = Symbol("Result");
+export const symbolOfResult = Symbol("Result");
 
 /**
  * Checks if the given value is a result.
@@ -12,6 +12,6 @@ export const isResult = (maybeValue: unknown): maybeValue is Result => {
   return (
     maybeValue !== null &&
     typeof maybeValue === "object" &&
-    resultBrand in maybeValue
+    symbolOfResult in maybeValue
   );
 };

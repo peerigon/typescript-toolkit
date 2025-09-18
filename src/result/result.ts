@@ -1,5 +1,6 @@
+import { createPrototype } from "../lib/create-prototype.ts";
 import { stringify } from "../lib/string.ts";
-import { resultBrand } from "./result.lib.ts";
+import { symbolOfResult } from "./result.lib.ts";
 
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -111,121 +112,146 @@ export namespace Result {
   > = Success<Data> | Error<GivenError, Data>;
 }
 
+const setMetadata = <Data>(
+  result: Result<Data>,
+  metadata: ResultMetadata<Data>,
+) => {
+  Object.defineProperty(result, symbolOfResult, {
+    value: metadata,
+    enumerable: false,
+  });
+};
+
+const getMetadata = <Data>(result: Result<Data>): ResultMetadata<Data> => {
+  return (result as { [symbolOfResult]?: ResultMetadata<Data> })[
+    symbolOfResult
+  ]!;
+};
+
 /**
  * Creates a result in the pending state.
  *
- * @param data - Potentially stale data from a previous result
+ * @param options.data - Potentially stale data from a previous result
+ * @param options.promise - The promise that delivers the result
+ * @param options.createdAt - The date when the result was created
  * @returns The pending result
  */
 const pending = <const Data = undefined>({
   data,
-}: Pick<Partial<Result.Pending<Data>>, "data"> = {}): Result.Pending<Data> => {
-  return Object.create(pendingPrototype, {
+  promise,
+  createdAt = new Date(),
+}: Pick<Partial<Result.Pending<Data>>, "data"> &
+  Partial<ResultMetadata<Data>> = {}) => {
+  const pendingResult: Result.Pending<Data> = Object.create(pendingPrototype, {
     data: { value: data, enumerable: true },
-  }) as Result.Pending<Data>;
+  });
+
+  setMetadata(pendingResult, { promise, createdAt });
+
+  return pendingResult;
 };
 
-const pendingPrototype: Result.Pending & {
-  toString: () => string;
-} = {
-  status: Result.Status.Pending,
-  isSuccess: false,
-  isError: false,
-  isPending: true,
-  data: undefined,
-  error: null,
-  toString() {
-    return `Result.Pending(${
-      // This is a prototype method. `this` might point to an instance.
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      this.data === undefined ? "" : stringify(this.data)
-    })`;
+const pendingPrototype: Result.Pending = createPrototype(
+  {
+    status: Result.Status.Pending,
+    isSuccess: false,
+    isError: false,
+    isPending: true,
+    data: undefined,
+    error: null,
+  } as const,
+  {
+    toString(this: Result.Pending<unknown>) {
+      return `Result.Pending(${
+        this.data === undefined ? "" : stringify(this.data)
+      })`;
+    },
   },
-} as const;
-
-Object.defineProperties(pendingPrototype, {
-  [resultBrand]: {
-    value: true,
-    enumerable: false,
-  },
-});
+);
 
 /**
  * Creates a result in the success state.
  *
- * @param data - The data to store in the result
+ * @param options.data - The data to store in the result
+ * @param options.promise - The promise that delivers the result
+ * @param options.createdAt - The date when the result was created
  * @returns The successful result
  */
 const success = <const Data>({
   data,
-}: Pick<Result.Success<Data>, "data">): Result.Success<Data> => {
-  return Object.create(successPrototype, {
+  promise,
+  createdAt = new Date(),
+}: Pick<Result.Success<Data>, "data"> &
+  Partial<ResultMetadata<Data>>): Result.Success<Data> => {
+  const successResult: Result.Success<Data> = Object.create(successPrototype, {
     data: { value: data, enumerable: true },
-  }) as Result.Success<Data>;
+  });
+
+  setMetadata(successResult, { promise, createdAt });
+
+  return successResult;
 };
 
-const successPrototype: Result.Success<undefined> & {
-  toString: () => string;
-} = {
-  status: Result.Status.Success,
-  isSuccess: true,
-  isError: false,
-  isPending: false,
-  data: undefined,
-  error: null,
-  toString() {
-    return `Result.Success(${stringify(this.data)})`;
+const successPrototype: Result.Success<undefined> = createPrototype(
+  {
+    status: Result.Status.Success,
+    isSuccess: true,
+    isError: false,
+    isPending: false,
+    data: undefined,
+    error: null,
+  } as const,
+  {
+    toString(this: Result.Success) {
+      return `Result.Success(${stringify(this.data)})`;
+    },
   },
-} as const;
-
-Object.defineProperties(successPrototype, {
-  [resultBrand]: {
-    value: true,
-    enumerable: false,
-  },
-});
+);
 
 /**
  * Creates a result in the error state.
  *
- * @param error - The error to store in the result
- * @param data - Potentially stale data from a previous result
+ * @param options.error - The error to store in the result
+ * @param options.data - Potentially stale data from a previous result
+ * @param options.promise - The promise that delivers the result
  * @returns The failed result
  */
 const error = <const GivenError extends Error, const Data = never>({
   error: givenError,
   data,
+  promise,
+  createdAt = new Date(),
 }: Pick<Result.Error<GivenError, Data>, "error"> &
-  Pick<Partial<Result.Error<GivenError, Data>>, "data">): Result.Error<
-  GivenError,
-  Data
-> => {
-  return Object.create(errorPrototype, {
-    data: { value: data, enumerable: true },
-    error: { value: givenError, enumerable: true },
-  }) as Result.Error<GivenError, Data>;
+  Pick<Partial<Result.Error<GivenError, Data>>, "data"> &
+  Partial<ResultMetadata<Data>>): Result.Error<GivenError, Data> => {
+  const errorResult: Result.Error<GivenError, Data> = Object.create(
+    errorPrototype,
+    {
+      data: { value: data, enumerable: true },
+      error: { value: givenError, enumerable: true },
+    },
+  );
+
+  setMetadata(errorResult, { promise, createdAt });
+
+  return errorResult;
 };
 
-const errorPrototype: Result.Error & {
-  toString: () => string;
-} = {
-  status: Result.Status.Error,
-  isSuccess: false,
-  isError: true,
-  isPending: false,
-  data: undefined,
-  error: new Error("Default error"),
-  toString() {
-    return `Result.Error(${stringify(this.error.message)})`;
+const errorPrototype: Result.Error = createPrototype(
+  {
+    status: Result.Status.Error,
+    isSuccess: false,
+    isError: true,
+    isPending: false,
+    data: undefined,
+    error: new Error("Default error"),
+  } as const,
+  {
+    toString(this: Result.Error) {
+      return `Result.Error(${stringify(this.error.message)})`;
+    },
   },
-} as const;
-
-Object.defineProperties(errorPrototype, {
-  [resultBrand]: {
-    value: true,
-    enumerable: false,
-  },
-});
+);
 
 /**
  * Calls the function and returns it as result.
@@ -300,8 +326,16 @@ export const result = {
   pending,
   success,
   error,
+  metadata: getMetadata,
 };
 
 export { isResult } from "./result.lib.ts";
 
 type GenericError = Error;
+
+type ResultMetadata<Data> = {
+  /** The promise that delivers the result */
+  promise?: Promise<Data>;
+  /** The date when the result was created */
+  createdAt: Date;
+};

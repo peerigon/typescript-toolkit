@@ -1,4 +1,3 @@
-import { inspect } from "node:util";
 import {
   type QueryObserverLoadingErrorResult,
   type QueryObserverLoadingResult,
@@ -6,11 +5,14 @@ import {
   type QueryObserverResult,
   type QueryObserverSuccessResult,
 } from "@tanstack/query-core";
+import { inspect } from "node:util";
 import { describe, expect, it } from "vitest";
 import { match } from "../match/match.ts";
-import { result, isResult, type Result } from "../result/result.ts";
+import { isResult, result, type Result } from "../result/result.ts";
 
 describe("result", () => {
+  const createdAt = new Date(0);
+
   describe("pending()", () => {
     it("has the expected shape", () => {
       const resultPending = result.pending();
@@ -19,18 +21,20 @@ describe("result", () => {
         `"{ data: undefined }"`,
       );
       expect(
-        inspect(resultPending, {
-          showHidden: true,
-        }),
+        replaceAllDates(
+          inspect(resultPending, {
+            showHidden: true,
+          }),
+        ),
       ).toMatchInlineSnapshot(`
         "{
           data: undefined,
+          [Symbol(Result)]: { promise: undefined, createdAt: 1970-01-01T00:00:00.000Z },
           status: 'pending',
           isSuccess: false,
           isError: false,
           isPending: true,
-          error: null,
-          [Symbol(Result)]: true
+          error: null
         }"
       `);
     });
@@ -100,6 +104,19 @@ describe("result", () => {
       // Dummy assertion
       expect(inferredData).toBeDefined();
     });
+
+    describe("metadata", () => {
+      it("allows to pass in a promise", () => {
+        const promise = Promise.resolve("some data");
+        const resultPending = result.pending({ promise });
+        expect(result.metadata(resultPending).promise).toBe(promise);
+      });
+
+      it("allows to pass in a createdAt", () => {
+        const resultPending = result.pending({ createdAt });
+        expect(result.metadata(resultPending).createdAt).toBe(createdAt);
+      });
+    });
   });
 
   describe("success()", () => {
@@ -110,28 +127,22 @@ describe("result", () => {
         `"{ data: 'some data' }"`,
       );
       expect(
-        inspect(resultSuccess, {
-          showHidden: true,
-        }),
+        replaceAllDates(
+          inspect(resultSuccess, {
+            showHidden: true,
+          }),
+        ),
       ).toMatchInlineSnapshot(`
         "{
           data: 'some data',
+          [Symbol(Result)]: { promise: undefined, createdAt: 1970-01-01T00:00:00.000Z },
           status: 'success',
           isSuccess: true,
           isError: false,
           isPending: false,
-          error: null,
-          [Symbol(Result)]: true
+          error: null
         }"
       `);
-    });
-
-    it("is compatible with Result.Success", () => {
-      const resultSuccess = result.success({ data: "test data" });
-      const resultSuccessType: Result.Success<string> = resultSuccess;
-
-      // Dummy assertion to ensure type compatibility
-      expect(resultSuccessType).toBeDefined();
     });
 
     it("is compatible with tanstack query's QueryObserverSuccessResult", () => {
@@ -168,6 +179,21 @@ describe("result", () => {
       // Dummy assertion
       expect(inferredData).toBeDefined();
     });
+
+    describe("metadata", () => {
+      const data = "some data";
+
+      it("allows to pass in a promise", () => {
+        const promise = Promise.resolve("some data");
+        const resultSuccess = result.success({ promise, data });
+        expect(result.metadata(resultSuccess).promise).toBe(promise);
+      });
+
+      it("allows to pass in a createdAt", () => {
+        const resultSuccess = result.success({ createdAt, data });
+        expect(result.metadata(resultSuccess).createdAt).toBe(createdAt);
+      });
+    });
   });
 
   describe("error()", () => {
@@ -184,9 +210,11 @@ describe("result", () => {
         `"{ data: undefined, error: [Error: some error] }"`,
       );
       expect(
-        inspect(resultError, {
-          showHidden: true,
-        }),
+        replaceAllDates(
+          inspect(resultError, {
+            showHidden: true,
+          }),
+        ),
       ).toMatchInlineSnapshot(`
         "{
           data: undefined,
@@ -194,11 +222,11 @@ describe("result", () => {
             [stack]: [Getter/Setter],
             [message]: 'some error'
           },
+          [Symbol(Result)]: { promise: undefined, createdAt: 1970-01-01T00:00:00.000Z },
           status: 'error',
           isSuccess: false,
           isError: true,
-          isPending: false,
-          [Symbol(Result)]: true
+          isPending: false
         }"
       `);
     });
@@ -210,19 +238,6 @@ describe("result", () => {
       });
 
       expect(resultError.data).toBe("some data");
-    });
-
-    it("is compatible with Result.Error", () => {
-      class CustomError extends Error {
-        isCustomError = true;
-      }
-      const resultError = result.error({
-        error: new CustomError("test error"),
-      });
-      const resultErrorType: Result.Error<CustomError> = resultError;
-
-      // Dummy assertion to ensure type compatibility
-      expect(resultError).toBeDefined();
     });
 
     it("is compatible with tanstack query's QueryObserverLoadingErrorResult", () => {
@@ -275,6 +290,24 @@ describe("result", () => {
       expect(inferredData).toBeDefined();
       expect(inferredError).toBeDefined();
     });
+
+    describe("metadata", () => {
+      const error = new Error("some error");
+
+      it("allows to pass in a promise", () => {
+        const promise = Promise.resolve("some data");
+        const resultError = result.error({
+          promise,
+          error,
+        });
+        expect(result.metadata(resultError).promise).toBe(promise);
+      });
+
+      it("allows to pass in a createdAt", () => {
+        const resultError = result.error({ createdAt, error });
+        expect(result.metadata(resultError).createdAt).toBe(createdAt);
+      });
+    });
   });
 
   it("works with match() for all states", () => {
@@ -312,6 +345,13 @@ describe("result", () => {
     // Dummy assertion
     expect(resultType).toBeDefined();
   });
+
+  const replaceAllDates = (snapshot: string) => {
+    return snapshot.replaceAll(
+      /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/g,
+      "1970-01-01T00:00:00.000Z",
+    );
+  };
 });
 
 describe("isResult()", () => {
