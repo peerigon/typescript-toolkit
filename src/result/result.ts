@@ -112,41 +112,34 @@ export namespace Result {
   > = Success<Data> | Error<GivenError, Data>;
 }
 
-const setMetadata = <Data>(
-  result: Result<Data>,
-  metadata: ResultMetadata<Data>,
-) => {
+const setMetadata = <Data>(result: Result<Data>, metadata: ResultMetadata) => {
   Object.defineProperty(result, symbolOfResult, {
     value: metadata,
     enumerable: false,
   });
 };
 
-const getMetadata = <Data>(result: Result<Data>): ResultMetadata<Data> => {
-  return (result as { [symbolOfResult]?: ResultMetadata<Data> })[
-    symbolOfResult
-  ]!;
+const getMetadata = <Data>(result: Result<Data>): ResultMetadata => {
+  return (result as { [symbolOfResult]?: ResultMetadata })[symbolOfResult]!;
 };
 
 /**
  * Creates a result in the pending state.
  *
  * @param options.data - Potentially stale data from a previous result
- * @param options.promise - The promise that delivers the result
  * @param options.createdAt - The date when the result was created
  * @returns The pending result
  */
 const pending = <const Data = undefined>({
   data,
-  promise,
   createdAt = new Date(),
 }: Pick<Partial<Result.Pending<Data>>, "data"> &
-  Partial<ResultMetadata<Data>> = {}) => {
+  Partial<ResultMetadata> = {}) => {
   const pendingResult: Result.Pending<Data> = Object.create(pendingPrototype, {
     data: { value: data, enumerable: true },
   });
 
-  setMetadata(pendingResult, { promise, createdAt });
+  setMetadata(pendingResult, { createdAt });
 
   return pendingResult;
 };
@@ -173,21 +166,19 @@ const pendingPrototype: Result.Pending = createPrototype(
  * Creates a result in the success state.
  *
  * @param options.data - The data to store in the result
- * @param options.promise - The promise that delivers the result
  * @param options.createdAt - The date when the result was created
  * @returns The successful result
  */
 const success = <const Data>({
   data,
-  promise,
   createdAt = new Date(),
 }: Pick<Result.Success<Data>, "data"> &
-  Partial<ResultMetadata<Data>>): Result.Success<Data> => {
+  Partial<ResultMetadata>): Result.Success<Data> => {
   const successResult: Result.Success<Data> = Object.create(successPrototype, {
     data: { value: data, enumerable: true },
   });
 
-  setMetadata(successResult, { promise, createdAt });
+  setMetadata(successResult, { createdAt });
 
   return successResult;
 };
@@ -213,17 +204,15 @@ const successPrototype: Result.Success<undefined> = createPrototype(
  *
  * @param options.error - The error to store in the result
  * @param options.data - Potentially stale data from a previous result
- * @param options.promise - The promise that delivers the result
  * @returns The failed result
  */
 const error = <const GivenError extends Error, const Data = never>({
   error: givenError,
   data,
-  promise,
   createdAt = new Date(),
 }: Pick<Result.Error<GivenError, Data>, "error"> &
   Pick<Partial<Result.Error<GivenError, Data>>, "data"> &
-  Partial<ResultMetadata<Data>>): Result.Error<GivenError, Data> => {
+  Partial<ResultMetadata>): Result.Error<GivenError, Data> => {
   const errorResult: Result.Error<GivenError, Data> = Object.create(
     errorPrototype,
     {
@@ -232,7 +221,7 @@ const error = <const GivenError extends Error, const Data = never>({
     },
   );
 
-  setMetadata(errorResult, { promise, createdAt });
+  setMetadata(errorResult, { createdAt });
 
   return errorResult;
 };
@@ -333,9 +322,7 @@ export { isResult } from "./result.lib.ts";
 
 type GenericError = Error;
 
-type ResultMetadata<Data> = {
-  /** The promise that delivers the result */
-  promise?: Promise<Data>;
+type ResultMetadata = {
   /** The date when the result was created */
   createdAt: Date;
 };

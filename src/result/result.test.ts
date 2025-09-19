@@ -29,7 +29,7 @@ describe("result", () => {
       ).toMatchInlineSnapshot(`
         "{
           data: undefined,
-          [Symbol(Result)]: { promise: undefined, createdAt: 1970-01-01T00:00:00.000Z },
+          [Symbol(Result)]: { createdAt: 1970-01-01T00:00:00.000Z },
           status: 'pending',
           isSuccess: false,
           isError: false,
@@ -106,12 +106,6 @@ describe("result", () => {
     });
 
     describe("metadata", () => {
-      it("allows to pass in a promise", () => {
-        const promise = Promise.resolve("some data");
-        const resultPending = result.pending({ promise });
-        expect(result.metadata(resultPending).promise).toBe(promise);
-      });
-
       it("allows to pass in a createdAt", () => {
         const resultPending = result.pending({ createdAt });
         expect(result.metadata(resultPending).createdAt).toBe(createdAt);
@@ -135,7 +129,7 @@ describe("result", () => {
       ).toMatchInlineSnapshot(`
         "{
           data: 'some data',
-          [Symbol(Result)]: { promise: undefined, createdAt: 1970-01-01T00:00:00.000Z },
+          [Symbol(Result)]: { createdAt: 1970-01-01T00:00:00.000Z },
           status: 'success',
           isSuccess: true,
           isError: false,
@@ -183,12 +177,6 @@ describe("result", () => {
     describe("metadata", () => {
       const data = "some data";
 
-      it("allows to pass in a promise", () => {
-        const promise = Promise.resolve("some data");
-        const resultSuccess = result.success({ promise, data });
-        expect(result.metadata(resultSuccess).promise).toBe(promise);
-      });
-
       it("allows to pass in a createdAt", () => {
         const resultSuccess = result.success({ createdAt, data });
         expect(result.metadata(resultSuccess).createdAt).toBe(createdAt);
@@ -222,7 +210,7 @@ describe("result", () => {
             [stack]: [Getter/Setter],
             [message]: 'some error'
           },
-          [Symbol(Result)]: { promise: undefined, createdAt: 1970-01-01T00:00:00.000Z },
+          [Symbol(Result)]: { createdAt: 1970-01-01T00:00:00.000Z },
           status: 'error',
           isSuccess: false,
           isError: true,
@@ -293,15 +281,6 @@ describe("result", () => {
 
     describe("metadata", () => {
       const error = new Error("some error");
-
-      it("allows to pass in a promise", () => {
-        const promise = Promise.resolve("some data");
-        const resultError = result.error({
-          promise,
-          error,
-        });
-        expect(result.metadata(resultError).promise).toBe(promise);
-      });
 
       it("allows to pass in a createdAt", () => {
         const resultError = result.error({ createdAt, error });
