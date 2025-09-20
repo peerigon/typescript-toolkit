@@ -19,8 +19,8 @@ For synchronous results that don't need a pending state, use `Result.Sync<T>` wh
 
 ```ts
 import {
-  result,
   isResult,
+  result,
   type Result,
 } from "@peerigon/fractals-typescript/result";
 

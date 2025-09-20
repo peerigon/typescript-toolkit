@@ -28,6 +28,7 @@ Each utility is available as a sub-package import:
 import { assert } from "@peerigon/fractals-typescript/assert";
 import { match } from "@peerigon/fractals-typescript/match";
 import { result } from "@peerigon/fractals-typescript/result";
+
 // ... and more
 ```
 
@@ -54,8 +55,8 @@ TypeScript literal types and type guards for different casing conventions: snake
 
 ```ts
 import {
-  isSnakeCase,
   isPascalCase,
+  isSnakeCase,
 } from "@peerigon/fractals-typescript/casing";
 
 if (isSnakeCase("user_name")) {

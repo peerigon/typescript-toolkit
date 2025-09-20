@@ -1,15 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  type LatinAlphabetUppercase,
-  type LatinAlphabetLowercase,
-  type SnakeCase,
-  type PascalCase,
-  type CamelCase,
-  type KebabCase,
-  isSnakeCase,
-  isPascalCase,
   isCamelCase,
   isKebabCase,
+  isPascalCase,
+  isSnakeCase,
+  type CamelCase,
+  type KebabCase,
+  type LatinAlphabetLowercase,
+  type LatinAlphabetUppercase,
+  type PascalCase,
+  type SnakeCase,
 } from "./casing.js";
 
 describe("casing", () => {

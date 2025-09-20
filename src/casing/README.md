@@ -9,14 +9,14 @@ TypeScript literal types and type guards for different casing conventions. This 
 
 ```ts
 import {
-  isSnakeCase,
-  isPascalCase,
   isCamelCase,
   isKebabCase,
-  type SnakeCase,
-  type PascalCase,
+  isPascalCase,
+  isSnakeCase,
   type CamelCase,
   type KebabCase,
+  type PascalCase,
+  type SnakeCase,
 } from "@peerigon/fractals-typescript/casing";
 
 // Type guards for runtime validation
@@ -49,9 +49,9 @@ The module exports literal types for Latin alphabet characters:
 
 ```ts
 import {
-  type LatinAlphabetUppercase,
-  type LatinAlphabetLowercase,
   type Digit,
+  type LatinAlphabetLowercase,
+  type LatinAlphabetUppercase,
 } from "@peerigon/fractals-typescript/casing";
 
 const upper: LatinAlphabetUppercase = "A"; // "A" | "B" | ... | "Z"

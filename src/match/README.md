@@ -12,8 +12,8 @@ This function works similarly to a regular `switch`/`case` statement, but has a 
 Value -> Result mappings are defined as an array of tuples (`Array<[Value, Result]>`), which is the JavaScript way to represent key-value pairs:
 
 ```ts
-import { match } from "@peerigon/fractals-typescript/match";
 import { enums, type Enums } from "@peerigon/fractals-typescript/enums";
+import { match } from "@peerigon/fractals-typescript/match";
 
 const Direction = enums.define({ Up: "North", Down: "South" });
 type Direction = Enums<typeof Direction>;

@@ -1,3 +1,4 @@
+import { inspect } from "node:util";
 import {
   type QueryObserverLoadingErrorResult,
   type QueryObserverLoadingResult,
@@ -5,7 +6,6 @@ import {
   type QueryObserverResult,
   type QueryObserverSuccessResult,
 } from "@tanstack/query-core";
-import { inspect } from "node:util";
 import { describe, expect, it } from "vitest";
 import { match } from "../match/match.ts";
 import { isResult, result, type Result } from "../result/result.ts";
