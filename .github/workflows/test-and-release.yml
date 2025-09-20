@@ -29,23 +29,23 @@ jobs:
 
     steps:
       - name: 📥 Checkout repository
-        uses: actions/checkout@8edcb1bdb4e267140fa742c62e395cd74f332709 # main
+        uses: actions/checkout@ff7abcd0c3c05ccf6adc123a8cd1fd4fb30fb493 # main
 
       - name: 🟢 Setup Node.js
-        uses: actions/setup-node@5e2628c959b9ade56971c0afcebbe5332d44b398 # main
+        uses: actions/setup-node@89d709d423dc495668cd762a18dd4a070611be3f # main
         with:
           node-version-file: ".nvmrc"
           cache: "npm"
 
       - name: 🗄 Cache node_modules
         id: cache-node_modules
-        uses: actions/cache@640a1c2554105b57832a23eea0b4672fc7a790d5 # main
+        uses: actions/cache@638ed79f9dc94c1de1baef91bcab5edaa19451f4 # main
         with:
           path: "**/node_modules"
           key: node_modules-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
 
       - name: 🗄 Cache .eslintcache
-        uses: actions/cache@640a1c2554105b57832a23eea0b4672fc7a790d5 # main
+        uses: actions/cache@638ed79f9dc94c1de1baef91bcab5edaa19451f4 # main
         with:
           path: .eslintcache
           key: eslintcache-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
@@ -62,13 +62,15 @@ jobs:
           CI: true
 
       - name: ⬆️ Upload coverage report
-        uses: coverallsapp/github-action@e7f4f977bd3dba07a6fda03be3053f1658992446 # main
+        uses: coverallsapp/github-action@e988b39f49526ccb8bd19453bd2198bf4156bb7f # main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🚀 Release preview
         if: ${{ github.ref != 'refs/heads/main' && github.ref != 'refs/heads/beta' }}
+        # Call to npm publish --dry-run is currently necessary, see https://github.com/stackblitz-labs/pkg.pr.new/issues/320
         run: |
+          npm publish --dry-run
           npx pkg-pr-new publish
 
       - name: 🚀 Release on npm and jsr

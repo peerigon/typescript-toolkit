@@ -2,11 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(mkdir:*)",
+      "Bash(grep:*)",
       "Bash(npm run test:*)",
       "Bash(npm test)",
       "Bash(npx tsc:*)",
       "Bash(npx prettier:*)",
       "Bash(npx eslint:*)",
+      "mcp__eslint__lint-files",
       "mcp__typescript-lsp__get_info_on_location",
       "mcp__typescript-lsp__get_completions",
       "mcp__typescript-lsp__get_code_actions",
@@ -15,7 +17,6 @@
       "mcp__typescript-lsp__open_document",
       "mcp__typescript-lsp__close_document",
       "mcp__typescript-lsp__get_diagnostics",
-      "mcp__typescript-lsp__set_log_level",
       "mcp__vitest-server__set_project_root",
       "mcp__vitest-server__list_tests",
       "mcp__vitest-server__run_tests",
@@ -23,5 +24,5 @@
     ],
     "deny": []
   },
-  "enabledMcpjsonServers": ["vitest-server", "typescript-lsp"]
+  "enabledMcpjsonServers": ["vitest-server", "typescript-lsp", "eslint"]
 }

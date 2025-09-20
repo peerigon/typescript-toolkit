@@ -1,28 +1,39 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 **Important**: You **must** follow [these rules](./node_modules/@peerigon/configs/ai/rules.mdc) and its language-specific rules referenced in that file.
 
 ## Project Overview
 
 Fractals-TypeScript is a collection of small, focused TypeScript utility functions. Each utility is designed to be tree-shakeable and lives in its own sub-package (e.g., `@peerigon/fractals-typescript/match`).
 
-## Essential Commands
+## Development Commands
 
-### Development
+This project uses npm scripts for all development tasks:
 
-- `npm test` - Run all tests (format, types, unit) in parallel
-- `npm run vitest` - Run unit tests in watch mode for development
-- `npm run test:unit` - Run unit tests once
-- `npm run test:types` - Run TypeScript type checking
-- `npm run test:format` - Check code formatting
+- **Test all**: `npm test` - Runs all tests in parallel (format, lint, types, unit)
+- **Unit tests**: `npm run test:unit` - Run Vitest tests once
+- **Watch tests**: `npm run vitest` - Run Vitest in watch mode
+- **Lint**: `npm run test:lint` - ESLint with zero warnings allowed
+- **Type check**: `npm run test:types` - TypeScript compiler check
+- **Format check**: `npm run test:format` - Prettier format validation
 
-### Building
+**Important**: Use the typescript-lsp MCP to get diagnostics and type information
+**Important**: Use the vitest-server MCP to run individual tests.
+**Important**: Use the eslint MCP to check for linting errors.
 
-- `npm run build` - Build the project (clears dist and compiles TypeScript)
+## Project Structure
 
-### Release
+- **Source**: `src/` - All source code and tests
+- **Tests**: Co-located with source files using `.test.ts` suffix
+- **Configuration**: Uses `@peerigon/configs` for shared TypeScript, ESLint, and Prettier configs
 
-- `npm run release` - Create a new release using semantic-release (requires proper CI setup)
+## Code Organization
+
+- Functions are implemented in individual files in `src/`
+- Each function has comprehensive unit tests using Vitest
+- Uses ES module syntax throughout (`.ts` extensions in imports)
 
 ## Architecture
 
@@ -66,13 +77,3 @@ When adding a new utility:
 4. Update package.json exports to include the new sub-package
 5. Add a `README.md` in `/src/<utility-name>.md`. Use `./src/assert/README.md` as blueprint.
 6. Update the main `README.md` and `CLAUDE.md`
-
-## Running Single Tests
-
-**Important:** Use the Vitest MCP. If that doesn't work:
-
-```bash
-npm run vitest -- path/to/test.test.ts
-# or
-npm run vitest -- -t "pattern"
-```
