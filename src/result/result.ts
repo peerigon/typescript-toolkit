@@ -309,14 +309,61 @@ const isError = (error: unknown): error is GenericError => {
   );
 };
 
-export const result = {
-  from,
-  fromAsync,
-  pending,
-  success,
-  error,
-  metadata: getMetadata,
+type IfHandlers<Data, GivenError extends GenericError, R = unknown> = {
+  pending?: (result: Result.Pending<Data | undefined>) => R;
+  success?: (result: Result.Success<Data>) => R;
+  error?: (result: Result.Error<GivenError, Data | undefined>) => R;
+  else: (result: Result<Data, GivenError>) => R;
 };
+
+type ResultWrapper<Data, GivenError extends GenericError> = {
+  if<R>(handlers: IfHandlers<Data, GivenError, R>): R;
+};
+
+const createResultWrapper = <Data, GivenError extends GenericError>(
+  resultValue: Result<Data, GivenError> | null | undefined,
+): ResultWrapper<Data, GivenError> => {
+  return {
+    if(handlers) {
+      if (!resultValue) {
+        return handlers.else(resultValue as any);
+      }
+
+      switch (resultValue.status) {
+        case Result.Status.Pending:
+          return handlers.pending
+            ? handlers.pending(resultValue as Result.Pending<Data | undefined>)
+            : handlers.else(resultValue);
+        case Result.Status.Success:
+          return handlers.success
+            ? handlers.success(resultValue as Result.Success<Data>)
+            : handlers.else(resultValue);
+        case Result.Status.Error:
+          return handlers.error
+            ? handlers.error(
+                resultValue as Result.Error<GivenError, Data | undefined>,
+              )
+            : handlers.else(resultValue);
+        default:
+          return handlers.else(resultValue);
+      }
+    },
+  };
+};
+
+export const result = Object.assign(
+  <Data, GivenError extends GenericError = GenericError>(
+    resultValue: Result<Data, GivenError> | null | undefined,
+  ) => createResultWrapper(resultValue),
+  {
+    from,
+    fromAsync,
+    pending,
+    success,
+    error,
+    metadata: getMetadata,
+  },
+);
 
 export { isResult } from "./result.lib.ts";
 

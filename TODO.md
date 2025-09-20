@@ -1,6 +1,4 @@
-- Check for useQuery compatibility
 - Add missing documentation (cross-links & examples, like enums + match)
-- Use `interface` instead of `type`?
 
 ## shape
 

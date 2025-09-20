@@ -42,11 +42,11 @@
   {
     "name": "@peerigon/fractals-typescript/result",
     "path": "dist/result/result.js",
-    "limit": "680 B"
+    "limit": "770 B"
   },
   {
     "name": "@peerigon/fractals-typescript/unwrap",
     "path": "dist/unwrap/unwrap.js",
-    "limit": "560 B"
+    "limit": "900 B"
   }
 ]

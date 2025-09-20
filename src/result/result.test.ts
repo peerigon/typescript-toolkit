@@ -333,6 +333,143 @@ describe("result", () => {
   };
 });
 
+describe("result().if()", () => {
+  it("handles pending result with else only", () => {
+    const pendingResult = result.pending();
+    const value = result(pendingResult).if({ else: () => 2 });
+    expect(value).toBe(2);
+  });
+
+  it("handles pending result with success and else", () => {
+    const pendingResult = result.pending();
+    const value = result(pendingResult).if({
+      success: () => 1,
+      else: () => 2,
+    });
+    expect(value).toBe(2);
+  });
+
+  it("handles success result with success and else", () => {
+    const successResult = result.success({ data: 42 });
+    const value = result(successResult).if({
+      success: () => 1,
+      else: () => 2,
+    });
+    expect(value).toBe(1);
+  });
+
+  it("handles error result with pending, error, and else", () => {
+    const errorResult = result.error({ error: new Error("test error") });
+    const value = result(errorResult).if({
+      pending: () => 1,
+      error: () => 2,
+      else: () => 3,
+    });
+    expect(value).toBe(2);
+  });
+
+  it("handles null value", () => {
+    const value = result(null).if({ else: () => "null result" });
+    expect(value).toBe("null result");
+  });
+
+  it("handles undefined value", () => {
+    const value = result(undefined).if({ else: () => "undefined result" });
+    expect(value).toBe("undefined result");
+  });
+
+  it("passes the result to the handler functions", () => {
+    const successResult = result.success({ data: "test data" });
+    const value = result(successResult).if({
+      success: (res) => res.data,
+      else: () => "fallback",
+    });
+    expect(value).toBe("test data");
+  });
+
+  it("handles pending result with pending handler", () => {
+    const pendingResult = result.pending({ data: "stale data" });
+    const value = result(pendingResult).if({
+      pending: (res) => `pending with ${res.data}`,
+      else: () => "fallback",
+    });
+    expect(value).toBe("pending with stale data");
+  });
+
+  it("handles error result with error handler", () => {
+    const errorResult = result.error({
+      error: new Error("test error"),
+      data: "stale data",
+    });
+    const value = result(errorResult).if({
+      error: (res) => `error: ${res.error.message}`,
+      else: () => "fallback",
+    });
+    expect(value).toBe("error: test error");
+  });
+
+  it("handles all states with specific handlers", () => {
+    const pendingResult = result.pending();
+    const successResult = result.success({ data: 100 });
+    const errorResult = result.error({ error: new Error("fail") });
+
+    const pendingValue = result(pendingResult).if({
+      pending: () => "pending",
+      success: () => "success",
+      error: () => "error",
+      else: () => "else",
+    });
+    expect(pendingValue).toBe("pending");
+
+    const successValue = result(successResult).if({
+      pending: () => "pending",
+      success: () => "success",
+      error: () => "error",
+      else: () => "else",
+    });
+    expect(successValue).toBe("success");
+
+    const errorValue = result(errorResult).if({
+      pending: () => "pending",
+      success: () => "success",
+      error: () => "error",
+      else: () => "else",
+    });
+    expect(errorValue).toBe("error");
+  });
+
+  it("works with different return types", () => {
+    const successResult = result.success({ data: 42 });
+
+    const stringValue: string = result(successResult).if({
+      success: () => "success string",
+      else: () => "else string",
+    });
+    expect(stringValue).toBe("success string");
+
+    const numberValue: number = result(successResult).if({
+      success: (res) => res.data as number,
+      else: () => 0,
+    });
+    expect(numberValue).toBe(42);
+
+    const objectValue: { status: string } = result(successResult).if({
+      success: () => ({ status: "ok" }),
+      else: () => ({ status: "not ok" }),
+    });
+    expect(objectValue).toEqual({ status: "ok" });
+  });
+
+  it("preserves existing result namespace functions", () => {
+    expect(typeof result.success).toBe("function");
+    expect(typeof result.pending).toBe("function");
+    expect(typeof result.error).toBe("function");
+    expect(typeof result.from).toBe("function");
+    expect(typeof result.fromAsync).toBe("function");
+    expect(typeof result.metadata).toBe("function");
+  });
+});
+
 describe("isResult()", () => {
   it("returns true for Result.Pending", () => {
     const resultPending = result.pending();
