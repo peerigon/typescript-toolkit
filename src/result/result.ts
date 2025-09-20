@@ -309,43 +309,47 @@ const isError = (error: unknown): error is GenericError => {
   );
 };
 
-type IfHandlers<Data, GivenError extends GenericError, R = unknown> = {
-  pending?: (result: Result.Pending<Data | undefined>) => R;
-  success?: (result: Result.Success<Data>) => R;
-  error?: (result: Result.Error<GivenError, Data | undefined>) => R;
-  else: (result: Result<Data, GivenError>) => R;
+type IfHandlers<Data, GivenError extends GenericError, ReturnType = unknown> = {
+  pending?: (result: Result.Pending<Data | undefined>) => ReturnType;
+  success?: (result: Result.Success<Data>) => ReturnType;
+  error?: (result: Result.Error<GivenError, Data | undefined>) => ReturnType;
+  else: (result: Result<Data, GivenError>) => ReturnType;
 };
 
 type ResultWrapper<Data, GivenError extends GenericError> = {
-  if<R>(handlers: IfHandlers<Data, GivenError, R>): R;
+  if: <ReturnType>(
+    handlers: IfHandlers<Data, GivenError, ReturnType>,
+  ) => ReturnType;
 };
 
 const createResultWrapper = <Data, GivenError extends GenericError>(
   resultValue: Result<Data, GivenError> | null | undefined,
 ): ResultWrapper<Data, GivenError> => {
   return {
-    if(handlers) {
+    if: <ReturnType>(handlers: IfHandlers<Data, GivenError, ReturnType>) => {
       if (!resultValue) {
         return handlers.else(resultValue as any);
       }
 
       switch (resultValue.status) {
-        case Result.Status.Pending:
+        case Result.Status.Pending: {
           return handlers.pending
-            ? handlers.pending(resultValue as Result.Pending<Data | undefined>)
+            ? handlers.pending(resultValue)
             : handlers.else(resultValue);
-        case Result.Status.Success:
+        }
+        case Result.Status.Success: {
           return handlers.success
-            ? handlers.success(resultValue as Result.Success<Data>)
+            ? handlers.success(resultValue)
             : handlers.else(resultValue);
-        case Result.Status.Error:
+        }
+        case Result.Status.Error: {
           return handlers.error
-            ? handlers.error(
-                resultValue as Result.Error<GivenError, Data | undefined>,
-              )
+            ? handlers.error(resultValue)
             : handlers.else(resultValue);
-        default:
+        }
+        default: {
           return handlers.else(resultValue);
+        }
       }
     },
   };
