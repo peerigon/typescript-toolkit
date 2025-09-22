@@ -310,61 +310,48 @@ const isError = (error: unknown): error is GenericError => {
 };
 
 type UnwrapHandlers<
-  Data,
-  GivenError extends GenericError,
+  GivenResult extends Result | null | undefined,
   ReturnType = unknown,
 > = {
-  pending?: (result: Result.Pending<Data | undefined>) => ReturnType;
-  success?: (result: Result.Success<Data>) => ReturnType;
-  error?: (result: Result.Error<GivenError, Data | undefined>) => ReturnType;
-  else: (result: Result<Data, GivenError>) => ReturnType;
+  pending?: (
+    maybeData: Extract<GivenResult, { status: Result.Status.Pending }>["data"],
+  ) => ReturnType;
+  success?: (
+    data: Extract<GivenResult, { status: Result.Status.Success }>["data"],
+  ) => ReturnType;
+  error?: (
+    error: Extract<GivenResult, { status: Result.Status.Error }>["error"],
+  ) => ReturnType;
+  else: (result: GivenResult) => ReturnType;
 };
 
-type ResultWrapper<Data, GivenError extends GenericError> = {
+type ResultWrapper<GivenResult extends Result | null | undefined> = {
   unwrap: <ReturnType>(
-    handlers: UnwrapHandlers<Data, GivenError, ReturnType>,
+    handlers: UnwrapHandlers<GivenResult, ReturnType>,
   ) => ReturnType;
 };
 
-const createResultWrapper = <Data, GivenError extends GenericError>(
-  resultValue: Result<Data, GivenError> | null | undefined,
-): ResultWrapper<Data, GivenError> => {
-  return {
-    unwrap: <ReturnType>(
-      handlers: UnwrapHandlers<Data, GivenError, ReturnType>,
-    ) => {
-      if (!resultValue) {
-        return handlers.else(resultValue as any);
-      }
-
-      switch (resultValue.status) {
-        case Result.Status.Pending: {
-          return handlers.pending
-            ? handlers.pending(resultValue)
-            : handlers.else(resultValue);
-        }
-        case Result.Status.Success: {
-          return handlers.success
-            ? handlers.success(resultValue)
-            : handlers.else(resultValue);
-        }
-        case Result.Status.Error: {
-          return handlers.error
-            ? handlers.error(resultValue)
-            : handlers.else(resultValue);
-        }
-        default: {
-          return handlers.else(resultValue);
-        }
-      }
-    },
-  };
-};
-
 export const result = Object.assign(
-  <Data, GivenError extends GenericError = GenericError>(
-    resultValue: Result<Data, GivenError> | null | undefined,
-  ) => createResultWrapper(resultValue),
+  <GivenResult extends Result | null | undefined>(
+    givenResult: GivenResult,
+  ): ResultWrapper<GivenResult> => {
+    return {
+      unwrap: <ReturnType>(
+        handlers: UnwrapHandlers<GivenResult, ReturnType>,
+      ) => {
+        if (givenResult?.status === Result.Status.Pending && handlers.pending) {
+          return handlers.pending(givenResult.data);
+        }
+        if (givenResult?.status === Result.Status.Success && handlers.success) {
+          return handlers.success(givenResult.data);
+        }
+        if (givenResult?.status === Result.Status.Error && handlers.error) {
+          return handlers.error(givenResult.error);
+        }
+        return handlers.else(givenResult);
+      },
+    };
+  },
   {
     from,
     fromAsync,

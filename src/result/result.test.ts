@@ -378,19 +378,19 @@ describe("result().unwrap()", () => {
     expect(value).toBe("undefined result");
   });
 
-  it("passes the result to the handler functions", () => {
+  it("passes the result's data to the handler functions", () => {
     const successResult = result.success({ data: "test data" });
     const value = result(successResult).unwrap({
-      success: (result) => result.data,
+      success: (data: "test data") => data,
       else: () => "fallback",
     });
     expect(value).toBe("test data");
   });
 
-  it("handles pending result with pending handler", () => {
+  it("handles pending result's data to the pending handler", () => {
     const pendingResult = result.pending({ data: "stale data" });
     const value = result(pendingResult).unwrap({
-      pending: (result) => `pending with ${result.data}`,
+      pending: (data: "stale data") => `pending with ${data}`,
       else: () => "fallback",
     });
     expect(value).toBe("pending with stale data");
@@ -402,7 +402,7 @@ describe("result().unwrap()", () => {
       data: "stale data",
     });
     const value = result(errorResult).unwrap({
-      error: (result) => `error: ${result.error.message}`,
+      error: (error) => `error: ${error.message}`,
       else: () => "fallback",
     });
     expect(value).toBe("error: test error");
@@ -448,7 +448,7 @@ describe("result().unwrap()", () => {
     expect(stringValue).toBe("success string");
 
     const numberValue: number = result(successResult).unwrap({
-      success: (result) => result.data,
+      success: (data) => data,
       else: () => 0,
     });
     expect(numberValue).toBe(42);
@@ -458,15 +458,6 @@ describe("result().unwrap()", () => {
       else: () => ({ status: "not ok" }),
     });
     expect(objectValue).toEqual({ status: "ok" });
-  });
-
-  it("preserves existing result namespace functions", () => {
-    expect(typeof result.success).toBe("function");
-    expect(typeof result.pending).toBe("function");
-    expect(typeof result.error).toBe("function");
-    expect(typeof result.from).toBe("function");
-    expect(typeof result.fromAsync).toBe("function");
-    expect(typeof result.metadata).toBe("function");
   });
 });
 
