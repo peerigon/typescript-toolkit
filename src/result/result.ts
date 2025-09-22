@@ -313,16 +313,25 @@ type UnwrapHandlers<
   GivenResult extends Result | null | undefined,
   ReturnType = unknown,
 > = {
-  pending?: (
-    maybeData: Extract<GivenResult, { status: Result.Status.Pending }>["data"],
-  ) => ReturnType;
-  success?: (
-    data: Extract<GivenResult, { status: Result.Status.Success }>["data"],
-  ) => ReturnType;
-  error?: (
-    error: Extract<GivenResult, { status: Result.Status.Error }>["error"],
-  ) => ReturnType;
-  else: (result: GivenResult) => ReturnType;
+  pending?:
+    | ((
+        maybeData: Extract<
+          GivenResult,
+          { status: Result.Status.Pending }
+        >["data"],
+      ) => ReturnType)
+    | ReturnType;
+  success?:
+    | ((
+        data: Extract<GivenResult, { status: Result.Status.Success }>["data"],
+      ) => ReturnType)
+    | ReturnType;
+  error?:
+    | ((
+        error: Extract<GivenResult, { status: Result.Status.Error }>["error"],
+      ) => ReturnType)
+    | ReturnType;
+  else: ((result: GivenResult) => ReturnType) | ReturnType;
 };
 
 type ResultWrapper<GivenResult extends Result | null | undefined> = {
@@ -338,17 +347,45 @@ export const result = Object.assign(
     return {
       unwrap: <ReturnType>(
         handlers: UnwrapHandlers<GivenResult, ReturnType>,
-      ) => {
+      ): ReturnType => {
         if (givenResult?.status === Result.Status.Pending && handlers.pending) {
-          return handlers.pending(givenResult.data);
+          return typeof handlers.pending === "function"
+            ? (
+                handlers.pending as Extract<
+                  typeof handlers.pending,
+                  (maybeData: unknown) => ReturnType
+                >
+              )(givenResult.data)
+            : handlers.pending;
         }
         if (givenResult?.status === Result.Status.Success && handlers.success) {
-          return handlers.success(givenResult.data);
+          return typeof handlers.success === "function"
+            ? (
+                handlers.success as Extract<
+                  typeof handlers.success,
+                  (data: unknown) => ReturnType
+                >
+              )(givenResult.data)
+            : handlers.success;
         }
         if (givenResult?.status === Result.Status.Error && handlers.error) {
-          return handlers.error(givenResult.error);
+          return typeof handlers.error === "function"
+            ? (
+                handlers.error as Extract<
+                  typeof handlers.error,
+                  (error: unknown) => ReturnType
+                >
+              )(givenResult.error)
+            : handlers.error;
         }
-        return handlers.else(givenResult);
+        return typeof handlers.else === "function"
+          ? (
+              handlers.else as Extract<
+                typeof handlers.else,
+                (result: unknown) => ReturnType
+              >
+            )(givenResult)
+          : handlers.else;
       },
     };
   },

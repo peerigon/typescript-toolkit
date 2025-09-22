@@ -459,6 +459,58 @@ describe("result().unwrap()", () => {
     });
     expect(objectValue).toEqual({ status: "ok" });
   });
+
+  it("handles non-function values as handlers", () => {
+    const successResult = result.success({ data: 42 });
+    const errorResult = result.error({ error: new Error("test error") });
+    const pendingResult = result.pending({ data: 10 });
+
+    // Direct value for success
+    const successValue = result(successResult).unwrap({
+      success: "direct success value",
+      else: "fallback",
+    });
+    expect(successValue).toBe("direct success value");
+
+    // Direct value for error
+    const errorValue = result(errorResult).unwrap({
+      error: "direct error value",
+      else: "fallback",
+    });
+    expect(errorValue).toBe("direct error value");
+
+    // Direct value for pending
+    const pendingValue = result(pendingResult).unwrap({
+      pending: "direct pending value",
+      else: "fallback",
+    });
+    expect(pendingValue).toBe("direct pending value");
+
+    // Direct value for else
+    const elseValue = result(null).unwrap({
+      else: "direct else value",
+    });
+    expect(elseValue).toBe("direct else value");
+  });
+
+  it("can mix function and non-function handlers", () => {
+    const successResult = result.success({ data: 42 });
+
+    const value = result(successResult).unwrap({
+      success: (data) => `computed: ${data}`,
+      error: "static error",
+      else: "static else",
+    });
+    expect(value).toBe("computed: 42");
+
+    const errorResult = result.error({ error: new Error("test") });
+    const errorValue = result(errorResult).unwrap({
+      success: "static success",
+      error: (error) => `error: ${error.message}`,
+      else: "static else",
+    });
+    expect(errorValue).toBe("error: test");
+  });
 });
 
 describe("isResult()", () => {
