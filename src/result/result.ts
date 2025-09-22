@@ -348,7 +348,10 @@ export const result = Object.assign(
       unwrap: <ReturnType>(
         handlers: UnwrapHandlers<GivenResult, ReturnType>,
       ): ReturnType => {
-        if (givenResult?.status === Result.Status.Pending && handlers.pending) {
+        if (
+          givenResult?.status === Result.Status.Pending &&
+          "pending" in handlers
+        ) {
           return typeof handlers.pending === "function"
             ? (
                 handlers.pending as Extract<
@@ -356,9 +359,12 @@ export const result = Object.assign(
                   (maybeData: unknown) => ReturnType
                 >
               )(givenResult.data)
-            : handlers.pending;
+            : (handlers.pending as ReturnType);
         }
-        if (givenResult?.status === Result.Status.Success && handlers.success) {
+        if (
+          givenResult?.status === Result.Status.Success &&
+          "success" in handlers
+        ) {
           return typeof handlers.success === "function"
             ? (
                 handlers.success as Extract<
@@ -366,9 +372,12 @@ export const result = Object.assign(
                   (data: unknown) => ReturnType
                 >
               )(givenResult.data)
-            : handlers.success;
+            : (handlers.success as ReturnType);
         }
-        if (givenResult?.status === Result.Status.Error && handlers.error) {
+        if (
+          givenResult?.status === Result.Status.Error &&
+          "error" in handlers
+        ) {
           return typeof handlers.error === "function"
             ? (
                 handlers.error as Extract<
@@ -376,7 +385,7 @@ export const result = Object.assign(
                   (error: unknown) => ReturnType
                 >
               )(givenResult.error)
-            : handlers.error;
+            : (handlers.error as ReturnType);
         }
         return typeof handlers.else === "function"
           ? (

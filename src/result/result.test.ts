@@ -336,7 +336,7 @@ describe("result", () => {
 describe("result().unwrap()", () => {
   it("handles pending result with else only", () => {
     const pendingResult = result.pending();
-    const value = result(pendingResult).unwrap({ else: () => "else" });
+    const value = result(pendingResult).unwrap({ else: "else" });
     expect(value).toBe("else");
   });
 
@@ -344,7 +344,7 @@ describe("result().unwrap()", () => {
     const pendingResult = result.pending();
     const value = result(pendingResult).unwrap({
       success: () => "success",
-      else: () => "else",
+      else: "else",
     });
     expect(value).toBe("else");
   });
@@ -353,7 +353,7 @@ describe("result().unwrap()", () => {
     const successResult = result.success({ data: 42 });
     const value = result(successResult).unwrap({
       success: () => "success",
-      else: () => "else",
+      else: "else",
     });
     expect(value).toBe("success");
   });
@@ -363,18 +363,18 @@ describe("result().unwrap()", () => {
     const value = result(errorResult).unwrap({
       pending: () => "pending",
       error: () => "error",
-      else: () => "else",
+      else: "else",
     });
     expect(value).toBe("error");
   });
 
   it("handles null value", () => {
-    const value = result(null).unwrap({ else: () => "null result" });
+    const value = result(null).unwrap({ else: "null result" });
     expect(value).toBe("null result");
   });
 
   it("handles undefined value", () => {
-    const value = result(undefined).unwrap({ else: () => "undefined result" });
+    const value = result(undefined).unwrap({ else: "undefined result" });
     expect(value).toBe("undefined result");
   });
 
@@ -382,7 +382,7 @@ describe("result().unwrap()", () => {
     const successResult = result.success({ data: "test data" });
     const value = result(successResult).unwrap({
       success: (data: "test data") => data,
-      else: () => "fallback",
+      else: "fallback",
     });
     expect(value).toBe("test data");
   });
@@ -391,7 +391,7 @@ describe("result().unwrap()", () => {
     const pendingResult = result.pending({ data: "stale data" });
     const value = result(pendingResult).unwrap({
       pending: (data: "stale data") => `pending with ${data}`,
-      else: () => "fallback",
+      else: "fallback",
     });
     expect(value).toBe("pending with stale data");
   });
@@ -403,7 +403,7 @@ describe("result().unwrap()", () => {
     });
     const value = result(errorResult).unwrap({
       error: (error) => `error: ${error.message}`,
-      else: () => "fallback",
+      else: "fallback",
     });
     expect(value).toBe("error: test error");
   });
@@ -417,7 +417,7 @@ describe("result().unwrap()", () => {
       pending: () => "pending",
       success: () => "success",
       error: () => "error",
-      else: () => "else",
+      else: "else",
     });
     expect(pendingValue).toBe("pending");
 
@@ -425,7 +425,7 @@ describe("result().unwrap()", () => {
       pending: () => "pending",
       success: () => "success",
       error: () => "error",
-      else: () => "else",
+      else: "else",
     });
     expect(successValue).toBe("success");
 
@@ -433,7 +433,7 @@ describe("result().unwrap()", () => {
       pending: () => "pending",
       success: () => "success",
       error: () => "error",
-      else: () => "else",
+      else: "else",
     });
     expect(errorValue).toBe("error");
   });
@@ -443,19 +443,19 @@ describe("result().unwrap()", () => {
 
     const stringValue: string = result(successResult).unwrap({
       success: () => "success string",
-      else: () => "else string",
+      else: "else string",
     });
     expect(stringValue).toBe("success string");
 
     const numberValue: number = result(successResult).unwrap({
       success: (data) => data,
-      else: () => 0,
+      else: 0,
     });
     expect(numberValue).toBe(42);
 
     const objectValue: { status: string } = result(successResult).unwrap({
       success: () => ({ status: "ok" }),
-      else: () => ({ status: "not ok" }),
+      else: { status: "not ok" },
     });
     expect(objectValue).toEqual({ status: "ok" });
   });
@@ -510,6 +510,19 @@ describe("result().unwrap()", () => {
       else: "static else",
     });
     expect(errorValue).toBe("error: test");
+  });
+
+  it("can return falsy values", () => {
+    const successResult = result.success({ data: "test" });
+
+    const falsyValues = [undefined, null, false, 0, "", null];
+    falsyValues.forEach((falsyValue) => {
+      const result1 = result(successResult).unwrap({
+        success: falsyValue,
+        else: "fallback",
+      });
+      expect(result1).toBe(falsyValue);
+    });
   });
 });
 

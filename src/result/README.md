@@ -37,6 +37,19 @@ console.log(result.isError); // true
 console.log(result.error.message); // "Something went wrong"
 ```
 
+#### Unwrapping results
+
+You can unwrap results via `result().unwrap()` while handling different states:
+
+```ts
+const userHandle = result(userResult).unwrap({
+  pending: "Loading user...",
+  success: (user) => `${user.name} (${user.email})`,
+  error: (error) => `Failed: ${error.message}`,
+  else: "Nothing to show",
+});
+```
+
 #### Wrapping functions with `result.from()`
 
 Convert throwing functions into result-returning functions:
@@ -96,21 +109,6 @@ console.log(loadingResult.data); // undefined
 loadingResult = result.pending({ data: "stale data" });
 console.log(loadingResult.isPending); // true
 console.log(loadingResult.data); // "stale data"
-```
-
-#### Pattern matching with status
-
-```ts
-import { match } from "@peerigon/fractals-typescript/match";
-
-function handleResult<Data>(result: Result<Data>) {
-  return match(result.status).case({
-    pending: () =>
-      `Loading... ${result.data ? `(showing: ${result.data})` : ""}`,
-    success: () => `Data: ${result.data}`,
-    error: () => `Error: ${result.error.message}`,
-  });
-}
 ```
 
 #### Error results with stale data
@@ -201,6 +199,50 @@ Executes an async function and wraps the resolved value or rejection in a `Resul
 **Returns**: `Promise<Result.Sync<Data>>` - Success if promise resolves, Error if promise rejects with an Error
 
 **Note**: Only catches Error instances (from all realms). Other rejection values are re-thrown.
+
+#### `result(value).unwrap(handlers)`
+
+Unwraps a result by providing handlers for different states. This provides a type-safe way to extract values from results without manual status checking.
+
+**Parameters**:
+
+- `value`: The result to unwrap (can also be `null` or `undefined`)
+- `handlers`: Object containing handler functions or values for each state:
+  - `pending` (optional): Handler for pending state - receives `data` parameter
+  - `success` (optional): Handler for success state - receives `data` parameter
+  - `error` (optional): Handler for error state - receives `error` parameter
+  - `else` (required): Fallback handler for unmatched states or null/undefined values
+
+**Returns**: The value returned by the matched handler
+
+**Usage Examples**:
+
+```ts
+const apiResult = result.success({ data: { name: "Alice", age: 30 } });
+
+// Using function handlers
+const message = result(apiResult).unwrap({
+  success: (data) => `Hello, ${data.name}!`,
+  error: (error) => `Failed: ${error.message}`,
+  else: "Unknown state",
+});
+console.log(message); // "Hello, Alice!"
+
+// Using direct values
+const status = result(apiResult).unwrap({
+  success: "loaded",
+  error: "failed",
+  else: "unknown",
+});
+console.log(status); // "loaded"
+
+// Handling null/undefined
+const response = result(null).unwrap({
+  success: (data) => data,
+  else: "No result available",
+});
+console.log(response); // "No result available"
+```
 
 #### `isResult(value)`
 
