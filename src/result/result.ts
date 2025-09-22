@@ -309,7 +309,11 @@ const isError = (error: unknown): error is GenericError => {
   );
 };
 
-type IfHandlers<Data, GivenError extends GenericError, ReturnType = unknown> = {
+type UnwrapHandlers<
+  Data,
+  GivenError extends GenericError,
+  ReturnType = unknown,
+> = {
   pending?: (result: Result.Pending<Data | undefined>) => ReturnType;
   success?: (result: Result.Success<Data>) => ReturnType;
   error?: (result: Result.Error<GivenError, Data | undefined>) => ReturnType;
@@ -317,8 +321,8 @@ type IfHandlers<Data, GivenError extends GenericError, ReturnType = unknown> = {
 };
 
 type ResultWrapper<Data, GivenError extends GenericError> = {
-  if: <ReturnType>(
-    handlers: IfHandlers<Data, GivenError, ReturnType>,
+  unwrap: <ReturnType>(
+    handlers: UnwrapHandlers<Data, GivenError, ReturnType>,
   ) => ReturnType;
 };
 
@@ -326,7 +330,9 @@ const createResultWrapper = <Data, GivenError extends GenericError>(
   resultValue: Result<Data, GivenError> | null | undefined,
 ): ResultWrapper<Data, GivenError> => {
   return {
-    if: <ReturnType>(handlers: IfHandlers<Data, GivenError, ReturnType>) => {
+    unwrap: <ReturnType>(
+      handlers: UnwrapHandlers<Data, GivenError, ReturnType>,
+    ) => {
       if (!resultValue) {
         return handlers.else(resultValue as any);
       }

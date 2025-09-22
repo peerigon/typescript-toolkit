@@ -333,16 +333,16 @@ describe("result", () => {
   };
 });
 
-describe("result().if()", () => {
+describe("result().unwrap()", () => {
   it("handles pending result with else only", () => {
     const pendingResult = result.pending();
-    const value = result(pendingResult).if({ else: () => 2 });
+    const value = result(pendingResult).unwrap({ else: () => 2 });
     expect(value).toBe(2);
   });
 
   it("handles pending result with success and else", () => {
     const pendingResult = result.pending();
-    const value = result(pendingResult).if({
+    const value = result(pendingResult).unwrap({
       success: () => 1,
       else: () => 2,
     });
@@ -351,7 +351,7 @@ describe("result().if()", () => {
 
   it("handles success result with success and else", () => {
     const successResult = result.success({ data: 42 });
-    const value = result(successResult).if({
+    const value = result(successResult).unwrap({
       success: () => 1,
       else: () => 2,
     });
@@ -360,7 +360,7 @@ describe("result().if()", () => {
 
   it("handles error result with pending, error, and else", () => {
     const errorResult = result.error({ error: new Error("test error") });
-    const value = result(errorResult).if({
+    const value = result(errorResult).unwrap({
       pending: () => 1,
       error: () => 2,
       else: () => 3,
@@ -369,18 +369,18 @@ describe("result().if()", () => {
   });
 
   it("handles null value", () => {
-    const value = result(null).if({ else: () => "null result" });
+    const value = result(null).unwrap({ else: () => "null result" });
     expect(value).toBe("null result");
   });
 
   it("handles undefined value", () => {
-    const value = result(undefined).if({ else: () => "undefined result" });
+    const value = result(undefined).unwrap({ else: () => "undefined result" });
     expect(value).toBe("undefined result");
   });
 
   it("passes the result to the handler functions", () => {
     const successResult = result.success({ data: "test data" });
-    const value = result(successResult).if({
+    const value = result(successResult).unwrap({
       success: (res) => res.data,
       else: () => "fallback",
     });
@@ -389,7 +389,7 @@ describe("result().if()", () => {
 
   it("handles pending result with pending handler", () => {
     const pendingResult = result.pending({ data: "stale data" });
-    const value = result(pendingResult).if({
+    const value = result(pendingResult).unwrap({
       pending: (res) => `pending with ${res.data}`,
       else: () => "fallback",
     });
@@ -401,7 +401,7 @@ describe("result().if()", () => {
       error: new Error("test error"),
       data: "stale data",
     });
-    const value = result(errorResult).if({
+    const value = result(errorResult).unwrap({
       error: (res) => `error: ${res.error.message}`,
       else: () => "fallback",
     });
@@ -413,7 +413,7 @@ describe("result().if()", () => {
     const successResult = result.success({ data: 100 });
     const errorResult = result.error({ error: new Error("fail") });
 
-    const pendingValue = result(pendingResult).if({
+    const pendingValue = result(pendingResult).unwrap({
       pending: () => "pending",
       success: () => "success",
       error: () => "error",
@@ -421,7 +421,7 @@ describe("result().if()", () => {
     });
     expect(pendingValue).toBe("pending");
 
-    const successValue = result(successResult).if({
+    const successValue = result(successResult).unwrap({
       pending: () => "pending",
       success: () => "success",
       error: () => "error",
@@ -429,7 +429,7 @@ describe("result().if()", () => {
     });
     expect(successValue).toBe("success");
 
-    const errorValue = result(errorResult).if({
+    const errorValue = result(errorResult).unwrap({
       pending: () => "pending",
       success: () => "success",
       error: () => "error",
@@ -441,19 +441,19 @@ describe("result().if()", () => {
   it("works with different return types", () => {
     const successResult = result.success({ data: 42 });
 
-    const stringValue: string = result(successResult).if({
+    const stringValue: string = result(successResult).unwrap({
       success: () => "success string",
       else: () => "else string",
     });
     expect(stringValue).toBe("success string");
 
-    const numberValue: number = result(successResult).if({
+    const numberValue: number = result(successResult).unwrap({
       success: (res) => res.data as number,
       else: () => 0,
     });
     expect(numberValue).toBe(42);
 
-    const objectValue: { status: string } = result(successResult).if({
+    const objectValue: { status: string } = result(successResult).unwrap({
       success: () => ({ status: "ok" }),
       else: () => ({ status: "not ok" }),
     });
