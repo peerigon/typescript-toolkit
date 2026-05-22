@@ -1,7 +1,5 @@
-<p align="center">
-  <h1>typescript-toolkit</h1>
-  <strong>🔧✨ Tiny helpers for TypeScript applications</strong>
-</p>
+<h1 align="center">typescript-toolkit</h1>
+<p align="center"><strong>🔧✨ Tiny helpers for TypeScript applications</strong></p>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@peerigon/typescript-toolkit"><img src="https://img.shields.io/npm/v/@peerigon/typescript-toolkit?style=for-the-badge" alt="Version on NPM" /></a>
