@@ -1,61 +1,56 @@
-# template-public-package
+<p align="center">
+  <h1>typescript-toolkit</h1>
+  <strong>🔧✨ Tiny helpers for TypeScript applications</strong>
+</p>
 
-**🚀 Boilerplate template to kick start new public packages at Peerigon**
+<p align="center">
+  <a href="https://www.npmjs.com/package/@peerigon/typescript-toolkit"><img src="https://img.shields.io/npm/v/@peerigon/typescript-toolkit?style=for-the-badge" alt="Version on NPM" /></a>
+  <a href="https://jsr.io/@peerigon/typescript-toolkit"><img src="https://img.shields.io/jsr/v/@peerigon/typescript-toolkit?style=for-the-badge" alt="Version on JSR" /></a>
+  <a href="https://github.com/semantic-release/semantic-release"><img src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=for-the-badge" alt="Semantically released" /></a>
+  <a href="https://www.npmjs.com/package/@peerigon/typescript-toolkit"><img src="https://img.shields.io/npm/dm/@peerigon/typescript-toolkit?style=for-the-badge" alt="Monthly downloads on NPM" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/npm/l/@peerigon/typescript-toolkit?style=for-the-badge" alt="License" /></a>
+</p>
 
-[![Version on NPM](https://img.shields.io/npm/v/@peerigon/template-public-package?style=for-the-badge)](https://www.npmjs.com/package/@peerigon/template-public-package)
-[![Version on JSR](https://img.shields.io/jsr/v/@peerigon/template-public-package?style=for-the-badge)](https://jsr.io/@peerigon/template-public-package)
-[![Semantically released](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg?style=for-the-badge)](https://github.com/semantic-release/semantic-release)
-[![Monthly downloads on NPM](https://img.shields.io/npm/dm/@peerigon/template-public-package?style=for-the-badge)](https://www.npmjs.com/package/@peerigon/template-public-package)<br>
-[![License](https://img.shields.io/npm/l/@peerigon/template-public-package?style=for-the-badge)](./LICENSE)
+<p align="center">
+  Small, focused utilities you import one at a time — tree-shakeable ES modules with subpath exports.
+</p>
 
 ## Features
 
-- 🚀 Zero dependencies
-- 📱 Works in all modern browsers
-- 🎯 Accurate calculations
+- 🎯 High-quality module design
+- ⚡ Lightweight sub-package exports
 - 📦 Tree-shakeable ES modules
-- 💪 TypeScript support
-- ⚡ Lightweight (~3KB gzipped)
 
 ## Installation
 
 ```sh
-npm install @peerigon/template-public-package  --save
+npm install @peerigon/typescript-toolkit --save
 ```
+
+Also available on [JSR](https://jsr.io/@peerigon/typescript-toolkit).
 
 ## Usage
 
-### Adding numbers
+Import only the utilities you need. Each one is exposed as its own subpath:
 
-```javascript
-import { add } from "@peerigon/template-public-package";
-
-add(1, 2); // 3
+```ts
+import { assert } from "@peerigon/typescript-toolkit/assert";
 ```
 
-## API Reference
+## Utilities
 
-### `add()`
-
-Adds two numbers.
-
-```javascript
-import { add } from "@peerigon/template-public-package";
-
-add(1, 2); // 3
-```
-
-**Parameters**:
-
-- `a` (number): The first number
-- `b` (number): The second number
-
-**Returns**: `number` - Result of the addition
+| Module                             | Description                                                                      | Docs                        |
+| ---------------------------------- | -------------------------------------------------------------------------------- | --------------------------- |
+| [`assert`](./src/assert/README.md) | Assert a value is not `null`, `undefined`, or `false`, with TypeScript narrowing | [→](./src/assert/README.md) |
 
 ## License
 
-MIT
+[MIT](./LICENSE)
 
 ## Sponsors
 
-[<img src="https://assets.peerigon.com/peerigon/logo/peerigon-logo-flat-spinat.png" width="150" />](https://peerigon.com)
+<p align="center">
+  <a href="https://peerigon.com">
+    <img src="https://assets.peerigon.com/peerigon/logo/peerigon-logo-flat-spinat.png" width="150" alt="Peerigon" />
+  </a>
+</p>
