@@ -39,7 +39,7 @@ This project uses npm scripts for all development tasks:
 
 ## Code Organization
 
-- Functions are implemented in individual files in `src/`
+- Functions are implemented in individual files in `/src` directory as tree-shakeable sub-packages, with own README.md
 - Each function has comprehensive unit tests using Vitest
 - Uses ES module syntax throughout (`.ts` extensions in imports)
 
