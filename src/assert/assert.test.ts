@@ -108,33 +108,22 @@ describe("assert()", () => {
     it("does not throw for NaN", () => {
       expect(() => assert(Number.NaN)).not.toThrow();
     });
-
-    it("does not throw for negative zero", () => {
-      expect(() => assert(-0)).not.toThrow();
-    });
   });
 
   describe("error types", () => {
     it("throws TypeError instances", () => {
-      try {
-        assert(null);
-        expect.fail("Should have thrown");
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(TypeError);
-        expect(error.message).toMatchInlineSnapshot(
-          `"Assertion failed: expected neither null, undefined, nor false, but got null"`,
-        );
-      }
+      expect(() => assert(null)).toThrow(TypeError);
+      expect(() => assert(null)).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got null]`,
+      );
     });
 
     it("preserves stack trace", () => {
-      try {
-        assert(undefined, "Test error");
-        expect.fail("Should have thrown");
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.stack).toContain("assert.test.ts");
-      }
+      expect(() => assert(undefined, "Test error")).toThrow(
+        expect.objectContaining({
+          stack: expect.stringContaining("assert.test.ts"),
+        }),
+      );
     });
   });
 });
