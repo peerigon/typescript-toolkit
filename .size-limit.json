@@ -1,0 +1,7 @@
+[
+  {
+    "name": "@peerigon/typescript-toolkit/assert",
+    "path": "dist/assert/assert.js",
+    "limit": "200 B"
+  }
+]
