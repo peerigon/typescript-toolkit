@@ -3,5 +3,15 @@
     "name": "@peerigon/typescript-toolkit/assert",
     "path": "dist/assert/assert.js",
     "limit": "200 B"
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/dedupe",
+    "path": "dist/dedupe/dedupe.js",
+    "limit": "50 B"
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/need",
+    "path": "dist/need/need.js",
+    "limit": "150 B"
   }
 ]

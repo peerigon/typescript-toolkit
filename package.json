@@ -17,7 +17,9 @@
   "type": "module",
   "exports": {
     ".": "./dist/main.js",
-    "./add": "./dist/add.js"
+    "./add": "./dist/add.js",
+    "./dedupe": "./dist/dedupe.js",
+    "./need": "./dist/need.js"
   },
   "main": "./dist/main.js",
   "files": [
