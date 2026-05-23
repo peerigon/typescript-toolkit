@@ -22,7 +22,6 @@
   "main": "./dist/main.js",
   "files": [
     "dist",
-    "CHANGELOG.md",
     "README.md"
   ],
   "scripts": {
@@ -68,7 +67,6 @@
     "vitest": "^4.1.6"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   }
 }
