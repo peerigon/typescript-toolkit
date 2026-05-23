@@ -3,32 +3,20 @@
 - 📦 Below 200 Bytes
 - ✅ Zero dependencies
 
-Assert that a given `value` is not `null` or `undefined`, and narrow its type. This function provides both runtime validation and TypeScript type narrowing.
+Assert that a given `value` is not `null` or `undefined`, and narrow its type.
 
 Unlike regular truthiness checks, `assert` only rejects `null` and `undefined` while allowing other falsy values like `false`, `0`, `""`, and `NaN` to pass through. Use `assert.truthy` if you need to check for truthiness.
 
-### Usage
+### Basic usage
 
 ```ts
 import { assert } from "@peerigon/typescript-toolkit/assert";
 
 // Throws if user is null or undefined
-assert(user);
+assert(maybeUser);
 
-// Type narrowing: removes null and undefined from the type
-let maybeString: string | null | undefined = getValue();
-assert(maybeString);
-const length = maybeString.length;
-
-// With custom error message
-assert(user, "User must be logged in to access this feature");
-
-// Custom error messages just for the development build. Production builds will remove the message. In that case, a generic default error message is used.
-assert(
-  user,
-  import.meta.env.DEV &&
-    "Some lengthy debugging message that should not leak into the production build",
-);
+// The type is narrowed to NonNullable<User>
+const user: User = user;
 
 // Only rejects null and undefined — other falsy values pass through
 assert(0); // does not throw
@@ -41,8 +29,22 @@ assert(undefined); // throws
 // Use assert.truthy to reject falsy values, such as 0 and ""
 assert.truthy(count, "count must not be 0");
 
-// Can also be used for custom checks
+// assert.truthy can also be used for custom checks
 assert.truthy(count > 3, "count must be greater than 3");
+```
+
+### With custom error message
+
+```ts
+// With custom error message
+assert(user, "User must be logged in to access this feature");
+
+// Custom error messages just for the development build. Production builds will remove the message. In that case, a generic default error message is used.
+assert(
+  user,
+  import.meta.env.DEV &&
+    "Some lengthy debugging message that should not leak into the production build",
+);
 
 // Custom error message can also be a function that will
 // only be evaluated when the assertion fails

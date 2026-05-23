@@ -5,25 +5,13 @@
 
 Remove duplicate values from an array using JavaScript's native `Set` for efficient deduplication. Preserves the order of first occurrence for each unique value.
 
-### Usage
+### Basic usage
 
 ```ts
 import { dedupe } from "@peerigon/typescript-toolkit/dedupe";
 
-// Remove duplicate numbers
-const numbers = [1, 2, 2, 3, 1, 4, 2];
-const uniqueNumbers = dedupe(numbers);
-console.log(uniqueNumbers); // [1, 2, 3, 4]
-
-// Remove duplicate strings
 const words = ["apple", "banana", "apple", "cherry", "banana"];
-const uniqueWords = dedupe(words);
-console.log(uniqueWords); // ["apple", "banana", "cherry"]
-
-// Works with any type that can be compared by Set
-const booleans = [true, false, true, true, false];
-const uniqueBooleans = dedupe(booleans);
-console.log(uniqueBooleans); // [true, false]
+const uniqueWords = dedupe(words); // ["apple", "banana", "cherry"]
 ```
 
 ### API Reference

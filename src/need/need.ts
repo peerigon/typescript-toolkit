@@ -8,8 +8,6 @@ import { simpleStringify } from "../lib/string.ts";
  * and does not reject other falsy values. Unlike `assert`, it returns the value
  * so it can be used in expressions.
  *
- * Another advantage of `need` is that is can be used in expressions.
- *
  * @param value - The value to check for nullish values
  * @param errorMessage - Custom error message or function that returns an error message
  * @returns The value with nullish types removed from its type signature

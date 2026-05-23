@@ -5,29 +5,33 @@
 
 Assert that the given `value` is not `null` or `undefined` and return it with a narrowed type.
 
-### Usage
+### Basic usage
 
 ```ts
 import { need } from "@peerigon/typescript-toolkit/need";
 
 // Call need() to remove undefined | null from the type
 // Throws a TypeError at runtime if the value is null or undefined.
-const safeUserName: string = need(userName);
+const userName: string = need(maybeUserName);
+```
 
+### With custom error message
+
+```ts
 // With custom error message
-const safeConfig = need(config, "Configuration is required but not found");
+const userName = need(maybeUserName, "User name is required but not found");
 
 // Custom error messages just for the development build. Production builds will remove the message. In that case, a generic default error message is used.
-const safeConfig = need(
-  config,
-  import.meta.env.DEV && "Minifiers will remove this message for prod",
+const userName = need(
+  maybeUserName,
+  import.meta.env.DEV && "User name is required but not found",
 );
 
 // Custom error message can also be a function that will
 // only be evaluated when the error is thrown
-const safeConfig = need(
-  config,
-  () => "This is an expensive message to generate",
+const userName = need(
+  maybeUserName,
+  () => "User name is required but not found",
 );
 ```
 
