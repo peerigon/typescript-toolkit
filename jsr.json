@@ -3,7 +3,11 @@
   "version": "0.0.0-semantically-released",
   "license": "MIT",
   "exports": {
-    "./assert": "./src/assert/assert.ts"
+    ".": "./src/main.ts",
+    "./assert": "./src/assert/assert.ts",
+    "./dedupe": "./src/dedupe/dedupe.ts",
+    "./enums": "./src/enums/enums.ts",
+    "./need": "./src/need/need.ts"
   },
   "publish": {
     "include": ["src", "CHANGELOG.md", "README.md"],

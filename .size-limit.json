@@ -13,5 +13,10 @@
     "name": "@peerigon/typescript-toolkit/need",
     "path": "dist/need/need.js",
     "limit": "150 B"
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/enums",
+    "path": "dist/enums/enums.js",
+    "limit": "350 B"
   }
 ]

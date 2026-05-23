@@ -52,6 +52,7 @@ describe("enums", () => {
       });
 
       it("prevents assigning arbitrary strings", () => {
+        expect.assertions(0);
         const processDirection = (_direction: Direction) => {};
 
         processDirection(Direction.North);
@@ -135,6 +136,7 @@ describe("enums", () => {
     type Status = Enums<typeof Status>;
 
     it("prevents mixing branded enums with same values", () => {
+      expect.assertions(0);
       const processColor = (_color: Color) => {};
       const processStatus = (_status: Status) => {};
 
@@ -181,20 +183,20 @@ describe("enums", () => {
       });
 
       it("throws TypeError when value is not in enum", () => {
-        expect(() =>
-          enums.parse(Direction, "Northeast"),
-        ).toThrowErrorMatchingInlineSnapshot(
-          `[TypeError: Invalid enum value "Northeast". Expected one of: "North", "South", "East", "West"]`,
-        );
-
+        let error: unknown;
         try {
           enums.parse(Direction, "Northeast");
-        } catch (error) {
-          expect((error as TypeError).cause).toEqual({
-            enum: Direction,
-            value: "Northeast",
-          });
+        } catch (error_) {
+          error = error_;
         }
+
+        expect(error).toMatchInlineSnapshot(
+          `[TypeError: Invalid enum value "Northeast". Expected one of: "North", "South", "East", "West"]`,
+        );
+        expect((error as TypeError).cause).toEqual({
+          enum: Direction,
+          value: "Northeast",
+        });
       });
     });
 

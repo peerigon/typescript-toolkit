@@ -17,9 +17,10 @@
   "type": "module",
   "exports": {
     ".": "./dist/main.js",
-    "./add": "./dist/add.js",
-    "./dedupe": "./dist/dedupe.js",
-    "./need": "./dist/need.js"
+    "./assert": "./dist/assert/assert.js",
+    "./dedupe": "./dist/dedupe/dedupe.js",
+    "./enums": "./dist/enums/enums.js",
+    "./need": "./dist/need/need.js"
   },
   "main": "./dist/main.js",
   "files": [

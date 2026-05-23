@@ -39,9 +39,10 @@ This project uses npm scripts for all development tasks:
 
 ## Code Organization
 
-- Functions are implemented in individual files in `/src` directory as tree-shakeable sub-packages, with own README.md
+- Functions are implemented in individual files in `/src` directory as tree-shakeable sub-packages
 - Each function has comprehensive unit tests using Vitest
 - Uses ES module syntax throughout (`.ts` extensions in imports)
+- Each utility needs its own `README.md`, a row in the **Utilities** table in the root `README.md`, a dedicated export in `package.json` and `jsr.json`, and an entry in `.size-limit.json` (verified by `npm run test:build:size`)
 
 ## Template as a git remote
 

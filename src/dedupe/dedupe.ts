@@ -13,4 +13,6 @@
  * const uniqueStrings = dedupe(strings); // ["a", "b", "c"]
  * ```
  */
-export const dedupe = <Item>(array: Array<Item>) => [...new Set(array)];
+export const dedupe = <Item>(array: Array<Item>): Array<Item> => [
+  ...new Set(array),
+];

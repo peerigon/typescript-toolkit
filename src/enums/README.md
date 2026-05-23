@@ -5,17 +5,11 @@
 
 JS-only alternative with minimal runtime footprint for TypeScript's `enum` when you want to use `erasableSyntaxOnly` (read [here](https://www.totaltypescript.com/erasable-syntax-only) why). Mimics the behavior of string-based `enum`.
 
-### Usage
-
-#### Basic enum definition
+### Basic usage
 
 ```ts
 import { enums, type Enums } from "@peerigon/typescript-toolkit/enums";
-import { match } from "@peerigon/typescript-toolkit/match";
 
-// Define an enum using property keys as values
-
-/** Represents the cardinal directions */
 const Direction = enums.define({
   /** Add JSDoc comments here to explain each option */
   North: true, // true means that the key name is used as the value
@@ -26,22 +20,19 @@ const Direction = enums.define({
 // Derive the union type of all enum values
 type Direction = Enums<typeof Direction>;
 
-console.log(Direction.North); // "North"
 // Hovering over Direction.South shows the JSDoc
 console.log(Direction.South); // "South"
 
 // Combine with match() for pattern matching and exhaustiveness checks
-function getOpposite(direction: Direction) {
-  return match(direction).case([
-    // Shows a type error here because not all cases have been implemented
-    [Direction.North, Direction.South],
-    [Direction.South, Direction.North],
-    [Direction.East, Direction.West],
-  ]);
-}
+const oppositeDirection = match(direction).case([
+  // Shows a type error here because not all cases have been implemented
+  [Direction.North, Direction.South],
+  [Direction.South, Direction.North],
+  [Direction.East, Direction.West],
+]);
 ```
 
-#### Custom enum values
+### Custom enum values
 
 ```ts
 // Mix different value types
@@ -57,32 +48,7 @@ console.log(Status.Inactive); // 0
 console.log(Status.Unknown); // Symbol(unknown)
 ```
 
-#### Complex enum values
-
-Enums can also use complex values like objects, arrays, and functions:
-
-```ts
-const configObject = { name: "config", value: 123 };
-const dataArray = [1, 2, 3];
-const handlerFunction = () => "handler";
-
-const ComplexEnum = enums.define({
-  Config: configObject,
-  Data: dataArray,
-  Handler: handlerFunction,
-});
-type ComplexEnum = Enums<typeof ComplexEnum>;
-
-console.log(ComplexEnum.Config); // { name: "config", value: 123 }
-console.log(ComplexEnum.Data); // [1, 2, 3]
-console.log(ComplexEnum.Handler); // () => "handler"
-
-// Reference equality is preserved
-console.log(ComplexEnum.Config === configObject); // true
-console.log(ComplexEnum.Data === dataArray); // true
-```
-
-#### Type safety
+### Type safety
 
 `enums.define` creates ["branded" types](https://egghead.io/blog/using-branded-types-in-typescript) for each option. This means that you must reference the enum property and can't assign the primitive value directly:
 
@@ -108,7 +74,7 @@ const Status = enums.define({
 });
 type Status = Enums<typeof Status>;
 
-// ✅ Will work because Status.Red and Color.Red use "Red"
+// 🥴 Will work because Status.Red and Color.Red use "Red"
 // as primitive value and the same default symbol as brand... :/
 color = Status.Red;
 ```
@@ -250,11 +216,3 @@ Type utility to extract the union type of all enum values.
 - `Definition`: The enum definition object type
 
 **Returns**: Union type of all enum values
-
-### ⚠️ Behavior Notes
-
-- **Frozen Objects**: All enum objects are frozen with `Object.freeze()` to prevent modification
-- **Value Mapping**: When a property value is `true`, the property key becomes the enum value
-- **Type Safety**: Prevents mixing enums with primitive values
-- **Branded Safety**: Branded enums provide additional type safety to prevent accidental mixing
-- **No Runtime Overhead**: Uses compile-time type checking with minimal runtime footprint

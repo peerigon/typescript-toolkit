@@ -1,24 +1,29 @@
 import { stringify } from "../lib/string.ts";
 
+type EnumDefinition<
+  Brand extends symbol,
+  Definition extends Record<string, unknown>,
+> = {
+  [Key in keyof Definition]: (Definition[Key] extends true
+    ? Key
+    : Definition[Key]) & {
+    readonly brand: Brand;
+  };
+};
+
 const defineBrandedEnums = <
   const Brand extends symbol,
   const Definition extends Record<string, unknown>,
 >(
   brand: Brand,
   definition: Definition,
-) => {
+): EnumDefinition<Brand, Definition> => {
   const enumsDefinition = Object.fromEntries(
     Object.entries(definition).map(([key, value]) => [
       key,
       value === true ? key : value,
     ]),
-  ) as {
-    [Key in keyof Definition]: (Definition[Key] extends true
-      ? Key
-      : Definition[Key]) & {
-      readonly brand: Brand;
-    };
-  };
+  ) as EnumDefinition<Brand, Definition>;
 
   Object.freeze(enumsDefinition);
 
@@ -29,7 +34,7 @@ const enumsBrand = Symbol("enums");
 
 const defineEnums = <const Definition extends Record<string, unknown>>(
   definition: Definition,
-) => {
+): EnumDefinition<typeof enumsBrand, Definition> => {
   return defineBrandedEnums(enumsBrand, definition);
 };
 
