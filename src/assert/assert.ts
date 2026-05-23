@@ -2,21 +2,20 @@ import { getErrorMessage, type ErrorMessage } from "../lib/error-message.ts";
 import { simpleStringify } from "../lib/string.ts";
 
 /**
- * Asserts that a given `value` is not `null`, `undefined`, or `false`,
- * and narrows its type.
+ * Asserts that a given `value` is not `null` or `undefined`, and narrows its type.
  *
- * Unlike regular truthiness checks, `assert` only rejects `null`, `undefined`,
- * and `false` while allowing other falsy values like `0`, `""`, and `NaN` to pass through.
+ * Unlike regular truthiness checks, `assert` only rejects `null` and `undefined`
+ * while allowing other falsy values like `false`, `0`, `""`, and `NaN` to pass through.
  *
- * @param value - The value that shouldn't be `null`, `undefined`, or `false`.
- * @param errorMessage - The error message to throw if the value is `null`, `undefined`, or `false`.
+ * @param value - The value that shouldn't be `null` or `undefined`.
+ * @param errorMessage - The error message to throw if the value is `null` or `undefined`.
  */
 export const assert = <Value>(
   value: Value,
   errorMessage?: ErrorMessage,
-): asserts value is NonNullable<Value> & Exclude<Value, false> => {
-  if (value === undefined || value === null || value === false) {
-    throwTypeError(value, errorMessage, "neither null, undefined, nor false");
+): asserts value is NonNullable<Value> => {
+  if (value === undefined || value === null) {
+    throwTypeError(value, errorMessage, "neither null nor undefined");
   }
 };
 

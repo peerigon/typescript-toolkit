@@ -3,91 +3,55 @@
 - 📦 Below 200 Bytes
 - ✅ Zero dependencies
 
-Assert that a given `value` is not `null`, `undefined`, or `false`, and narrow its type. This function provides both runtime validation and TypeScript type narrowing.
+Assert that a given `value` is not `null` or `undefined`, and narrow its type. This function provides both runtime validation and TypeScript type narrowing.
 
-Unlike regular truthiness checks, `assert` only rejects `null`, `undefined`, and `false` while allowing other falsy values like `0`, `""`, and `NaN` to pass through. Use `assert.truthy` if you need to check for truthiness.
+Unlike regular truthiness checks, `assert` only rejects `null` and `undefined` while allowing other falsy values like `false`, `0`, `""`, and `NaN` to pass through. Use `assert.truthy` if you need to check for truthiness.
 
 ### Usage
 
 ```ts
 import { assert } from "@peerigon/typescript-toolkit/assert";
 
-function processUser(user: User | null) {
-  assert(user); // Throws if user is null
-  // TypeScript now knows user is User, not User | null
-  console.log(user.name); // No type error
-}
-```
+// Throws if user is null or undefined
+assert(user);
 
-#### Type narrowing
-
-The primary benefit of `assert` is TypeScript type narrowing. After calling `assert`, TypeScript eliminates `null`, `undefined`, and `false` from the value's type:
-
-```ts
+// Type narrowing: removes null and undefined from the type
 let maybeString: string | null | undefined = getValue();
 assert(maybeString);
-// TypeScript now knows maybeString is string
-const length = maybeString.length; // No type error
-```
+const length = maybeString.length;
 
-#### Custom error messages
-
-You can provide a custom error message for more descriptive failures:
-
-```ts
+// With custom error message
 assert(user, "User must be logged in to access this feature");
-// Throws: "User must be logged in to access this feature"
-```
 
-#### Removing error messages in production builds
-
-`assert` allows to pass `false` as message. In this case, the default error message is shown:
-
-```ts
+// Custom error messages just for the development build. Production builds will remove the message. In that case, a generic default error message is used.
 assert(
   user,
-  // Vite replaces `import.meta.env.DEV` with `false` in production builds.
-  // Minifiers will then just discard the second && operand as it can't change
-  // the expression result.
   import.meta.env.DEV &&
     "Some lengthy debugging message that should not leak into the production build",
 );
-```
 
-#### Handling falsy values
+// Only rejects null and undefined — other falsy values pass through
+assert(0); // does not throw
+assert(""); // does not throw
+assert(NaN); // does not throw
+assert(false); // does not throw
+assert(null); // throws
+assert(undefined); // throws
 
-`assert` distinguishes between "nullish" values (`null`, `undefined`) and other falsy values:
+// Use assert.truthy to reject falsy values, such as 0 and ""
+assert.truthy(count, "count must not be 0");
 
-```ts
-assert(0); // ✅ Does not throw (0 is falsy but not nullish)
-assert(""); // ✅ Does not throw (empty string is falsy but not nullish)
-assert(NaN); // ✅ Does not throw (NaN is falsy but not nullish)
-assert(false); // ❌ Throws (false is explicitly rejected)
-assert(null); // ❌ Throws (null is nullish)
-assert(undefined); // ❌ Throws (undefined is nullish)
-```
+// Can also be used for custom checks
+assert.truthy(count > 3, "count must be greater than 3");
 
-### Truthy checks
-
-Use `assert.truthy` to perform truthyness checks:
-
-```ts
-function processCount(count: number) {
-  assert.truthy(count, "count must not be 0"); // Throws if count is 0
-  console.log(100 / count); // No division by zero concern
-}
-```
-
-#### Expensive error messages
-
-You can pass a function that returns the error message, useful for expensive message generation:
-
-```ts
+// Custom error message can also be a function that will
+// only be evaluated when the assertion fails
 assert(user, () => generateExpensiveErrorMessage(user));
-// Only evaluates the function if assertion fails
 ```
 
 ### API Reference
+
+#### `assert`
 
 **Type parameters**:
 
@@ -95,14 +59,20 @@ assert(user, () => generateExpensiveErrorMessage(user));
 
 **Parameters**:
 
-- `value` (`Value`): The value to assert as non-nullish
-- `message` (`string`, optional): Custom error message. Defaults to `"Assertion failed on ${String(value)}"`
+- `value` (`Value`): The value to assert is not `null` or `undefined`
+- `errorMessage` (`ErrorMessage`, optional): Custom error message (`string`, `false`, or a function returning either). Defaults to `"Assertion failed: expected neither null nor undefined, but got …"`
 
-**Returns**: `asserts value is NonNullable<Value> & Exclude<Value, false>`
+**Returns**: `asserts value is NonNullable<Value>`
 
-**Throws**: `TypeError` when `value` is `null`, `undefined`, or `false`
+**Throws**: `TypeError` when `value` is `null` or `undefined`
 
-### ⚠️ Behavior Notes
+#### `assert.truthy`
 
-- **Error Type**: Always throws `TypeError` instances, not generic `Error`
-- **Falsy Tolerance**: Allows falsy values like `0`, `""`, and `NaN` to pass through, focusing only on nullish values and `false`
+**Parameters**:
+
+- `value` (`unknown`): The value to assert is truthy
+- `errorMessage` (`ErrorMessage`, optional): Custom error message (`string`, `false`, or a function returning either). Defaults to `"Assertion failed: expected truthy value, but got …"`
+
+**Returns**: `asserts value`
+
+**Throws**: `TypeError` when `value` is falsy (`false`, `0`, `-0`, `0n`, `""`, `null`, `undefined`, or `NaN`)

@@ -2,36 +2,31 @@ import { describe, expect, it } from "vitest";
 import { assert } from "./assert.js";
 
 describe("assert()", () => {
-  describe("when value is null, undefined, or false", () => {
+  describe("when value is null or undefined", () => {
     it("throws for null", () => {
       expect(() => assert(null)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got null]`,
+        `[TypeError: Assertion failed: expected neither null nor undefined, but got null]`,
       );
     });
 
     it("throws for undefined", () => {
       expect(() => assert(undefined)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got undefined]`,
-      );
-    });
-
-    it("throws for false", () => {
-      expect(() => assert(false)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got false]`,
+        `[TypeError: Assertion failed: expected neither null nor undefined, but got undefined]`,
       );
     });
   });
 
   describe("when value is something else", () => {
-    it("does not throw for non-null, non-undefined, non-false values", () => {
+    it("does not throw for non-nullish values", () => {
       expect(() => assert(1)).not.toThrow();
       expect(() => assert("hello")).not.toThrow();
       expect(() => assert(true)).not.toThrow();
+      expect(() => assert(false)).not.toThrow();
       expect(() => assert([])).not.toThrow();
       expect(() => assert({})).not.toThrow();
       expect(() => assert(() => {})).not.toThrow();
-      expect(() => assert(0)).not.toThrow(); // 0 is falsy but not null/undefined/false
-      expect(() => assert("")).not.toThrow(); // empty string is falsy but not null/undefined/false
+      expect(() => assert(0)).not.toThrow();
+      expect(() => assert("")).not.toThrow();
     });
 
     it("preserves the original value after assertion", () => {
@@ -47,7 +42,6 @@ describe("assert()", () => {
       const customMessage = "Custom assertion error";
       expect(() => assert(null, customMessage)).toThrow(customMessage);
       expect(() => assert(undefined, customMessage)).toThrow(customMessage);
-      expect(() => assert(false, customMessage)).toThrow(customMessage);
     });
 
     it("calls the function message when provided", () => {
@@ -59,10 +53,7 @@ describe("assert()", () => {
 
     it("uses default message when false is provided", () => {
       expect(() => assert(undefined, false)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got undefined]`,
-      );
-      expect(() => assert(false, false)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got false]`,
+        `[TypeError: Assertion failed: expected neither null nor undefined, but got undefined]`,
       );
     });
   });
@@ -78,21 +69,13 @@ describe("assert()", () => {
       // This is tested by compilation, not runtime behavior
       const _certainlyAString: string = potentiallyNull; // This should not cause TypeScript error
     });
-
-    it("narrows type from boolean to true", () => {
-      const potentiallyFalse = false as boolean;
-      try {
-        assert(potentiallyFalse);
-        // After assertion, TypeScript should know potentiallyFalse is true
-        // This is tested by compilation, not runtime behavior
-        const _test: true = potentiallyFalse;
-      } catch {
-        // Do nothing
-      }
-    });
   });
 
   describe("falsy values that should not throw", () => {
+    it("does not throw for false", () => {
+      expect(() => assert(false)).not.toThrow();
+    });
+
     it("does not throw for 0", () => {
       expect(() => assert(0)).not.toThrow();
     });
@@ -114,7 +97,7 @@ describe("assert()", () => {
     it("throws TypeError instances", () => {
       expect(() => assert(null)).toThrow(TypeError);
       expect(() => assert(null)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got null]`,
+        `[TypeError: Assertion failed: expected neither null nor undefined, but got null]`,
       );
     });
 
@@ -195,8 +178,10 @@ describe("assert.truthy()", () => {
     });
 
     it("uses default message when false is provided", () => {
-      expect(() => assert(undefined, false)).toThrowErrorMatchingInlineSnapshot(
-        `[TypeError: Assertion failed: expected neither null, undefined, nor false, but got undefined]`,
+      expect(() =>
+        assert.truthy(undefined, false),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[TypeError: Assertion failed: expected truthy value, but got undefined]`,
       );
     });
   });
