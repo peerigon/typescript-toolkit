@@ -43,6 +43,7 @@ import { assert } from "@peerigon/typescript-toolkit/assert";
 | [`need`](./src/need/README.md)     | Assert a value is not `null` or `undefined` and return it with a narrowed type   | [→](./src/need/README.md)   |
 | [`dedupe`](./src/dedupe/README.md) | Remove duplicate values from an array while preserving first-occurrence order    | [→](./src/dedupe/README.md) |
 | [`enums`](./src/enums/README.md)   | Lightweight string-enum alternative for `erasableSyntaxOnly` TypeScript projects | [→](./src/enums/README.md)  |
+| [`match`](./src/match/README.md)   | Exhaustive pattern matching with compile-time case checks, similar to `switch`   | [→](./src/match/README.md)  |
 
 ## License
 

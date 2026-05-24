@@ -20,6 +20,7 @@
     "./assert": "./dist/assert/assert.js",
     "./dedupe": "./dist/dedupe/dedupe.js",
     "./enums": "./dist/enums/enums.js",
+    "./match": "./dist/match/match.js",
     "./need": "./dist/need/need.js"
   },
   "main": "./dist/main.js",

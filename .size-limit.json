@@ -18,5 +18,10 @@
     "name": "@peerigon/typescript-toolkit/enums",
     "path": "dist/enums/enums.js",
     "limit": "350 B"
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/match",
+    "path": "dist/match/match.js",
+    "limit": "400 B"
   }
 ]

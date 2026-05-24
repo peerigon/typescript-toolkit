@@ -7,6 +7,7 @@
     "./assert": "./src/assert/assert.ts",
     "./dedupe": "./src/dedupe/dedupe.ts",
     "./enums": "./src/enums/enums.ts",
+    "./match": "./src/match/match.ts",
     "./need": "./src/need/need.ts"
   },
   "publish": {
