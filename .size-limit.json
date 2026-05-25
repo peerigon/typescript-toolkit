@@ -23,5 +23,15 @@
     "name": "@peerigon/typescript-toolkit/match",
     "path": "dist/match/match.js",
     "limit": "400 B"
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/result",
+    "path": "dist/result/result.js",
+    "limit": "850 B"
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/unwrap",
+    "path": "dist/unwrap/unwrap.js",
+    "limit": "400 B"
   }
 ]

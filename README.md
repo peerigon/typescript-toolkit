@@ -44,6 +44,8 @@ import { assert } from "@peerigon/typescript-toolkit/assert";
 | [`dedupe`](./src/dedupe/README.md) | Remove duplicate values from an array while preserving first-occurrence order    | [→](./src/dedupe/README.md) |
 | [`enums`](./src/enums/README.md)   | Lightweight string-enum alternative for `erasableSyntaxOnly` TypeScript projects | [→](./src/enums/README.md)  |
 | [`match`](./src/match/README.md)   | Exhaustive pattern matching with compile-time case checks, similar to `switch`   | [→](./src/match/README.md)  |
+| [`result`](./src/result/README.md) | Type-safe error handling with pending, success, and error states                 | [→](./src/result/README.md) |
+| [`unwrap`](./src/unwrap/README.md) | Extract values from `Result` or nullable types, with optional fallback support   | [→](./src/unwrap/README.md) |
 
 ## License
 

@@ -8,7 +8,9 @@
     "./dedupe": "./src/dedupe/dedupe.ts",
     "./enums": "./src/enums/enums.ts",
     "./match": "./src/match/match.ts",
-    "./need": "./src/need/need.ts"
+    "./need": "./src/need/need.ts",
+    "./result": "./src/result/result.ts",
+    "./unwrap": "./src/unwrap/unwrap.ts"
   },
   "publish": {
     "include": ["src", "CHANGELOG.md", "README.md"],

@@ -21,7 +21,9 @@
     "./dedupe": "./dist/dedupe/dedupe.js",
     "./enums": "./dist/enums/enums.js",
     "./match": "./dist/match/match.js",
-    "./need": "./dist/need/need.js"
+    "./need": "./dist/need/need.js",
+    "./result": "./dist/result/result.js",
+    "./unwrap": "./dist/unwrap/unwrap.js"
   },
   "main": "./dist/main.js",
   "files": [
@@ -54,6 +56,7 @@
     "@peerigon/configs": "^15.4.0",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
     "@size-limit/preset-small-lib": "^12.1.0",
+    "@tanstack/query-core": "^5.100.11",
     "@types/node": "^25.8.0",
     "@vitest/coverage-v8": "^4.1.6",
     "eslint": "^9.39.2",
