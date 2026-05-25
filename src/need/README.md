@@ -37,15 +37,23 @@ const userName = need(
 
 ### API Reference
 
-**Type parameters**:
+#### `need(value, errorMessage?)`
 
-- `Value`: The type of the input value
+Returns `value` with `null` and `undefined` removed from its type, or throws.
 
-**Parameters**:
+```ts
+need<Value>(value: Value, errorMessage?: ErrorMessage): NonNullable<Value>
+```
 
-- `value` (`Value`): The value to check for null or undefined.
-- `message` (`string`, optional): Custom error message. Defaults to `"Expected value to be defined, but got ${value}"`.
+| Type parameter | Description             |
+| -------------- | ----------------------- |
+| `Value`        | Type of the input value |
 
-**Returns**: `NonNullable<Value>` - The same value with `null` and `undefined` removed from the type.
+| Parameter      | Type                      | Description                                                                                                 |
+| -------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `value`        | `Value`                   | Value to check for `null` or `undefined`                                                                    |
+| `errorMessage` | `ErrorMessage` (optional) | Custom message: `string`, `false`, or a lazy function. Default: `"Expected value to be defined, but got …"` |
 
-**Throws**: `TypeError` if the value is `null` or `undefined`.
+**Returns:** `NonNullable<Value>` — the same `value` when defined
+
+**Throws:** `TypeError` when `value` is `null` or `undefined`

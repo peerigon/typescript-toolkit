@@ -167,52 +167,70 @@ const entries = enums.entries(Status);
 
 Creates a type-safe enum from an object definition.
 
-**Parameters**:
+```ts
+enums.define<Definition>(definition: Definition): EnumDefinition
+```
 
-- `definition`: Object where keys become enum names and values become enum values. Use `true` to use the key name as the value.
+| Parameter    | Type                      | Description                                                                               |
+| ------------ | ------------------------- | ----------------------------------------------------------------------------------------- |
+| `definition` | `Record<string, unknown>` | Keys become enum names; values become enum values. Use `true` to use the key as the value |
 
-**Returns**: Frozen enum object with type-safe values
+**Returns:** Frozen enum object with type-safe values
 
 #### `enums.define.branded(symbol, definition)`
 
 Creates a branded enum that cannot be mixed with other enums.
 
-**Parameters**:
+```ts
+enums.define.branded<Brand, Definition>(symbol: Brand, definition: Definition): EnumDefinition<Brand, Definition>
+```
 
-- `symbol`: A unique symbol to brand the enum type
-- `definition`: Object defining the enum keys and values
+| Parameter    | Type                      | Description                                                      |
+| ------------ | ------------------------- | ---------------------------------------------------------------- |
+| `symbol`     | `symbol`                  | Unique symbol branding this enum type                            |
+| `definition` | `Record<string, unknown>` | Keys and values defining the enum (same rules as `enums.define`) |
 
-**Returns**: Frozen branded enum object
+**Returns:** Frozen branded enum object
 
 #### `enums.parse(definition, value)`
 
-Validates that a value is a valid enum value and returns it with the correct type.
+Validates that `value` is a valid enum value and returns it with the correct type.
 
-**Parameters**:
+```ts
+enums.parse<Definition>(definition: Definition, value: unknown): Enums<Definition>
+```
 
-- `definition`: The enum object created with `enums.define`
-- `value`: The value to validate
+| Parameter    | Type         | Description                             |
+| ------------ | ------------ | --------------------------------------- |
+| `definition` | `Definition` | Enum object created with `enums.define` |
+| `value`      | `unknown`    | Value to validate                       |
 
-**Returns**: The value typed as the enum type
+**Returns:** `Enums<Definition>`
 
-**Throws**: `TypeError` if the value is not valid, with `cause` containing `{ enum, value }`
+**Throws:** `TypeError` if `value` is invalid; `cause` is `{ enum, value }`
 
 #### `enums.entries(definition)`
 
-Returns an array of [key, value] tuples from an enum definition.
+Returns `[key, value]` tuples from an enum definition.
 
-**Parameters**:
+```ts
+enums.entries<Definition>(definition: Definition): Array<[keyof Definition, Enums<Definition>]>
+```
 
-- `definition`: The enum object created with `enums.define`
+| Parameter    | Type         | Description                             |
+| ------------ | ------------ | --------------------------------------- |
+| `definition` | `Definition` | Enum object created with `enums.define` |
 
-**Returns**: Array of `[key, value]` tuples where keys are enum property names and values are enum values
+**Returns:** Array of `[key, value]` tuples (property names and enum values)
 
 #### `Enums<Definition>`
 
-Type utility to extract the union type of all enum values.
+Type utility for the union of all enum values.
 
-**Type parameters**:
+```ts
+type Enums<Definition> = Definition[keyof Definition];
+```
 
-- `Definition`: The enum definition object type
-
-**Returns**: Union type of all enum values
+| Type parameter | Description                 |
+| -------------- | --------------------------- |
+| `Definition`   | Enum definition object type |

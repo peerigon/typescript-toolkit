@@ -16,15 +16,23 @@ const uniqueWords = dedupe(words); // ["apple", "banana", "cherry"]
 
 ### API Reference
 
-**Type parameters**:
+#### `dedupe(array)`
 
-- `Item`: The type of items in the array
+Returns a new array with duplicate values removed (first occurrence kept).
 
-**Parameters**:
+```ts
+dedupe<Item>(array: Array<Item>): Array<Item>
+```
 
-- `array` (`Array<Item>`): The array to remove duplicates from
+| Type parameter | Description                |
+| -------------- | -------------------------- |
+| `Item`         | Type of items in the array |
 
-**Returns**: `Array<Item>` - A new array with duplicate values removed, preserving order of first occurrence
+| Parameter | Type          | Description          |
+| --------- | ------------- | -------------------- |
+| `array`   | `Array<Item>` | Array to deduplicate |
+
+**Returns:** `Array<Item>` — new array; original is not mutated
 
 ### ⚠️ Behavior Notes
 

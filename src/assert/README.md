@@ -53,28 +53,36 @@ assert(user, () => generateExpensiveErrorMessage(user));
 
 ### API Reference
 
-#### `assert`
+#### `assert(value, errorMessage?)`
 
-**Type parameters**:
+Asserts that `value` is not `null` or `undefined` and narrows its type.
 
-- `Value`: The type of the value being asserted
+```ts
+assert<Value>(value: Value, errorMessage?: ErrorMessage): asserts value is NonNullable<Value>
+```
 
-**Parameters**:
+| Type parameter | Description                      |
+| -------------- | -------------------------------- |
+| `Value`        | Type of the value being asserted |
 
-- `value` (`Value`): The value to assert is not `null` or `undefined`
-- `errorMessage` (`ErrorMessage`, optional): Custom error message (`string`, `false`, or a function returning either). Defaults to `"Assertion failed: expected neither null nor undefined, but got …"`
+| Parameter      | Type                      | Description                                                                                                                          |
+| -------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `value`        | `Value`                   | Value to assert is not `null` or `undefined`                                                                                         |
+| `errorMessage` | `ErrorMessage` (optional) | Custom message: `string`, `false`, or a lazy function. Default: `"Assertion failed: expected neither null nor undefined, but got …"` |
 
-**Returns**: `asserts value is NonNullable<Value>`
+**Throws:** `TypeError` when `value` is `null` or `undefined`
 
-**Throws**: `TypeError` when `value` is `null` or `undefined`
+#### `assert.truthy(value, errorMessage?)`
 
-#### `assert.truthy`
+Asserts that `value` is truthy and narrows its type.
 
-**Parameters**:
+```ts
+assert.truthy(value: unknown, errorMessage?: ErrorMessage): asserts value
+```
 
-- `value` (`unknown`): The value to assert is truthy
-- `errorMessage` (`ErrorMessage`, optional): Custom error message (`string`, `false`, or a function returning either). Defaults to `"Assertion failed: expected truthy value, but got …"`
+| Parameter      | Type                      | Description                                                                                                            |
+| -------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `value`        | `unknown`                 | Value to assert is truthy                                                                                              |
+| `errorMessage` | `ErrorMessage` (optional) | Custom message: `string`, `false`, or a lazy function. Default: `"Assertion failed: expected truthy value, but got …"` |
 
-**Returns**: `asserts value`
-
-**Throws**: `TypeError` when `value` is falsy (`false`, `0`, `-0`, `0n`, `""`, `null`, `undefined`, or `NaN`)
+**Throws:** `TypeError` when `value` is falsy (`false`, `0`, `-0`, `0n`, `""`, `null`, `undefined`, or `NaN`)

@@ -75,21 +75,42 @@ Cases are checked from top to bottom; the **first** match wins (`Object.is` is u
 
 ### API Reference
 
-**Type parameters**:
+| Type parameter | Description                               |
+| -------------- | ----------------------------------------- |
+| `Value`        | Type of the value being matched           |
+| `Result`       | Type of the result returned from matching |
 
-- `Value`: The type of the value being matched (can be any type)
-- `Result`: The type of the result returned from matching
+#### `match(value)`
 
-**Methods**:
+Creates a matcher for the given value.
 
-- `match(value)`: Creates a matcher for the given value
-- `.case(cases)`: Performs the match and returns the result
+```ts
+match<Value>(value: Value): { case(cases): Result }
+```
 
-**Cases format**:
+| Parameter | Type    | Description                  |
+| --------- | ------- | ---------------------------- |
+| `value`   | `Value` | Value to match against cases |
 
-- **Tuple format**: `[[value, result], ...]` - An array of tuples mapping values to results
+#### `.case(cases)`
 
-**Special symbols**:
+Runs the match and returns the result from the first matching tuple (`Object.is` comparison).
 
-- `match.default`: Provides a default result when no other case matches
-- `match.catch`: Handles unexpected runtime values while still requiring all compile-time cases
+```ts
+case<Result>(cases: Array<[Value, Result]>): Result
+```
+
+| Parameter | Type                                                                   | Description                                               |
+| --------- | ---------------------------------------------------------------------- | --------------------------------------------------------- |
+| `cases`   | `Array<[Value \| typeof match.default \| typeof match.catch, Result]>` | Tuples mapping values to results, evaluated top to bottom |
+
+**Returns:** `Result`
+
+**Throws:** `Error` when no case matches and neither `match.default` nor `match.catch` is the last tuple
+
+#### Symbols
+
+| Symbol          | Description                                                                                                    |
+| --------------- | -------------------------------------------------------------------------------------------------------------- |
+| `match.default` | Fallback for any value not listed; must be the last tuple; disables exhaustive compile-time checking           |
+| `match.catch`   | Fallback for unexpected runtime values only; must be the last tuple; all compile-time cases are still required |
