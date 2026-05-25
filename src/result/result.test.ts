@@ -6,7 +6,7 @@ import {
   type QueryObserverResult,
   type QueryObserverSuccessResult,
 } from "@tanstack/query-core";
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { match } from "../match/match.ts";
 import { isResult, result, type Result } from "../result/result.ts";
 
@@ -46,19 +46,15 @@ describe("result", () => {
     });
 
     it("is compatible with tanstack query's QueryObserverLoadingResult", () => {
-      const tanstackResult = {} as QueryObserverLoadingResult<string>;
-      const resultPending: Result.Pending = tanstackResult;
-
-      // Dummy assertion
-      expect(resultPending).toBeDefined();
+      expectTypeOf(
+        {} as QueryObserverLoadingResult<string>,
+      ).toExtend<Result.Pending>();
     });
 
     it("is compatible with tanstack query's QueryObserverPendingResult", () => {
-      const tanstackResult = {} as QueryObserverPendingResult<string>;
-      const resultPending: Result.Pending = tanstackResult;
-
-      // Dummy assertion
-      expect(resultPending).toBeDefined();
+      expectTypeOf(
+        {} as QueryObserverPendingResult<string>,
+      ).toExtend<Result.Pending>();
     });
 
     it("has a string representation (no data)", () => {
@@ -90,19 +86,13 @@ describe("result", () => {
     });
 
     it("infers undefined as data when no data is provided", () => {
-      const resultPending = result.pending();
-      const inferredData: undefined = resultPending.data;
-
-      // Dummy assertion
-      expect(inferredData).toBe(undefined);
+      expectTypeOf(result.pending().data).toEqualTypeOf<undefined>();
     });
 
     it("infers the data type as const", () => {
-      const resultPending = result.pending({ data: "some data" });
-      const inferredData: "some data" = resultPending.data;
-
-      // Dummy assertion
-      expect(inferredData).toBeDefined();
+      expectTypeOf(
+        result.pending({ data: "some data" }).data,
+      ).toEqualTypeOf<"some data">();
     });
 
     describe("metadata", () => {
@@ -140,11 +130,9 @@ describe("result", () => {
     });
 
     it("is compatible with tanstack query's QueryObserverSuccessResult", () => {
-      const tanstackResult = {} as QueryObserverSuccessResult<string>;
-      const resultSuccess: Result.Success<string> = tanstackResult;
-
-      // Dummy assertion
-      expect(resultSuccess).toBeDefined();
+      expectTypeOf({} as QueryObserverSuccessResult<string>).toExtend<
+        Result.Success<string>
+      >();
     });
 
     it("has a string representation (simple data)", () => {
@@ -167,11 +155,9 @@ describe("result", () => {
     });
 
     it("infers the data type as const", () => {
-      const resultSuccess = result.success({ data: "some data" });
-      const inferredData: "some data" = resultSuccess.data;
-
-      // Dummy assertion
-      expect(inferredData).toBeDefined();
+      expectTypeOf(
+        result.success({ data: "some data" }).data,
+      ).toEqualTypeOf<"some data">();
     });
 
     describe("metadata", () => {
@@ -229,14 +215,9 @@ describe("result", () => {
     });
 
     it("is compatible with tanstack query's QueryObserverLoadingErrorResult", () => {
-      const tanstackResult = {} as QueryObserverLoadingErrorResult<
-        string,
-        TestError
-      >;
-      const resultError: Result.Error<TestError> = tanstackResult;
-
-      // Dummy assertion
-      expect(resultError).toBeDefined();
+      expectTypeOf(
+        {} as QueryObserverLoadingErrorResult<string, TestError>,
+      ).toExtend<Result.Error<TestError>>();
     });
 
     it("has a string representation (short message)", () => {
@@ -271,12 +252,9 @@ describe("result", () => {
         error,
         data: "some data",
       });
-      const inferredData: "some data" = resultError.data;
-      const inferredError: TypeError = resultError.error;
 
-      // Dummy assertion
-      expect(inferredData).toBeDefined();
-      expect(inferredError).toBeDefined();
+      expectTypeOf(resultError.data).toEqualTypeOf<"some data">();
+      expectTypeOf(resultError.error).toEqualTypeOf<TypeError>();
     });
 
     describe("metadata", () => {
@@ -375,10 +353,8 @@ describe("result", () => {
         async () => "some data" as const,
       );
       if (resultSuccess.isSuccess) {
-        const _inferredData: "some data" = resultSuccess.data;
+        expectTypeOf(resultSuccess.data).toEqualTypeOf<"some data">();
       }
-      // Dummy assertion
-      expect(resultSuccess).toBeDefined();
     });
   });
 
@@ -411,11 +387,7 @@ describe("result", () => {
   });
 
   it("is compatible with tanstack query's UseQueryResult", () => {
-    const tanstackResult = {} as QueryObserverResult<string>;
-    const resultType: Result<string> = tanstackResult;
-
-    // Dummy assertion
-    expect(resultType).toBeDefined();
+    expectTypeOf({} as QueryObserverResult<string>).toExtend<Result<string>>();
   });
 
   const replaceAllDates = (snapshot: string) => {
@@ -534,22 +506,25 @@ describe("result().case()", () => {
   it("works with different return types", () => {
     const successResult = result.success({ data: 42 });
 
-    const stringValue: string = result(successResult).case({
+    const stringValue = result(successResult).case({
       success: () => "success string",
       else: "else string",
     });
+    expectTypeOf(stringValue).toEqualTypeOf<string>();
     expect(stringValue).toBe("success string");
 
-    const numberValue: number = result(successResult).case({
+    const numberValue = result(successResult).case({
       success: (data) => data,
       else: 0,
     });
+    expectTypeOf(numberValue).toEqualTypeOf<number>();
     expect(numberValue).toBe(42);
 
-    const objectValue: { status: string } = result(successResult).case({
+    const objectValue = result(successResult).case({
       success: () => ({ status: "ok" }),
       else: { status: "not ok" },
     });
+    expectTypeOf(objectValue).toEqualTypeOf<{ status: string }>();
     expect(objectValue).toEqual({ status: "ok" });
   });
 

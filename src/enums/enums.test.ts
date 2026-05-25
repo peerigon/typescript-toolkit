@@ -1,7 +1,7 @@
 // This test uses @ts-expect-error to test for specific type errors
 // Do not remove them as they are assertions on expected type errors
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { enums, type Enums } from "./enums.ts";
 
 describe("enums", () => {
@@ -173,13 +173,10 @@ describe("enums", () => {
       type Direction = Enums<typeof Direction>;
 
       it("returns the value when it's a valid enum value", () => {
-        const result: Direction = enums.parse(Direction, "North");
-        expect(result).toBe("North");
-        expect(result).toBe(Direction.North);
-
-        // Type should be narrowed to Direction
-        const _direction: Direction = result;
-        expect(_direction).toBe(Direction.North);
+        const parsed = enums.parse(Direction, "North");
+        expectTypeOf(parsed).toEqualTypeOf<Direction>();
+        expect(parsed).toBe("North");
+        expect(parsed).toBe(Direction.North);
       });
 
       it("throws TypeError when value is not in enum", () => {
@@ -213,21 +210,18 @@ describe("enums", () => {
       type ComplexEnum = Enums<typeof ComplexEnum>;
 
       it("returns the exact reference when value matches", () => {
-        const objectResult: ComplexEnum = enums.parse(
-          ComplexEnum,
-          configObject,
-        );
+        const objectResult = enums.parse(ComplexEnum, configObject);
+        expectTypeOf(objectResult).toEqualTypeOf<ComplexEnum>();
         expect(objectResult).toBe(ComplexEnum.Object);
         expect(objectResult).toBe(configObject);
 
-        const arrayResult: ComplexEnum = enums.parse(ComplexEnum, dataArray);
+        const arrayResult = enums.parse(ComplexEnum, dataArray);
+        expectTypeOf(arrayResult).toEqualTypeOf<ComplexEnum>();
         expect(arrayResult).toBe(ComplexEnum.Array);
         expect(arrayResult).toBe(dataArray);
 
-        const functionResult: ComplexEnum = enums.parse(
-          ComplexEnum,
-          handlerFunction,
-        );
+        const functionResult = enums.parse(ComplexEnum, handlerFunction);
+        expectTypeOf(functionResult).toEqualTypeOf<ComplexEnum>();
         expect(functionResult).toBe(ComplexEnum.Function);
         expect(functionResult).toBe(handlerFunction);
       });

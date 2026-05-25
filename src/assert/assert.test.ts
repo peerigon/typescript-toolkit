@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { assert } from "./assert.js";
 
 describe("assert()", () => {
@@ -60,14 +60,12 @@ describe("assert()", () => {
 
   describe("type narrowing", () => {
     it("narrows type from potentially nullable to non-nullable", () => {
-      // This test verifies the TypeScript type assertion behavior
-      // Using `let` so that TypeScript doesn't infer const types
-      // eslint-disable-next-line prefer-const
-      let potentiallyNull: string | null = "hello";
-      assert(potentiallyNull);
-      // After assertion, TypeScript should know potentiallyNull is string, not string | null
-      // This is tested by compilation, not runtime behavior
-      const _certainlyAString: string = potentiallyNull; // This should not cause TypeScript error
+      const narrow = (value: string | null) => {
+        assert(value);
+        expectTypeOf(value).toEqualTypeOf<string>();
+      };
+
+      narrow("hello");
     });
   });
 
@@ -188,11 +186,12 @@ describe("assert.truthy()", () => {
 
   describe("type narrowing", () => {
     it("narrows type from potentially falsy to truthy", () => {
-      // eslint-disable-next-line prefer-const
-      let potentiallyFalsy: string | null | undefined = "hello";
-      assert.truthy(potentiallyFalsy);
-      // After assertion, TypeScript should know potentiallyFalsy is string
-      const _length: number = potentiallyFalsy.length; // This should not cause TypeScript error
+      const narrow = (value: string | null | undefined) => {
+        assert.truthy(value);
+        expectTypeOf(value).toEqualTypeOf<string>();
+      };
+
+      narrow("hello");
     });
   });
 });

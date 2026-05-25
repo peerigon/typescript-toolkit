@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, expectTypeOf, it } from "vitest";
 import { need } from "./need.ts";
 
 describe("need()", () => {
@@ -28,16 +28,13 @@ describe("need()", () => {
   });
 
   it("preserves the original type for non-nullable values", () => {
-    const stringValue: string | null = "test";
-    // TypeScript should infer result as string (not string | null)
-    const result: string = need(stringValue);
-    expect(typeof result).toBe("string");
-    expect(result).toBe("test");
+    const stringValue = "test" as string | null;
+    expectTypeOf(need(stringValue)).toEqualTypeOf<string>();
+    expect(need(stringValue)).toBe("test");
 
-    const numberValue: number | undefined = 123;
-    const numberResult = need(numberValue);
-    expect(typeof numberResult).toBe("number");
-    expect(numberResult).toBe(123);
+    const numberValue = 123 as number | undefined;
+    expectTypeOf(need(numberValue)).toEqualTypeOf<number>();
+    expect(need(numberValue)).toBe(123);
   });
 
   it("preserves falsy but defined values", () => {
