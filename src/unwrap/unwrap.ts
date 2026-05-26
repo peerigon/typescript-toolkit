@@ -25,10 +25,14 @@ import { type Result } from "../result/result.ts";
  *
  * const error = result.error({ error: new Error("failed") });
  * const fallback = unwrap(error, "default"); // "default"
+ *
+ * // With Promise.allSettled results
+ * const settled = { status: "fulfilled", value: "done" } as const;
+ * unwrap(settled); // "done"
  * ```
  */
 export function unwrap<Value, GivenError extends Error>(
-  maybeValue: Value | Result<Value, GivenError>,
+  maybeValue: Value | Result<Value, GivenError> | PromiseFulfilledResult<Value>,
 ): Value;
 export function unwrap<Value>(
   maybeValue: Result.Success<Value> | Result.Pending<Value>,
@@ -38,13 +42,17 @@ export function unwrap<Value, GivenError extends Error, const Fallback>(
   maybeValue: Result.Error<GivenError, Value>,
   fallback: Fallback,
 ): Fallback;
+export function unwrap<const Fallback>(
+  maybeValue: PromiseRejectedResult,
+  fallback: Fallback,
+): Fallback;
 export function unwrap<Value, GivenError extends Error, const Fallback>(
-  maybeValue: Value | Result<Value, GivenError>,
+  maybeValue: Value | Result<Value, GivenError> | PromiseSettledResult<Value>,
   fallback: Fallback,
 ): NonNullable<Value> | Fallback;
 // eslint-disable-next-line prefer-arrow/prefer-arrow-functions
 export function unwrap<Value, GivenError extends Error, Fallback>(
-  maybeValue: Value | Result<Value, GivenError>,
+  maybeValue: Value | Result<Value, GivenError> | PromiseSettledResult<Value>,
   fallback?: Value,
 ): Value | Fallback {
   const hasFallback = arguments.length > 1;
@@ -78,8 +86,26 @@ export function unwrap<Value, GivenError extends Error, Fallback>(
     return maybeValue.data;
   }
 
+  if (isPromiseSettledResult(maybeValue)) {
+    if (maybeValue.status === "fulfilled") {
+      return maybeValue.value;
+    }
+
+    if (hasFallback) return fallback!;
+    throw maybeValue.reason;
+  }
+
   return maybeValue;
 }
+
+const isPromiseSettledResult = (
+  value: unknown,
+): value is PromiseSettledResult<unknown> =>
+  typeof value === "object" &&
+  value !== null &&
+  "status" in value &&
+  ((value.status === "fulfilled" && "value" in value) ||
+    (value.status === "rejected" && "reason" in value));
 
 const errorPrefix = "Cannot unwrap: ";
 const typeErrorMessageForResult = (maybeValue: unknown) =>

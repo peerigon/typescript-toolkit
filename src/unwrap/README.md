@@ -41,6 +41,15 @@ unwrap(result.success({ data: "user data" })); // "user data"
 unwrap(result.error({ error: new Error("API failed") })); // Throws "API failed"
 ```
 
+### Unwrapping `Promise.allSettled` results
+
+```ts
+const [user] = await Promise.allSettled([fetchUser()]);
+
+unwrap(user); // returns user data when fulfilled or throws reason when rejected
+unwrap(user, null); // returns null when rejected
+```
+
 ### Unwrapping pending results
 
 ```ts
@@ -60,35 +69,37 @@ unwrap(result.pending(), "loading…"); // "loading…"
 
 #### `unwrap(value, fallback?)`
 
-Extracts a value from plain values, nullable values, or `Result` instances.
+Extracts a value from plain values, nullable values, `Result` instances, or `PromiseSettledResult`.
 
 ```ts
 unwrap<Value, GivenError extends Error>(
-  maybeValue: Value | Result<Value, GivenError>,
+  maybeValue: Value | Result<Value, GivenError> | PromiseFulfilledResult<Value>,
 ): Value
 
 unwrap<Value, GivenError extends Error, Fallback>(
-  maybeValue: Value | Result<Value, GivenError>,
+  maybeValue: Value | Result<Value, GivenError> | PromiseSettledResult<Value>,
   fallback: Fallback,
-): NonNullable<Value> | Fallback
+): Value | Fallback
 ```
 
-| Parameter    | Type                                                 | Description                                        |
-| ------------ | ---------------------------------------------------- | -------------------------------------------------- |
-| `maybeValue` | `Value \| Result<Value, Error> \| null \| undefined` | Value to unwrap                                    |
-| `fallback`   | `Fallback` (optional)                                | Returned instead of throwing when unwrapping fails |
+| Parameter    | Type                                                                                | Description                                        |
+| ------------ | ----------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `maybeValue` | `Value \| Result<Value, Error> \| PromiseSettledResult<Value> \| null \| undefined` | Value to unwrap                                    |
+| `fallback`   | `Fallback` (optional)                                                               | Returned instead of throwing when unwrapping fails |
 
 **Returns:** `Value` or `Fallback` — underlying data for success/pending-with-data; plain values pass through
 
-**Throws:** `TypeError` when `maybeValue` is `null`, `undefined`, a pending result without `data`, or an error result — and no `fallback` was provided. Failed `Result` unwraps include the result as `cause`.
+**Throws:** `TypeError` when `maybeValue` is `null`, `undefined`, a pending result without `data`, or an error result — and no `fallback` was provided. Failed `Result` unwraps include the result as `cause`. Rejected `PromiseSettledResult` values throw their `reason` when no `fallback` was provided.
 
 #### Unwrap behavior
 
-| Input                           | Without `fallback` | With `fallback`    |
-| ------------------------------- | ------------------ | ------------------ |
-| Plain value (including falsy)   | Returns as-is      | Returns as-is      |
-| `null` / `undefined`            | Throws             | Returns `fallback` |
-| `Result` success                | Returns `data`     | Returns `data`     |
-| `Result` pending with `data`    | Returns `data`     | Returns `data`     |
-| `Result` pending without `data` | Throws             | Returns `fallback` |
-| `Result` error                  | Throws             | Returns `fallback` |
+| Input                            | Without `fallback` | With `fallback`    |
+| -------------------------------- | ------------------ | ------------------ |
+| Plain value (including falsy)    | Returns as-is      | Returns as-is      |
+| `null` / `undefined`             | Throws             | Returns `fallback` |
+| `Result` success                 | Returns `data`     | Returns `data`     |
+| `Result` pending with `data`     | Returns `data`     | Returns `data`     |
+| `Result` pending without `data`  | Throws             | Returns `fallback` |
+| `Result` error                   | Throws             | Returns `fallback` |
+| `PromiseSettledResult` fulfilled | Returns `value`    | Returns `value`    |
+| `PromiseSettledResult` rejected  | Throws `reason`    | Returns `fallback` |

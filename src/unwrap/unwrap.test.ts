@@ -181,6 +181,53 @@ describe("unwrap()", () => {
     });
   });
 
+  describe("from Promise.allSettled()", () => {
+    it("returns the value when status is fulfilled", () => {
+      const settled: PromiseFulfilledResult<string> = {
+        status: "fulfilled",
+        value: "done",
+      };
+      const unwrapped: string = unwrap(settled);
+      expect(unwrapped).toBe("done");
+    });
+
+    it("returns undefined when fulfilled value is undefined", () => {
+      const settled: PromiseFulfilledResult<undefined> = {
+        status: "fulfilled",
+        value: undefined,
+      };
+      expect(unwrap(settled)).toBe(undefined);
+    });
+
+    it("throws the reason when status is rejected and no fallback is provided", () => {
+      const reason = new Error("rejected");
+      const settled: PromiseRejectedResult = {
+        status: "rejected",
+        reason,
+      };
+
+      expect(() => unwrap(settled)).toThrow(reason);
+    });
+
+    it("throws non-Error reasons when status is rejected", () => {
+      const settled: PromiseRejectedResult = {
+        status: "rejected",
+        reason: "failure",
+      };
+
+      expect(() => unwrap(settled)).toThrow("failure");
+    });
+
+    it("returns the fallback when status is rejected and a fallback is provided", () => {
+      const settled: PromiseRejectedResult = {
+        status: "rejected",
+        reason: new Error("rejected"),
+      };
+      const unwrapped: "fallback" = unwrap(settled, "fallback");
+      expect(unwrapped).toBe("fallback");
+    });
+  });
+
   describe("from result.error() with pending state", () => {
     it("throws when there is no data and no fallback", () => {
       const errorData = result.error({ error: new Error("test error") });
