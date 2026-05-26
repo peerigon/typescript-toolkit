@@ -10,6 +10,11 @@
     "limit": "50 B"
   },
   {
+    "name": "@peerigon/typescript-toolkit/emitter",
+    "path": "dist/emitter/emitter.js",
+    "limit": "275 B"
+  },
+  {
     "name": "@peerigon/typescript-toolkit/need",
     "path": "dist/need/need.js",
     "limit": "150 B"
@@ -28,6 +33,11 @@
     "name": "@peerigon/typescript-toolkit/result",
     "path": "dist/result/result.js",
     "limit": "850 B"
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/signals",
+    "path": "dist/signals/signals.js",
+    "limit": "250 B"
   },
   {
     "name": "@peerigon/typescript-toolkit/unwrap",

@@ -19,10 +19,12 @@
     ".": "./dist/main.js",
     "./assert": "./dist/assert/assert.js",
     "./dedupe": "./dist/dedupe/dedupe.js",
+    "./emitter": "./dist/emitter/emitter.js",
     "./enums": "./dist/enums/enums.js",
     "./match": "./dist/match/match.js",
     "./need": "./dist/need/need.js",
     "./result": "./dist/result/result.js",
+    "./signals": "./dist/signals/signals.js",
     "./unwrap": "./dist/unwrap/unwrap.js"
   },
   "main": "./dist/main.js",

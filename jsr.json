@@ -6,10 +6,12 @@
     ".": "./src/main.ts",
     "./assert": "./src/assert/assert.ts",
     "./dedupe": "./src/dedupe/dedupe.ts",
+    "./emitter": "./src/emitter/emitter.ts",
     "./enums": "./src/enums/enums.ts",
     "./match": "./src/match/match.ts",
     "./need": "./src/need/need.ts",
     "./result": "./src/result/result.ts",
+    "./signals": "./src/signals/signals.ts",
     "./unwrap": "./src/unwrap/unwrap.ts"
   },
   "publish": {
