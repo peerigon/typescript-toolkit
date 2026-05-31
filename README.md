@@ -46,7 +46,7 @@ import { assert } from "@peerigon/typescript-toolkit/assert";
 | [`enums`](./src/enums/README.md)     | Lightweight string-enum alternative for `erasableSyntaxOnly` TypeScript projects | [→](./src/enums/README.md)   |
 | [`match`](./src/match/README.md)     | Exhaustive pattern matching with compile-time case checks, similar to `switch`   | [→](./src/match/README.md)   |
 | [`result`](./src/result/README.md)   | Type-safe error handling with pending, success, and error states                 | [→](./src/result/README.md)  |
-| [`signals`](./src/signals/README.md) | Push-based reactive state with explicit subscribers and `signal.from` adapters   | [→](./src/signals/README.md) |
+| [`signals`](./src/signals/README.md) | Push-based reactive state with explicit watchers and `signal.from` adapters      | [→](./src/signals/README.md) |
 | [`unwrap`](./src/unwrap/README.md)   | Extract values from `Result` or nullable types, with optional fallback support   | [→](./src/unwrap/README.md)  |
 
 ## License

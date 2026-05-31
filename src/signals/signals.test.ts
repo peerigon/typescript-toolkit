@@ -2,133 +2,133 @@ import { describe, expect, it, vi } from "vitest";
 import { signal } from "./signals.ts";
 
 describe("signal()", () => {
-  it("read returns the initial value", () => {
+  it("get returns the initial value", () => {
     const counter = signal(0);
 
-    expect(counter.read()).toBe(0);
+    expect(counter.get()).toBe(0);
   });
 
-  it("write updates the value returned by read", () => {
+  it("set updates the value returned by get", () => {
     const counter = signal(0);
 
-    counter.write(1);
-    counter.write(2);
+    counter.set(1);
+    counter.set(2);
 
-    expect(counter.read()).toBe(2);
+    expect(counter.get()).toBe(2);
   });
 
-  it("notifies subscribers on write with value and previousValue", () => {
+  it("notifies watchers on set with value and previousValue", () => {
     const counter = signal(0);
-    const reader = vi.fn();
+    const watcher = vi.fn();
 
-    counter.subscribe(reader);
-    counter.write(1);
+    counter.watch(watcher);
+    counter.set(1);
 
-    expect(reader).toHaveBeenCalledExactlyOnceWith({
+    expect(watcher).toHaveBeenCalledExactlyOnceWith({
       value: 1,
       previousValue: 0,
     });
   });
 
-  it("returns an unsubscribe function that stops notifications", () => {
+  it("returns an unwatch function that stops notifications", () => {
     const counter = signal(0);
-    const reader = vi.fn();
+    const watcher = vi.fn();
 
-    const unsubscribe = counter.subscribe(reader);
-    unsubscribe();
-    counter.write(1);
+    const unwatch = counter.watch(watcher);
+    unwatch();
+    counter.set(1);
 
-    expect(reader).not.toHaveBeenCalled();
+    expect(watcher).not.toHaveBeenCalled();
   });
 
-  it("notifies multiple subscribers on each write", () => {
+  it("notifies multiple watchers on each set", () => {
     const counter = signal(0);
     const first = vi.fn();
     const second = vi.fn();
 
-    counter.subscribe(first);
-    counter.subscribe(second);
-    counter.write(1);
+    counter.watch(first);
+    counter.watch(second);
+    counter.set(1);
 
     expect(first).toHaveBeenCalledWith({ value: 1, previousValue: 0 });
     expect(second).toHaveBeenCalledWith({ value: 1, previousValue: 0 });
   });
 
-  it("does not register the same reader twice", () => {
+  it("does not register the same watcher twice", () => {
     const counter = signal(0);
-    const reader = vi.fn();
+    const watcher = vi.fn();
 
-    counter.subscribe(reader);
-    counter.subscribe(reader);
-    counter.write(1);
+    counter.watch(watcher);
+    counter.watch(watcher);
+    counter.set(1);
 
-    expect(reader).toHaveBeenCalledOnce();
+    expect(watcher).toHaveBeenCalledOnce();
   });
 
-  it("passes the prior write as previousValue on consecutive writes", () => {
+  it("passes the prior set as previousValue on consecutive sets", () => {
     const counter = signal("a");
-    const reader = vi.fn();
+    const watcher = vi.fn();
 
-    counter.subscribe(reader);
-    counter.write("b");
-    counter.write("c");
+    counter.watch(watcher);
+    counter.set("b");
+    counter.set("c");
 
-    expect(reader).toHaveBeenNthCalledWith(1, {
+    expect(watcher).toHaveBeenNthCalledWith(1, {
       value: "b",
       previousValue: "a",
     });
-    expect(reader).toHaveBeenNthCalledWith(2, {
+    expect(watcher).toHaveBeenNthCalledWith(2, {
       value: "c",
       previousValue: "b",
     });
   });
 
-  it("does not notify when there are no subscribers", () => {
+  it("does not notify when there are no watchers", () => {
     const counter = signal(0);
 
     expect(() => {
-      counter.write(1);
+      counter.set(1);
     }).not.toThrow();
-    expect(counter.read()).toBe(1);
+    expect(counter.get()).toBe(1);
   });
 
-  it("exposes subscribe on read and on the signal", () => {
+  it("exposes watch on get and on the signal", () => {
     const counter = signal(0);
     const fromSignal = vi.fn();
-    const fromRead = vi.fn();
+    const fromGet = vi.fn();
 
-    counter.subscribe(fromSignal);
-    counter.read.subscribe(fromRead);
-    counter.write(1);
+    counter.watch(fromSignal);
+    counter.get.watch(fromGet);
+    counter.set(1);
 
     expect(fromSignal).toHaveBeenCalledOnce();
-    expect(fromRead).toHaveBeenCalledOnce();
+    expect(fromGet).toHaveBeenCalledOnce();
   });
 
-  it("dispose clears subscribers so later writes do not notify", () => {
+  it("dispose clears watchers so later sets do not notify", () => {
     const counter = signal(0);
-    const reader = vi.fn();
+    const watcher = vi.fn();
 
-    counter.subscribe(reader);
+    counter.watch(watcher);
     counter[Symbol.dispose]();
-    counter.write(1);
+    counter.set(1);
 
-    expect(reader).not.toHaveBeenCalled();
-    expect(counter.read()).toBe(1);
+    expect(watcher).not.toHaveBeenCalled();
+    expect(counter.get()).toBe(1);
   });
 });
 
 describe("signal.from()", () => {
-  it("read returns the initial value from the source", () => {
+  it("get returns the initial value from the source", () => {
     const derived = signal.from(
       () => 42,
       () => () => {},
     );
 
-    expect(derived.read()).toBe(42);
+    expect(derived.get()).toBe(42);
   });
 
-  it("does not subscribe to the source until the first reader subscribes", () => {
+  it("does not subscribe to the source until the first watcher watches", () => {
     const subscribeToSource = vi.fn(() => () => {});
 
     signal.from(() => 0, subscribeToSource);
@@ -136,7 +136,7 @@ describe("signal.from()", () => {
     expect(subscribeToSource).not.toHaveBeenCalled();
   });
 
-  it("updates read when the source notifies", () => {
+  it("updates get when the source notifies", () => {
     let sourceValue = 1;
     let notify: (() => void) | undefined;
 
@@ -147,18 +147,18 @@ describe("signal.from()", () => {
         return () => {};
       },
     );
-    derived.subscribe(() => {});
+    derived.watch(() => {});
 
     sourceValue = 2;
     notify?.();
 
-    expect(derived.read()).toBe(2);
+    expect(derived.get()).toBe(2);
   });
 
-  it("notifies readers when the source notifies", () => {
+  it("notifies watchers when the source notifies", () => {
     let sourceValue = 0;
     let notify: (() => void) | undefined;
-    const reader = vi.fn();
+    const watcher = vi.fn();
 
     const derived = signal.from(
       () => sourceValue,
@@ -167,55 +167,55 @@ describe("signal.from()", () => {
         return () => {};
       },
     );
-    derived.subscribe(reader);
+    derived.watch(watcher);
     sourceValue = 1;
     notify?.();
 
-    expect(reader).toHaveBeenCalledExactlyOnceWith({
+    expect(watcher).toHaveBeenCalledExactlyOnceWith({
       value: 1,
       previousValue: 0,
     });
   });
 
-  it("subscribes to the source only once with multiple readers", () => {
+  it("subscribes to the source only once with multiple watchers", () => {
     const subscribeToSource = vi.fn(() => () => {});
 
     const derived = signal.from(() => 0, subscribeToSource);
-    const unsubscribeFirst = derived.subscribe(() => {});
-    derived.subscribe(() => {});
+    const unwatchFirst = derived.watch(() => {});
+    derived.watch(() => {});
 
     expect(subscribeToSource).toHaveBeenCalledOnce();
 
-    unsubscribeFirst();
-    derived.subscribe(() => {});
+    unwatchFirst();
+    derived.watch(() => {});
 
     expect(subscribeToSource).toHaveBeenCalledOnce();
   });
 
-  it("unsubscribes from the source when the last reader unsubscribes", () => {
+  it("unsubscribes from the source when the last watcher unwatches", () => {
     const unsubscribeFromSource = vi.fn();
     const subscribeToSource = vi.fn(() => unsubscribeFromSource);
 
     const derived = signal.from(() => 0, subscribeToSource);
-    const unsubscribeFirst = derived.subscribe(() => {});
-    const unsubscribeSecond = derived.subscribe(() => {});
+    const unwatchFirst = derived.watch(() => {});
+    const unwatchSecond = derived.watch(() => {});
 
-    unsubscribeFirst();
+    unwatchFirst();
     expect(unsubscribeFromSource).not.toHaveBeenCalled();
 
-    unsubscribeSecond();
+    unwatchSecond();
     expect(unsubscribeFromSource).toHaveBeenCalledOnce();
   });
 
-  it("dispose unsubscribes from the source and clears readers", () => {
+  it("dispose unsubscribes from the source and clears watchers", () => {
     const unsubscribeFromSource = vi.fn();
     const derived = signal.from(
       () => 0,
       () => unsubscribeFromSource,
     );
-    const reader = vi.fn();
+    const watcher = vi.fn();
 
-    derived.subscribe(reader);
+    derived.watch(watcher);
     derived[Symbol.dispose]();
 
     expect(unsubscribeFromSource).toHaveBeenCalledOnce();

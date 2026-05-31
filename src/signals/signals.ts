@@ -1,80 +1,80 @@
-export type ReadSignal<Value> = {
+export type SignalGetter<Value> = {
   (): Value;
-  subscribe: (reader: SignalReader<Value>) => () => void;
+  watch: (watcher: SignalWatcher<Value>) => () => void;
 };
 
-export type WriteSignal<Value> = (value: Value) => void;
+export type SignalSetter<Value> = (value: Value) => void;
 
 export type Signal<Value> = Disposable & {
-  read: ReadSignal<Value>;
-  write: WriteSignal<Value>;
-  subscribe: ReadSignal<Value>["subscribe"];
+  get: SignalGetter<Value>;
+  set: SignalSetter<Value>;
+  watch: SignalGetter<Value>["watch"];
 };
 
 export const signal = <Value>(initialValue: Value): Signal<Value> => {
-  const readers = new Set<SignalReader<Value>>();
+  const watchers = new Set<SignalWatcher<Value>>();
   let value = initialValue;
 
-  const subscribe: ReadSignal<Value>["subscribe"] = (reader) => {
-    readers.add(reader);
+  const watch: SignalGetter<Value>["watch"] = (watcher) => {
+    watchers.add(watcher);
     return () => {
-      readers.delete(reader);
+      watchers.delete(watcher);
     };
   };
 
-  const read: ReadSignal<Value> = () => value;
-  read.subscribe = subscribe;
+  const get: SignalGetter<Value> = () => value;
+  get.watch = watch;
 
-  const write: WriteSignal<Value> = (newValue) => {
+  const set: SignalSetter<Value> = (newValue) => {
     const previousValue = value;
     value = newValue;
-    for (const reader of readers) {
-      reader({ value, previousValue });
+    for (const watcher of watchers) {
+      watcher({ value, previousValue });
     }
   };
 
   const dispose = () => {
-    readers.clear();
+    watchers.clear();
   };
 
-  return { read, write, subscribe, [Symbol.dispose]: dispose };
+  return { get, set, watch, [Symbol.dispose]: dispose };
 };
 
 signal.from = <Value>(
-  readFromSource: () => Value,
+  getFromSource: () => Value,
   subscribeToSource: (notify: () => void) => () => void,
-): Omit<Signal<Value>, "write"> => {
-  const derivedSignal = signal(readFromSource());
+): Omit<Signal<Value>, "set"> => {
+  const derivedSignal = signal(getFromSource());
 
-  let readerCount = 0;
-  let unsubscribeFromSource: (() => void) | undefined;
-  const subscribe = (reader: SignalReader<Value>) => {
-    const unsubscribe = derivedSignal.subscribe(reader);
-    if (readerCount === 0) {
-      unsubscribeFromSource = subscribeToSource(() => {
-        derivedSignal.write(readFromSource());
+  let watcherCount = 0;
+  let unwatchFromSource: (() => void) | undefined;
+  const watch = (watcher: SignalWatcher<Value>) => {
+    const unwatch = derivedSignal.watch(watcher);
+    if (watcherCount === 0) {
+      unwatchFromSource = subscribeToSource(() => {
+        derivedSignal.set(getFromSource());
       });
     }
-    readerCount++;
+    watcherCount++;
     return () => {
-      unsubscribe();
-      readerCount--;
-      if (readerCount === 0) {
-        unsubscribeFromSource?.();
-        unsubscribeFromSource = undefined;
+      unwatch();
+      watcherCount--;
+      if (watcherCount === 0) {
+        unwatchFromSource?.();
+        unwatchFromSource = undefined;
       }
     };
   };
 
   const dispose = () => {
-    unsubscribeFromSource?.();
+    unwatchFromSource?.();
     derivedSignal[Symbol.dispose]();
   };
 
-  return { read: derivedSignal.read, subscribe, [Symbol.dispose]: dispose };
+  return { get: derivedSignal.get, watch, [Symbol.dispose]: dispose };
 };
 
-export type SignalReader<Value> = ({
+export type SignalWatcher<Value> = ({
   value,
   previousValue,
 }: {
