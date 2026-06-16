@@ -41,6 +41,17 @@ describe("signal()", () => {
     expect(watcher).not.toHaveBeenCalled();
   });
 
+  it("returns an unwatch function with Symbol.dispose that stops notifications", () => {
+    const counter = signal(0);
+    const watcher = vi.fn();
+
+    const unwatch = counter.watch(watcher);
+    unwatch[Symbol.dispose]();
+    counter.set(1);
+
+    expect(watcher).not.toHaveBeenCalled();
+  });
+
   it("notifies multiple watchers on each set", () => {
     const counter = signal(0);
     const first = vi.fn();

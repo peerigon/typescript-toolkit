@@ -37,7 +37,7 @@
   {
     "name": "@peerigon/typescript-toolkit/signals",
     "path": "dist/signals/signals.js",
-    "limit": "250 B"
+    "limit": "270 B"
   },
   {
     "name": "@peerigon/typescript-toolkit/unwrap",

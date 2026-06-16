@@ -1,6 +1,6 @@
 ## `signals`
 
-- 📦 Below 250 Bytes
+- 📦 Below 270 Bytes
 - ✅ Zero dependencies
 
 Minimal writable state cell with explicit watchers. Calling `set` pushes `{ new, old }` to every registered watcher.
@@ -14,14 +14,14 @@ import { signal } from "@peerigon/typescript-toolkit/signals";
 
 const count = signal(0);
 
-const unwatch = count.watch((count) => {
-  console.log(count.new, count.old);
-});
+{
+  using unwatch = count.watch((count) => {
+    console.log(count.new, count.old);
+  });
 
-count.set(1);
-count.get(); // 1
-
-unwatch();
+  count.set(1);
+  count.get(); // 1
+}
 ```
 
 ### Bridging an external source
@@ -100,11 +100,19 @@ signal.from<Value>(
 
 #### `signal.get` / `signal.set` / `signal.watch`
 
-| Member  | Type                                            | Description                                  |
-| ------- | ----------------------------------------------- | -------------------------------------------- |
-| `get`   | `SignalGetter<Value>`                           | `()` returns current value; also has `watch` |
-| `set`   | `(value: Value) => void`                        | Sets value and notifies all watchers         |
-| `watch` | `(watcher: SignalWatcher<Value>) => () => void` | Register a watcher; returns unwatch          |
+| Member  | Type                                               | Description                                  |
+| ------- | -------------------------------------------------- | -------------------------------------------- |
+| `get`   | `SignalGetter<Value>`                              | `()` returns current value; also has `watch` |
+| `set`   | `(value: Value) => void`                           | Sets value and notifies all watchers         |
+| `watch` | `(watcher: SignalWatcher<Value>) => SignalUnwatch` | Register a watcher; returns unwatch          |
+
+#### `SignalUnwatch`
+
+```ts
+type SignalUnwatch = (() => void) & Disposable;
+```
+
+Returned by `watch`. Call it to unwatch, or use with `using` / `[Symbol.dispose]()`.
 
 #### `SignalUpdate<Value>`
 

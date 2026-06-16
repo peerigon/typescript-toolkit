@@ -4,9 +4,9 @@ export const signal = <Value>(initialValue: Value): Signal<Value> => {
 
   const watch: SignalGetter<Value>["watch"] = (watcher) => {
     watchers.add(watcher);
-    return () => {
+    return createUnwatch(() => {
       watchers.delete(watcher);
-    };
+    });
   };
 
   const get: SignalGetter<Value> = () => value;
@@ -47,14 +47,14 @@ signal.from = <Value>(
       });
     }
     watcherCount++;
-    return () => {
+    return createUnwatch(() => {
       unwatch();
       watcherCount--;
       if (watcherCount === 0) {
         unwatchFromSource?.();
         unwatchFromSource = undefined;
       }
-    };
+    });
   };
 
   const dispose = () => {
@@ -65,9 +65,17 @@ signal.from = <Value>(
   return { get: derivedSignal.get, watch, [Symbol.dispose]: dispose };
 };
 
+const createUnwatch = (remove: () => void): SignalUnwatch => {
+  const unwatch = () => {
+    remove();
+  };
+  unwatch[Symbol.dispose] = unwatch;
+  return unwatch;
+};
+
 export type SignalGetter<Value> = {
   (): Value;
-  watch: (watcher: SignalWatcher<Value>) => () => void;
+  watch: (watcher: SignalWatcher<Value>) => SignalUnwatch;
 };
 
 export type SignalWatcher<Value> = (update: SignalUpdate<Value>) => void;
@@ -78,6 +86,8 @@ export type SignalUpdate<Value> = {
 };
 
 export type SignalSetter<Value> = (value: Value) => void;
+
+export type SignalUnwatch = (() => void) & Disposable;
 
 export type Signal<Value> = Disposable & {
   get: SignalGetter<Value>;
