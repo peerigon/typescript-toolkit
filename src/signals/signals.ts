@@ -1,16 +1,3 @@
-export type SignalGetter<Value> = {
-  (): Value;
-  watch: (watcher: SignalWatcher<Value>) => () => void;
-};
-
-export type SignalSetter<Value> = (value: Value) => void;
-
-export type Signal<Value> = Disposable & {
-  get: SignalGetter<Value>;
-  set: SignalSetter<Value>;
-  watch: SignalGetter<Value>["watch"];
-};
-
 export const signal = <Value>(initialValue: Value): Signal<Value> => {
   const watchers = new Set<SignalWatcher<Value>>();
   let value = initialValue;
@@ -26,10 +13,14 @@ export const signal = <Value>(initialValue: Value): Signal<Value> => {
   get.watch = watch;
 
   const set: SignalSetter<Value> = (newValue) => {
-    const previousValue = value;
+    const oldValue = value;
     value = newValue;
+    const update: SignalUpdate<Value> = {
+      new: newValue,
+      old: oldValue,
+    };
     for (const watcher of watchers) {
-      watcher({ value, previousValue });
+      watcher(update);
     }
   };
 
@@ -74,10 +65,22 @@ signal.from = <Value>(
   return { get: derivedSignal.get, watch, [Symbol.dispose]: dispose };
 };
 
-export type SignalWatcher<Value> = ({
-  value,
-  previousValue,
-}: {
-  value: Value;
-  previousValue: Value;
-}) => void;
+export type SignalGetter<Value> = {
+  (): Value;
+  watch: (watcher: SignalWatcher<Value>) => () => void;
+};
+
+export type SignalWatcher<Value> = (update: SignalUpdate<Value>) => void;
+
+export type SignalUpdate<Value> = {
+  new: Value;
+  old: Value;
+};
+
+export type SignalSetter<Value> = (value: Value) => void;
+
+export type Signal<Value> = Disposable & {
+  get: SignalGetter<Value>;
+  set: SignalSetter<Value>;
+  watch: SignalGetter<Value>["watch"];
+};

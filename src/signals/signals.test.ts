@@ -17,17 +17,17 @@ describe("signal()", () => {
     expect(counter.get()).toBe(2);
   });
 
-  it("notifies watchers on set with value and previousValue", () => {
+  it("notifies watchers on set with new and old", () => {
     const counter = signal(0);
     const watcher = vi.fn();
 
     counter.watch(watcher);
     counter.set(1);
 
-    expect(watcher).toHaveBeenCalledExactlyOnceWith({
-      value: 1,
-      previousValue: 0,
-    });
+    expect(watcher).toHaveBeenCalledOnce();
+    expect(watcher.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ new: 1, old: 0 }),
+    );
   });
 
   it("returns an unwatch function that stops notifications", () => {
@@ -50,8 +50,12 @@ describe("signal()", () => {
     counter.watch(second);
     counter.set(1);
 
-    expect(first).toHaveBeenCalledWith({ value: 1, previousValue: 0 });
-    expect(second).toHaveBeenCalledWith({ value: 1, previousValue: 0 });
+    expect(first.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ new: 1, old: 0 }),
+    );
+    expect(second.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ new: 1, old: 0 }),
+    );
   });
 
   it("does not register the same watcher twice", () => {
@@ -65,7 +69,7 @@ describe("signal()", () => {
     expect(watcher).toHaveBeenCalledOnce();
   });
 
-  it("passes the prior set as previousValue on consecutive sets", () => {
+  it("passes the prior set as old on consecutive sets", () => {
     const counter = signal("a");
     const watcher = vi.fn();
 
@@ -73,14 +77,12 @@ describe("signal()", () => {
     counter.set("b");
     counter.set("c");
 
-    expect(watcher).toHaveBeenNthCalledWith(1, {
-      value: "b",
-      previousValue: "a",
-    });
-    expect(watcher).toHaveBeenNthCalledWith(2, {
-      value: "c",
-      previousValue: "b",
-    });
+    expect(watcher.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ new: "b", old: "a" }),
+    );
+    expect(watcher.mock.calls[1]?.[0]).toEqual(
+      expect.objectContaining({ new: "c", old: "b" }),
+    );
   });
 
   it("does not notify when there are no watchers", () => {
@@ -171,10 +173,10 @@ describe("signal.from()", () => {
     sourceValue = 1;
     notify?.();
 
-    expect(watcher).toHaveBeenCalledExactlyOnceWith({
-      value: 1,
-      previousValue: 0,
-    });
+    expect(watcher).toHaveBeenCalledOnce();
+    expect(watcher.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ new: 1, old: 0 }),
+    );
   });
 
   it("subscribes to the source only once with multiple watchers", () => {

@@ -3,7 +3,7 @@
 - 📦 Below 250 Bytes
 - ✅ Zero dependencies
 
-Minimal writable state cell with explicit watchers. Calling `set` pushes `{ value, previousValue }` to every registered watcher.
+Minimal writable state cell with explicit watchers. Calling `set` pushes `{ new, old }` to every registered watcher.
 
 Use `signal.from` to mirror values from an external source (DOM events, timers, other stores) with ref-counted watching — the source is only wired while at least one watcher is watching.
 
@@ -14,8 +14,8 @@ import { signal } from "@peerigon/typescript-toolkit/signals";
 
 const count = signal(0);
 
-const unwatch = count.watch(({ value, previousValue }) => {
-  console.log(value, previousValue);
+const unwatch = count.watch((count) => {
+  console.log(count.new, count.old);
 });
 
 count.set(1);
@@ -35,8 +35,8 @@ const windowWidth = signal.from(
   },
 );
 
-const unwatch = windowWidth.watch(({ value }) => {
-  console.log("width", value);
+const unwatch = windowWidth.watch((width) => {
+  console.log("width", width.new);
 });
 ```
 
@@ -56,8 +56,8 @@ Signals are `Disposable`. With the [`using`](https://developer.mozilla.org/en-US
     },
   );
 
-  windowWidth.watch(({ value }) => {
-    console.log("width", value);
+  windowWidth.watch((width) => {
+    console.log("width", width.new);
   });
 } // dispose clears watchers and removes the resize listener
 ```
@@ -106,16 +106,24 @@ signal.from<Value>(
 | `set`   | `(value: Value) => void`                        | Sets value and notifies all watchers         |
 | `watch` | `(watcher: SignalWatcher<Value>) => () => void` | Register a watcher; returns unwatch          |
 
+#### `SignalUpdate<Value>`
+
+```ts
+type SignalUpdate<Value> = {
+  new: Value;
+  old: Value;
+};
+```
+
+Passed to watchers on each update with the new and previous values.
+
 #### `SignalWatcher<Value>`
 
 ```ts
-type SignalWatcher<Value> = (update: {
-  value: Value;
-  previousValue: Value;
-}) => void;
+type SignalWatcher<Value> = (update: SignalUpdate<Value>) => void;
 ```
 
-Called synchronously on each `set` (or when a `signal.from` source notifies) with the new value and the value before that update.
+Called synchronously on each `set` (or when a `signal.from` source notifies) with the new and previous values.
 
 ### Behavior notes
 
