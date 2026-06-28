@@ -44,6 +44,7 @@ This project uses npm scripts for all development tasks:
 - Uses ES module syntax throughout (`.ts` extensions in imports)
 - Each utility needs its own `README.md`, a row in the **Utilities** table in the root `README.md`, a dedicated export in `package.json` and `jsr.json`, and an entry in `.size-limit.json` (verified by `npm run test:build:size`)
 - Size limits mentioned in a utility's `README.md` must match its `limit` entry in `.size-limit.json`
+- **Environment variables**: Use `src/env.ts`; destructure at top-level module scope so missing vars fail immediately.
 
 ## Template as a git remote
 
