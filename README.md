@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  Small, focused utilities you import one at a time — tree-shakeable ES modules with subpath exports.
+  Small, focused utilities you import one at a time.
 </p>
 
 ## Features
@@ -18,6 +18,7 @@
 - 🎯 High-quality module design
 - ⚡ Lightweight sub-package exports
 - 📦 Tree-shakeable ES modules
+- ✅ Zero dependencies
 
 ## Installation
 

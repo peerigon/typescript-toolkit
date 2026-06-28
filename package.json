@@ -48,9 +48,7 @@
     "prepublishOnly": "npm run build",
     "release": "semantic-release"
   },
-  "dependencies": {
-    "env-var": "^7.5.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@djankies/vitest-mcp": "0.5.1",
     "@eslint/mcp": "0.3.7",
@@ -60,6 +58,7 @@
     "@tanstack/query-core": "^5.100.11",
     "@types/node": "^26.0.1",
     "@vitest/coverage-v8": "^4.1.9",
+    "env-var": "^7.5.0",
     "eslint": "^9.39.2",
     "husky": "^9.1.7",
     "jsr": "^0.14.3",
