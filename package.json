@@ -21,6 +21,7 @@
     "./emitter": "./dist/emitter/emitter.js",
     "./enums": "./dist/enums/enums.js",
     "./match": "./dist/match/match.js",
+    "./namespace": "./dist/namespace/namespace.js",
     "./need": "./dist/need/need.js",
     "./result": "./dist/result/result.js",
     "./signals": "./dist/signals/signals.js",
