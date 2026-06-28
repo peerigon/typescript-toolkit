@@ -1,6 +1,6 @@
 ## `signals`
 
-- 📦 Below 270 Bytes
+- 📦 Below 300 Bytes
 - ✅ Zero dependencies
 
 Minimal writable state cell with explicit watchers. Calling `set` pushes `{ new, old }` to every registered watcher.
@@ -22,6 +22,8 @@ const count = signal(0);
   count.set(1);
   count.get(); // 1
 }
+// unwatch() is called automatically when the block ends
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/using
 ```
 
 ### Bridging an external source
@@ -30,7 +32,9 @@ const count = signal(0);
 const windowWidth = signal.from(
   () => window.innerWidth,
   (notify) => {
+    // Call notify() to update the signal
     window.addEventListener("resize", notify);
+    // Return a function that unsubscribes from the source
     return () => window.removeEventListener("resize", notify);
   },
 );
@@ -40,7 +44,7 @@ const unwatch = windowWidth.watch((width) => {
 });
 ```
 
-`signal.from` returns a read-only signal (no `set`). When the source calls `notify`, the current value is re-fetched and watchers are updated.
+`signal.from` returns a read-only signal (no `set`). When the source calls `notify`, the current value is read from the getter and watchers are updated.
 
 ### Disposal
 

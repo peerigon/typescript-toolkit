@@ -39,6 +39,7 @@ signal.from = <Value>(
 
   let watcherCount = 0;
   let unwatchFromSource: (() => void) | undefined;
+  let disposed = false;
   const watch = (watcher: SignalWatcher<Value>) => {
     const unwatch = derivedSignal.watch(watcher);
     if (watcherCount === 0) {
@@ -48,6 +49,9 @@ signal.from = <Value>(
     }
     watcherCount++;
     return createUnwatch(() => {
+      if (disposed) {
+        return;
+      }
       unwatch();
       watcherCount--;
       if (watcherCount === 0) {
@@ -57,12 +61,21 @@ signal.from = <Value>(
     });
   };
 
+  const get: SignalGetter<Value> = () => derivedSignal.get();
+  get.watch = watch;
+
   const dispose = () => {
+    if (disposed) {
+      return;
+    }
+    disposed = true;
     unwatchFromSource?.();
+    unwatchFromSource = undefined;
+    watcherCount = 0;
     derivedSignal[Symbol.dispose]();
   };
 
-  return { get: derivedSignal.get, watch, [Symbol.dispose]: dispose };
+  return { get, watch, [Symbol.dispose]: dispose };
 };
 
 const createUnwatch = (remove: () => void): SignalUnwatch => {
