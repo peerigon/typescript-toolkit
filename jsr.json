@@ -3,7 +3,6 @@
   "version": "0.0.0-semantically-released",
   "license": "MIT",
   "exports": {
-    ".": "./src/main.ts",
     "./assert": "./src/assert/assert.ts",
     "./dedupe": "./src/dedupe/dedupe.ts",
     "./emitter": "./src/emitter/emitter.ts",
