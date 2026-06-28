@@ -105,7 +105,7 @@ describe("result", () => {
 
   describe("success()", () => {
     it("has the expected shape", () => {
-      const resultSuccess = result.success({ data: "some data" });
+      const resultSuccess = result.success("some data");
 
       expect(inspect(resultSuccess)).toMatchInlineSnapshot(
         `"{ data: 'some data' }"`,
@@ -136,7 +136,7 @@ describe("result", () => {
     });
 
     it("has a string representation (simple data)", () => {
-      const resultSuccess = result.success({ data: "some data" });
+      const resultSuccess = result.success("some data");
       expect(String(resultSuccess)).toMatchInlineSnapshot(
         `"Result.Success("some data")"`,
       );
@@ -148,7 +148,7 @@ describe("result", () => {
         age: 30,
         active: true,
       };
-      const resultSuccess = result.success({ data: complexData });
+      const resultSuccess = result.success(complexData);
       expect(String(resultSuccess)).toMatchInlineSnapshot(
         `"Result.Success({"name":"John","age":30,"active":true})"`,
       );
@@ -156,7 +156,7 @@ describe("result", () => {
 
     it("infers the data type as const", () => {
       expectTypeOf(
-        result.success({ data: "some data" }).data,
+        result.success("some data").data,
       ).toEqualTypeOf<"some data">();
     });
 
@@ -164,7 +164,7 @@ describe("result", () => {
       const data = "some data";
 
       it("allows to pass in a createdAt", () => {
-        const resultSuccess = result.success({ createdAt, data });
+        const resultSuccess = result.success(data, { createdAt });
         expect(result.metadata(resultSuccess).createdAt).toBe(createdAt);
       });
     });
@@ -175,7 +175,7 @@ describe("result", () => {
 
     it("has the expected shape", () => {
       const error = new Error("some error");
-      const resultError = result.error({ error });
+      const resultError = result.error(error);
 
       // Removing the stack so that our snapshot is not polluted with the test file path
       error.stack = "";
@@ -206,8 +206,7 @@ describe("result", () => {
     });
 
     it("allows to pass in previous data", () => {
-      const resultError = result.error({
-        error: new Error("some error"),
+      const resultError = result.error(new Error("some error"), {
         data: "some data",
       });
 
@@ -222,7 +221,7 @@ describe("result", () => {
 
     it("has a string representation (short message)", () => {
       const error = new Error("some error");
-      const resultError = result.error({ error });
+      const resultError = result.error(error);
 
       // Removing the stack so that our snapshot is not polluted with the test file path
       error.stack = "";
@@ -236,7 +235,7 @@ describe("result", () => {
       const error = new Error(
         "some error that is longer than the default limit it should be truncated",
       );
-      const resultError = result.error({ error });
+      const resultError = result.error(error);
 
       // Removing the stack so that our snapshot is not polluted with the test file path
       error.stack = "";
@@ -248,10 +247,7 @@ describe("result", () => {
 
     it("infers the error and data type as const", () => {
       const error = new TypeError("some error");
-      const resultError = result.error({
-        error,
-        data: "some data",
-      });
+      const resultError = result.error(error, { data: "some data" });
 
       expectTypeOf(resultError.data).toEqualTypeOf<"some data">();
       expectTypeOf(resultError.error).toEqualTypeOf<TypeError>();
@@ -261,7 +257,7 @@ describe("result", () => {
       const error = new Error("some error");
 
       it("allows to pass in a createdAt", () => {
-        const resultError = result.error({ createdAt, error });
+        const resultError = result.error(error, { createdAt });
         expect(result.metadata(resultError).createdAt).toBe(createdAt);
       });
     });
@@ -367,7 +363,7 @@ describe("result", () => {
     ]);
     expect(pendingResultMatched).toBe(0);
 
-    const successResult = result.success({ data: "some data" }) as Result;
+    const successResult = result.success("some data") as Result;
     const successResultMatched: 0 | 1 | 2 = match(successResult.status).case([
       ["pending", 0],
       ["success", 1],
@@ -375,9 +371,7 @@ describe("result", () => {
     ]);
     expect(successResultMatched).toBe(1);
 
-    const errorData = result.error({
-      error: new Error("some error"),
-    }) as Result;
+    const errorData = result.error(new Error("some error")) as Result;
     const errorResultMatched: 0 | 1 | 2 = match(errorData.status).case([
       ["pending", 0],
       ["success", 1],
@@ -415,7 +409,7 @@ describe("result().case()", () => {
   });
 
   it("handles success result with success and else", () => {
-    const successResult = result.success({ data: 42 });
+    const successResult = result.success(42);
     const value = result(successResult).case({
       success: () => "success",
       else: "else",
@@ -424,7 +418,7 @@ describe("result().case()", () => {
   });
 
   it("handles error result with pending, error, and else", () => {
-    const errorResult = result.error({ error: new Error("test error") });
+    const errorResult = result.error(new Error("test error"));
     const value = result(errorResult).case({
       pending: () => "pending",
       error: () => "error",
@@ -444,7 +438,7 @@ describe("result().case()", () => {
   });
 
   it("passes the result's data to the handler functions", () => {
-    const successResult = result.success({ data: "test data" });
+    const successResult = result.success("test data");
     const value = result(successResult).case({
       success: (data: "test data") => data,
       else: "fallback",
@@ -462,8 +456,7 @@ describe("result().case()", () => {
   });
 
   it("handles error result with error handler", () => {
-    const errorResult = result.error({
-      error: new Error("test error"),
+    const errorResult = result.error(new Error("test error"), {
       data: "stale data",
     });
     const value = result(errorResult).case({
@@ -475,8 +468,8 @@ describe("result().case()", () => {
 
   it("handles all states with specific handlers", () => {
     const pendingResult = result.pending();
-    const successResult = result.success({ data: 100 });
-    const errorResult = result.error({ error: new Error("fail") });
+    const successResult = result.success(100);
+    const errorResult = result.error(new Error("fail"));
 
     const pendingValue = result(pendingResult).case({
       pending: () => "pending",
@@ -504,7 +497,7 @@ describe("result().case()", () => {
   });
 
   it("works with different return types", () => {
-    const successResult = result.success({ data: 42 });
+    const successResult = result.success(42);
 
     const stringValue = result(successResult).case({
       success: () => "success string",
@@ -529,8 +522,8 @@ describe("result().case()", () => {
   });
 
   it("handles non-function values as handlers", () => {
-    const successResult = result.success({ data: 42 });
-    const errorResult = result.error({ error: new Error("test error") });
+    const successResult = result.success(42);
+    const errorResult = result.error(new Error("test error"));
     const pendingResult = result.pending({ data: 10 });
 
     // Direct value for success
@@ -562,7 +555,7 @@ describe("result().case()", () => {
   });
 
   it("can mix function and non-function handlers", () => {
-    const successResult = result.success({ data: 42 });
+    const successResult = result.success(42);
 
     const value = result(successResult).case({
       success: (data) => `computed: ${data}`,
@@ -571,7 +564,7 @@ describe("result().case()", () => {
     });
     expect(value).toBe("computed: 42");
 
-    const errorResult = result.error({ error: new Error("test") });
+    const errorResult = result.error(new Error("test"));
     const errorValue = result(errorResult).case({
       success: "static success",
       error: (error) => `error: ${error.message}`,
@@ -581,7 +574,7 @@ describe("result().case()", () => {
   });
 
   it("can return falsy values", () => {
-    const successResult = result.success({ data: "test" });
+    const successResult = result.success("test");
 
     const falsyValues = [undefined, null, false, 0, "", null];
     falsyValues.forEach((falsyValue) => {
@@ -601,22 +594,22 @@ describe("isResult()", () => {
   });
 
   it("returns true for Result.Success", () => {
-    const resultSuccess = result.success({ data: "test data" });
+    const resultSuccess = result.success("test data");
     expect(isResult(resultSuccess)).toBe(true);
   });
 
   it("returns true for Result.Error", () => {
-    const resultError = result.error({ error: new Error("test error") });
+    const resultError = result.error(new Error("test error"));
     expect(isResult(resultError)).toBe(true);
   });
 
   it("returns true for plain Result.Success without pending state", () => {
-    const plainSuccess = result.success({ data: "test" });
+    const plainSuccess = result.success("test");
     expect(isResult(plainSuccess)).toBe(true);
   });
 
   it("returns true for plain Result.Error without pending state", () => {
-    const plainError = result.error({ error: new Error("test error") });
+    const plainError = result.error(new Error("test error"));
     expect(isResult(plainError)).toBe(true);
   });
 

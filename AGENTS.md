@@ -43,6 +43,7 @@ This project uses npm scripts for all development tasks:
 - Each function has comprehensive unit tests using Vitest
 - Uses ES module syntax throughout (`.ts` extensions in imports)
 - Each utility needs its own `README.md`, a row in the **Utilities** table in the root `README.md`, a dedicated export in `package.json` and `jsr.json`, and an entry in `.size-limit.json` (verified by `npm run test:build:size`)
+- Size limits mentioned in a utility's `README.md` must match its `limit` entry in `.size-limit.json`
 
 ## Template as a git remote
 

@@ -35,10 +35,10 @@ const falsyBoolean = unwrap(false); // false
 import { result } from "@peerigon/typescript-toolkit/result";
 
 // Unwrap successful results
-unwrap(result.success({ data: "user data" })); // "user data"
+unwrap(result.success("user data")); // "user data"
 
 // Unwrap failed results throws
-unwrap(result.error({ error: new Error("API failed") })); // Throws "API failed"
+unwrap(result.error(new Error("API failed"))); // Throws "API failed"
 ```
 
 ### Unwrapping `Promise.allSettled` results

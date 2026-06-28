@@ -1,6 +1,6 @@
 ## `result`
 
-- 📦 Below 800 Bytes minified + compressed (brotli)
+- 📦 Below 765 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
 
 Type-safe error handling using the [`Result` pattern](https://imhoff.blog/posts/using-results-in-typescript), eliminating the need for try-catch blocks.
@@ -54,12 +54,12 @@ import {
 let result: Result<string>;
 
 // Create a successful result
-result = result.success({ data: "Hello, world!" });
+result = result.success("Hello, world!");
 console.log(result.isSuccess); // true
 console.log(result.data); // "Hello, world!"
 
 // ...or create an error result
-result = result.error({ error: new Error("Something went wrong") });
+result = result.error(new Error("Something went wrong"));
 console.log(result.isError); // true
 console.log(result.error.message); // "Something went wrong"
 ```
@@ -143,8 +143,7 @@ console.log(loadingResult.data); // "stale data"
 Error results can optionally contain stale `data` from previous operations:
 
 ```ts
-const errorWithStaleData = result.error({
-  error: new Error("Network timeout"),
+const errorWithStaleData = result.error(new Error("Network timeout"), {
   data: "cached data from previous request",
 });
 
@@ -170,25 +169,25 @@ if (isResult(value)) {
 
 ### API Reference
 
-#### `result.success(options)`
+#### `result.success(data, options?)`
 
 Creates a result in the success state.
 
 ```ts
-result.success<const Data>(options: {
-  data: Data;
-  createdAt?: Date;
-}): Result.Success<Data>
+result.success<const Data>(
+  data: Data,
+  options?: { createdAt?: Date },
+): Result.Success<Data>
 ```
 
 | Parameter           | Type              | Description                                |
 | ------------------- | ----------------- | ------------------------------------------ |
-| `options.data`      | `Data`            | Successful data                            |
+| `data`              | `Data`            | Successful data                            |
 | `options.createdAt` | `Date` (optional) | Creation timestamp (default: `new Date()`) |
 
 **Returns:** `Result.Success<Data>`
 
-#### `result.pending(options)`
+#### `result.pending(options?)`
 
 Creates a result in the pending state.
 
@@ -206,21 +205,20 @@ result.pending<const Data = undefined>(options?: {
 
 **Returns:** `Result.Pending<Data>`
 
-#### `result.error(options)`
+#### `result.error(error, options?)`
 
 Creates a result in the error state.
 
 ```ts
-result.error<const GivenError extends Error, const Data = never>(options: {
-  error: GivenError;
-  data?: Data;
-  createdAt?: Date;
-}): Result.Error<GivenError, Data>
+result.error<const GivenError extends Error, const Data = never>(
+  error: GivenError,
+  options?: { data?: Data; createdAt?: Date },
+): Result.Error<GivenError, Data>
 ```
 
 | Parameter           | Type              | Description                                |
 | ------------------- | ----------------- | ------------------------------------------ |
-| `options.error`     | `Error`           | Error that occurred                        |
+| `error`             | `Error`           | Error that occurred                        |
 | `options.data`      | `Data` (optional) | Stale data from a previous operation       |
 | `options.createdAt` | `Date` (optional) | Creation timestamp (default: `new Date()`) |
 

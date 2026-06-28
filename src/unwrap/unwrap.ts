@@ -20,10 +20,10 @@ import { type Result } from "../result/result.ts";
  * const nullValue = unwrap(null, "default"); // "default"
  *
  * // With Result types
- * const success = result.success({ data: "success" });
+ * const success = result.success("success");
  * const data = unwrap(success); // "success"
  *
- * const error = result.error({ error: new Error("failed") });
+ * const error = result.error(new Error("failed"));
  * const fallback = unwrap(error, "default"); // "default"
  *
  * // With Promise.allSettled results

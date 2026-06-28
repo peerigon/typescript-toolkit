@@ -165,15 +165,14 @@ const pendingPrototype: Result.Pending = createPrototype(
 /**
  * Creates a result in the success state.
  *
- * @param options.data - The data to store in the result
+ * @param data - The data to store in the result
  * @param options.createdAt - The date when the result was created
  * @returns The successful result
  */
-const success = <const Data>({
-  data,
-  createdAt = new Date(),
-}: Pick<Result.Success<Data>, "data"> &
-  Partial<ResultMetadata>): Result.Success<Data> => {
+const success = <const Data>(
+  data: Data,
+  { createdAt = new Date() }: Partial<ResultMetadata> = {},
+): Result.Success<Data> => {
   const successResult: Result.Success<Data> = Object.create(successPrototype, {
     data: { value: data, enumerable: true },
   });
@@ -202,17 +201,19 @@ const successPrototype: Result.Success<undefined> = createPrototype(
 /**
  * Creates a result in the error state.
  *
- * @param options.error - The error to store in the result
+ * @param givenError - The error to store in the result
  * @param options.data - Potentially stale data from a previous result
+ * @param options.createdAt - The date when the result was created
  * @returns The failed result
  */
-const error = <const GivenError extends Error, const Data = never>({
-  error: givenError,
-  data,
-  createdAt = new Date(),
-}: Pick<Result.Error<GivenError, Data>, "error"> &
-  Pick<Partial<Result.Error<GivenError, Data>>, "data"> &
-  Partial<ResultMetadata>): Result.Error<GivenError, Data> => {
+const error = <const GivenError extends Error, const Data = never>(
+  givenError: GivenError,
+  {
+    data,
+    createdAt = new Date(),
+  }: Pick<Partial<Result.Error<GivenError, Data>>, "data"> &
+    Partial<ResultMetadata> = {},
+): Result.Error<GivenError, Data> => {
   const errorResult: Result.Error<GivenError, Data> = Object.create(
     errorPrototype,
     {
@@ -252,10 +253,10 @@ const errorPrototype: Result.Error = createPrototype(
  */
 const from = <Data>(fn: () => Data): Result.Sync<Data> => {
   try {
-    return success({ data: fn() });
+    return success(fn());
   } catch (caughtError) {
     if (isError(caughtError)) {
-      return error<GenericError>({ error: caughtError });
+      return error<GenericError>(caughtError);
     }
 
     throw caughtError;
@@ -274,10 +275,10 @@ const fromAsync = async <Data>(
   fn: () => Promise<Data>,
 ): Promise<Result.Sync<Data>> => {
   try {
-    return success({ data: await fn() });
+    return success(await fn());
   } catch (caughtError) {
     if (isError(caughtError)) {
-      return error<GenericError>({ error: caughtError });
+      return error<GenericError>(caughtError);
     }
 
     throw caughtError;
