@@ -1,6 +1,6 @@
 ## `match`
 
-- 📦 Below 400 Bytes
+- 📦 Below 390 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
 
 Match the given `value` against cases and return the matching result. This function provides exhaustive pattern matching with TypeScript, ensuring all cases are handled at compile time. An error is also thrown at runtime if a value doesn't match any case.

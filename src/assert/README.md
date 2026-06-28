@@ -1,6 +1,6 @@
 ## `assert`
 
-- 📦 Below 200 Bytes
+- 📦 Below 195 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
 
 Assert that a given `value` is not `null` or `undefined`, and narrow its type.

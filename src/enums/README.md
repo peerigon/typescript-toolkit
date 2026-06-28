@@ -1,6 +1,6 @@
 ## `enums`
 
-- 📦 Below 350 Bytes
+- 📦 Below 335 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
 
 JS-only alternative with minimal runtime footprint for TypeScript's `enum` when you want to use `erasableSyntaxOnly` (read [here](https://www.totaltypescript.com/erasable-syntax-only) why). Mimics the behavior of string-based `enum`.

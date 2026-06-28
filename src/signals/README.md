@@ -1,6 +1,6 @@
 ## `signals`
 
-- 📦 Below 300 Bytes
+- 📦 Below 300 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
 
 Minimal writable state cell with explicit watchers. Calling `set` pushes `{ new, old }` to every registered watcher.

@@ -1,6 +1,6 @@
 ## `result`
 
-- 📦 Below 800 Bytes
+- 📦 Below 800 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
 
 Type-safe error handling using the [`Result` pattern](https://imhoff.blog/posts/using-results-in-typescript), eliminating the need for try-catch blocks.

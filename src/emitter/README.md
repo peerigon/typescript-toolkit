@@ -1,6 +1,6 @@
 ## `emitter`
 
-- 📦 Below 275 Bytes
+- 📦 Below 275 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
 
 Minimal typed event emitter where each event maps to a single payload object. Listeners receive one payload argument with a `target` property pointing to the emitter — no arbitrary extra parameters.

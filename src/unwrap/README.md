@@ -1,6 +1,6 @@
 ## `unwrap`
 
-- 📦 Below 400 Bytes
+- 📦 Below 395 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
 
 Safely extract values from [`Result`](../result/README.md) or nullable types, with optional fallback support.

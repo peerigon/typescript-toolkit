@@ -2,46 +2,55 @@
   {
     "name": "@peerigon/typescript-toolkit/assert",
     "path": "dist/assert/assert.js",
-    "limit": "200 B"
+    "limit": "195 B",
+    "brotli": true
   },
   {
     "name": "@peerigon/typescript-toolkit/dedupe",
     "path": "dist/dedupe/dedupe.js",
-    "limit": "50 B"
+    "limit": "45 B",
+    "brotli": true
   },
   {
     "name": "@peerigon/typescript-toolkit/emitter",
     "path": "dist/emitter/emitter.js",
-    "limit": "275 B"
+    "limit": "275 B",
+    "brotli": true
   },
   {
     "name": "@peerigon/typescript-toolkit/need",
     "path": "dist/need/need.js",
-    "limit": "150 B"
+    "limit": "150 B",
+    "brotli": true
   },
   {
     "name": "@peerigon/typescript-toolkit/enums",
     "path": "dist/enums/enums.js",
-    "limit": "350 B"
+    "limit": "335 B",
+    "brotli": true
   },
   {
     "name": "@peerigon/typescript-toolkit/match",
     "path": "dist/match/match.js",
-    "limit": "400 B"
+    "limit": "390 B",
+    "brotli": true
   },
   {
     "name": "@peerigon/typescript-toolkit/result",
     "path": "dist/result/result.js",
-    "limit": "850 B"
+    "limit": "800 B",
+    "brotli": true
   },
   {
     "name": "@peerigon/typescript-toolkit/signals",
     "path": "dist/signals/signals.js",
-    "limit": "300 B"
+    "limit": "300 B",
+    "brotli": true
   },
   {
     "name": "@peerigon/typescript-toolkit/unwrap",
     "path": "dist/unwrap/unwrap.js",
-    "limit": "400 B"
+    "limit": "395 B",
+    "brotli": true
   }
 ]
