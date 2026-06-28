@@ -1,3 +1,5 @@
+// We're using manual prototype inheritance here, so `this` outside of a class is expected.
+/* eslint-disable unicorn/no-this-outside-of-class */
 import { createPrototype } from "../lib/create-prototype.ts";
 import { stringify } from "../lib/string.ts";
 import { symbolOfResult } from "./result.lib.ts";
