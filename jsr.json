@@ -8,6 +8,7 @@
     "./emitter": "./src/emitter/emitter.ts",
     "./enums": "./src/enums/enums.ts",
     "./match": "./src/match/match.ts",
+    "./metadata": "./src/metadata/metadata.ts",
     "./namespace": "./src/namespace/namespace.ts",
     "./need": "./src/need/need.ts",
     "./result": "./src/result/result.ts",

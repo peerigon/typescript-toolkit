@@ -36,6 +36,12 @@
     "brotli": true
   },
   {
+    "name": "@peerigon/typescript-toolkit/metadata",
+    "path": "dist/metadata/metadata.js",
+    "limit": "150 B",
+    "brotli": true
+  },
+  {
     "name": "@peerigon/typescript-toolkit/namespace",
     "path": "dist/namespace/namespace.js",
     "limit": "265 B",

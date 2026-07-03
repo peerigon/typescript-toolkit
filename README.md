@@ -46,6 +46,7 @@ import { assert } from "@peerigon/typescript-toolkit/assert";
 | [`emitter`](./src/emitter/README.md)     | Minimal typed event emitter with payload objects per event                       | [→](./src/emitter/README.md)   |
 | [`enums`](./src/enums/README.md)         | Lightweight string-enum alternative for `erasableSyntaxOnly` TypeScript projects | [→](./src/enums/README.md)     |
 | [`match`](./src/match/README.md)         | Exhaustive pattern matching with compile-time case checks, similar to `switch`   | [→](./src/match/README.md)     |
+| [`metadata`](./src/metadata/README.md)   | Typed metadata attached to objects via per-channel WeakMap stores                | [→](./src/metadata/README.md)  |
 | [`namespace`](./src/namespace/README.md) | Hierarchical namespaces with exclusive member claims and dotted prefixes         | [→](./src/namespace/README.md) |
 | [`result`](./src/result/README.md)       | Type-safe error handling with pending, success, and error states                 | [→](./src/result/README.md)    |
 | [`signals`](./src/signals/README.md)     | Push-based reactive state with explicit watchers and `signal.from` adapters      | [→](./src/signals/README.md)   |
