@@ -29,7 +29,6 @@ describe("result", () => {
       ).toMatchInlineSnapshot(`
         "{
           data: undefined,
-          [Symbol(Result)]: { createdAt: 1970-01-01T00:00:00.000Z },
           status: 'pending',
           isSuccess: false,
           isError: false,
@@ -119,7 +118,6 @@ describe("result", () => {
       ).toMatchInlineSnapshot(`
         "{
           data: 'some data',
-          [Symbol(Result)]: { createdAt: 1970-01-01T00:00:00.000Z },
           status: 'success',
           isSuccess: true,
           isError: false,
@@ -196,7 +194,6 @@ describe("result", () => {
             [stack]: [Getter/Setter],
             [message]: 'some error'
           },
-          [Symbol(Result)]: { createdAt: 1970-01-01T00:00:00.000Z },
           status: 'error',
           isSuccess: false,
           isError: true,
@@ -281,7 +278,6 @@ describe("result", () => {
       ).toMatchInlineSnapshot(`
         "{
           data: 'some data',
-          [Symbol(Result)]: { createdAt: 1970-01-01T00:00:00.000Z },
           status: 'success',
           isSuccess: true,
           isError: false,
@@ -318,7 +314,6 @@ describe("result", () => {
             [stack]: [Getter/Setter],
             [message]: 'some error'
           },
-          [Symbol(Result)]: { createdAt: 1970-01-01T00:00:00.000Z },
           status: 'error',
           isSuccess: false,
           isError: true,

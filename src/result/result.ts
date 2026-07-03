@@ -2,7 +2,8 @@
 /* eslint-disable unicorn/no-this-outside-of-class */
 import { createPrototype } from "../lib/create-prototype.ts";
 import { stringify } from "../lib/string.ts";
-import { symbolOfResult } from "./result.lib.ts";
+import { metadata } from "../metadata/metadata.ts";
+import { markResultInstance } from "./result.lib.ts";
 
 // Namespaces are only used to group related types together.
 /* eslint-disable @typescript-eslint/no-namespace */
@@ -114,15 +115,23 @@ export namespace Result {
   > = Success<Data> | Error<GivenError, Data>;
 }
 
-const setMetadata = <Data>(result: Result<Data>, metadata: ResultMetadata) => {
-  Object.defineProperty(result, symbolOfResult, {
-    value: metadata,
-    enumerable: false,
-  });
+type ResultMetadata = {
+  /** The date when the result was created */
+  createdAt: Date;
 };
 
+const resultMetadata = metadata.define<ResultMetadata>();
+
 const getMetadata = <Data>(result: Result<Data>): ResultMetadata => {
-  return (result as { [symbolOfResult]?: ResultMetadata })[symbolOfResult]!;
+  return resultMetadata.get(result)!;
+};
+
+const attachMetadata = <Data>(
+  result: Result<Data>,
+  metadataValue: ResultMetadata,
+): void => {
+  resultMetadata.set(result, metadataValue);
+  markResultInstance(result);
 };
 
 /**
@@ -141,7 +150,7 @@ const pending = <const Data = undefined>({
     data: { value: data, enumerable: true },
   });
 
-  setMetadata(pendingResult, { createdAt });
+  attachMetadata(pendingResult, { createdAt });
 
   return pendingResult;
 };
@@ -179,7 +188,7 @@ const success = <const Data>(
     data: { value: data, enumerable: true },
   });
 
-  setMetadata(successResult, { createdAt });
+  attachMetadata(successResult, { createdAt });
 
   return successResult;
 };
@@ -224,7 +233,7 @@ const error = <const GivenError extends Error, const Data = never>(
     },
   );
 
-  setMetadata(errorResult, { createdAt });
+  attachMetadata(errorResult, { createdAt });
 
   return errorResult;
 };
@@ -478,11 +487,6 @@ export const result: ResultFn = Object.assign(
   },
 );
 
-export { isResult } from "./result.lib.ts";
-
 type GenericError = Error;
 
-type ResultMetadata = {
-  /** The date when the result was created */
-  createdAt: Date;
-};
+export { isResult } from "./result.lib.ts";

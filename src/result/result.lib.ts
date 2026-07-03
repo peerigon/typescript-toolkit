@@ -1,6 +1,10 @@
 import type { Result } from "./result.ts";
 
-export const symbolOfResult = Symbol("Result");
+const resultInstances = new WeakSet();
+
+export const markResultInstance = (instance: object): void => {
+  resultInstances.add(instance);
+};
 
 /**
  * Checks if the given value is a result.
@@ -12,6 +16,6 @@ export const isResult = (maybeValue: unknown): maybeValue is Result => {
   return (
     maybeValue !== null &&
     typeof maybeValue === "object" &&
-    symbolOfResult in maybeValue
+    resultInstances.has(maybeValue)
   );
 };

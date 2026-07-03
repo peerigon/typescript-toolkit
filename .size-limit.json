@@ -50,7 +50,7 @@
   {
     "name": "@peerigon/typescript-toolkit/result",
     "path": "dist/result/result.js",
-    "limit": "765 B",
+    "limit": "850 B",
     "brotli": true
   },
   {

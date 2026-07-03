@@ -1,6 +1,6 @@
 ## `result`
 
-- 📦 Below 765 Bytes minified + compressed (brotli)
+- 📦 Below 850 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
 
 Type-safe error handling using the [`Result` pattern](https://imhoff.blog/posts/using-results-in-typescript), eliminating the need for try-catch blocks.
@@ -278,7 +278,7 @@ result<GivenResult extends Result | null | undefined>(
 
 #### `result.metadata(result)`
 
-Reads non-enumerable metadata attached to a result instance.
+Reads metadata attached to a result instance via a WeakMap store.
 
 ```ts
 result.metadata<Data>(result: Result<Data>): { createdAt: Date }
