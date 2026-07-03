@@ -312,35 +312,87 @@ const isError = (error: unknown): error is GenericError => {
   );
 };
 
+type HandlerValue<Argument, ReturnType> =
+  | ((argument: Argument) => ReturnType)
+  | ReturnType;
+
 type CaseHandlers<
   GivenResult extends Result | null | undefined,
-  ReturnType = unknown,
+  PendingReturn,
+  SuccessReturn,
+  ErrorReturn,
+  ElseReturn,
 > = {
-  pending?:
-    | ((
-        maybeData: Extract<
-          GivenResult,
-          { status: Result.Status.Pending }
-        >["data"],
-      ) => ReturnType)
-    | ReturnType;
-  success?:
-    | ((
-        data: Extract<GivenResult, { status: Result.Status.Success }>["data"],
-      ) => ReturnType)
-    | ReturnType;
-  error?:
-    | ((
-        error: Extract<GivenResult, { status: Result.Status.Error }>["error"],
-      ) => ReturnType)
-    | ReturnType;
-  else: ((result: GivenResult) => ReturnType) | ReturnType;
+  pending?: HandlerValue<
+    Extract<GivenResult, { status: Result.Status.Pending }>["data"],
+    PendingReturn
+  >;
+  success?: HandlerValue<
+    Extract<GivenResult, { status: Result.Status.Success }>["data"],
+    SuccessReturn
+  >;
+  error?: HandlerValue<
+    Extract<GivenResult, { status: Result.Status.Error }>["error"],
+    ErrorReturn
+  >;
+  else: HandlerValue<GivenResult, ElseReturn>;
 };
 
+type HasStatus<
+  GivenResult extends Result | null | undefined,
+  GivenStatus extends Result.Status,
+> = [Extract<GivenResult, { status: GivenStatus }>] extends [never]
+  ? false
+  : true;
+
+// A reachable status without its own handler falls through to `else`.
+type BranchReturn<StatusReturn, ElseReturn> = [StatusReturn] extends [never]
+  ? ElseReturn
+  : StatusReturn;
+
+// Only includes the return types of branches that can actually run for the
+// statically known `GivenResult`, so unreachable branches don't widen the type.
+type CaseReturn<
+  GivenResult extends Result | null | undefined,
+  PendingReturn,
+  SuccessReturn,
+  ErrorReturn,
+  ElseReturn,
+> =
+  | (HasStatus<GivenResult, Result.Status.Pending> extends true
+      ? BranchReturn<PendingReturn, ElseReturn>
+      : never)
+  | (HasStatus<GivenResult, Result.Status.Success> extends true
+      ? BranchReturn<SuccessReturn, ElseReturn>
+      : never)
+  | (HasStatus<GivenResult, Result.Status.Error> extends true
+      ? BranchReturn<ErrorReturn, ElseReturn>
+      : never)
+  | ([Extract<GivenResult, null | undefined>] extends [never]
+      ? never
+      : ElseReturn);
+
 type ResultWrapper<GivenResult extends Result | null | undefined> = {
-  case: <ReturnType>(
-    handlers: CaseHandlers<GivenResult, ReturnType>,
-  ) => ReturnType;
+  case: <
+    PendingReturn = never,
+    SuccessReturn = never,
+    ErrorReturn = never,
+    ElseReturn = never,
+  >(
+    handlers: CaseHandlers<
+      GivenResult,
+      PendingReturn,
+      SuccessReturn,
+      ErrorReturn,
+      ElseReturn
+    >,
+  ) => CaseReturn<
+    GivenResult,
+    PendingReturn,
+    SuccessReturn,
+    ErrorReturn,
+    ElseReturn
+  >;
 };
 
 type ResultFn = {
@@ -360,56 +412,59 @@ export const result: ResultFn = Object.assign(
     givenResult: GivenResult,
   ): ResultWrapper<GivenResult> => {
     return {
-      case: <ReturnType>(
-        handlers: CaseHandlers<GivenResult, ReturnType>,
-      ): ReturnType => {
+      case: <
+        PendingReturn = never,
+        SuccessReturn = never,
+        ErrorReturn = never,
+        ElseReturn = never,
+      >(
+        handlers: CaseHandlers<
+          GivenResult,
+          PendingReturn,
+          SuccessReturn,
+          ErrorReturn,
+          ElseReturn
+        >,
+      ): CaseReturn<
+        GivenResult,
+        PendingReturn,
+        SuccessReturn,
+        ErrorReturn,
+        ElseReturn
+      > => {
+        const resolve = (handler: unknown, argument: unknown): unknown =>
+          typeof handler === "function"
+            ? (handler as (argument: unknown) => unknown)(argument)
+            : handler;
+
+        let value: unknown;
+
         if (
           givenResult?.status === Result.Status.Pending &&
           "pending" in handlers
         ) {
-          return typeof handlers.pending === "function"
-            ? (
-                handlers.pending as Extract<
-                  typeof handlers.pending,
-                  (maybeData: unknown) => ReturnType
-                >
-              )(givenResult.data)
-            : (handlers.pending as ReturnType);
-        }
-        if (
+          value = resolve(handlers.pending, givenResult.data);
+        } else if (
           givenResult?.status === Result.Status.Success &&
           "success" in handlers
         ) {
-          return typeof handlers.success === "function"
-            ? (
-                handlers.success as Extract<
-                  typeof handlers.success,
-                  (data: unknown) => ReturnType
-                >
-              )(givenResult.data)
-            : (handlers.success as ReturnType);
-        }
-        if (
+          value = resolve(handlers.success, givenResult.data);
+        } else if (
           givenResult?.status === Result.Status.Error &&
           "error" in handlers
         ) {
-          return typeof handlers.error === "function"
-            ? (
-                handlers.error as Extract<
-                  typeof handlers.error,
-                  (error: unknown) => ReturnType
-                >
-              )(givenResult.error)
-            : (handlers.error as ReturnType);
+          value = resolve(handlers.error, givenResult.error);
+        } else {
+          value = resolve(handlers.else, givenResult);
         }
-        return typeof handlers.else === "function"
-          ? (
-              handlers.else as Extract<
-                typeof handlers.else,
-                (result: unknown) => ReturnType
-              >
-            )(givenResult)
-          : handlers.else;
+
+        return value as CaseReturn<
+          GivenResult,
+          PendingReturn,
+          SuccessReturn,
+          ErrorReturn,
+          ElseReturn
+        >;
       },
     };
   },

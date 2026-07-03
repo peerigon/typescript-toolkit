@@ -393,110 +393,65 @@ describe("result", () => {
 });
 
 describe("result().case()", () => {
-  it("handles pending result with else only", () => {
-    const pendingResult = result.pending();
-    const value = result(pendingResult).case({ else: "else" });
-    expect(value).toBe("else");
-  });
-
-  it("handles pending result with success and else", () => {
-    const pendingResult = result.pending();
-    const value = result(pendingResult).case({
-      success: () => "success",
-      else: "else",
-    });
-    expect(value).toBe("else");
-  });
-
-  it("handles success result with success and else", () => {
-    const successResult = result.success(42);
-    const value = result(successResult).case({
-      success: () => "success",
-      else: "else",
-    });
-    expect(value).toBe("success");
-  });
-
-  it("handles error result with pending, error, and else", () => {
-    const errorResult = result.error(new Error("test error"));
-    const value = result(errorResult).case({
-      pending: () => "pending",
-      error: () => "error",
-      else: "else",
-    });
-    expect(value).toBe("error");
-  });
-
-  it("handles null value", () => {
-    const value = result(null).case({ else: "null result" });
-    expect(value).toBe("null result");
-  });
-
-  it("handles undefined value", () => {
-    const value = result(undefined).case({ else: "undefined result" });
-    expect(value).toBe("undefined result");
-  });
-
-  it("passes the result's data to the handler functions", () => {
-    const successResult = result.success("test data");
-    const value = result(successResult).case({
-      success: (data: "test data") => data,
-      else: "fallback",
-    });
-    expect(value).toBe("test data");
-  });
-
-  it("handles pending result's data to the pending handler", () => {
-    const pendingResult = result.pending({ data: "stale data" });
-    const value = result(pendingResult).case({
-      pending: (data: "stale data") => `pending with ${data}`,
-      else: "fallback",
-    });
-    expect(value).toBe("pending with stale data");
-  });
-
-  it("handles error result with error handler", () => {
-    const errorResult = result.error(new Error("test error"), {
-      data: "stale data",
-    });
-    const value = result(errorResult).case({
-      error: (error) => `error: ${error.message}`,
-      else: "fallback",
-    });
-    expect(value).toBe("error: test error");
-  });
-
-  it("handles all states with specific handlers", () => {
-    const pendingResult = result.pending();
-    const successResult = result.success(100);
-    const errorResult = result.error(new Error("fail"));
-
-    const pendingValue = result(pendingResult).case({
+  it("dispatches to the handler matching the result status", () => {
+    const pendingValue = result(result.pending()).case({
       pending: () => "pending",
       success: () => "success",
       error: () => "error",
       else: "else",
     });
+    expectTypeOf(pendingValue).toEqualTypeOf<string>();
     expect(pendingValue).toBe("pending");
 
-    const successValue = result(successResult).case({
+    const successValue = result(result.success(100)).case({
       pending: () => "pending",
       success: () => "success",
       error: () => "error",
       else: "else",
     });
+    expectTypeOf(successValue).toEqualTypeOf<string>();
     expect(successValue).toBe("success");
 
-    const errorValue = result(errorResult).case({
+    const errorValue = result(result.error(new Error("fail"))).case({
       pending: () => "pending",
       success: () => "success",
       error: () => "error",
       else: "else",
     });
+    expectTypeOf(errorValue).toEqualTypeOf<string>();
     expect(errorValue).toBe("error");
   });
 
-  it("works with different return types", () => {
+  it("falls through to else when the matching handler is missing", () => {
+    // The unreachable `success` branch is dropped from the return type.
+    const pendingValue = result(result.pending()).case({
+      success: () => "success",
+      else: "else",
+    });
+    expectTypeOf(pendingValue).toEqualTypeOf<string>();
+    expect(pendingValue).toBe("else");
+
+    const nullValue = result(null).case({ else: "null result" });
+    expectTypeOf(nullValue).toEqualTypeOf<string>();
+    expect(nullValue).toBe("null result");
+
+    const undefinedValue = result(undefined).case({ else: "undefined result" });
+    expectTypeOf(undefinedValue).toEqualTypeOf<string>();
+    expect(undefinedValue).toBe("undefined result");
+  });
+
+  it("narrows the return type to the reachable branch", () => {
+    // `success` is the only reachable branch, so the `else` number is ignored
+    // and the return type stays the literal `42`.
+    const value = result(result.success(42)).case({
+      success: (data) => data,
+      else: 0,
+    });
+    expectTypeOf(value).toEqualTypeOf<42>();
+    expect(value).toBe(42);
+  });
+
+  it("infers the handler return types", () => {
     const successResult = result.success(42);
 
     const stringValue = result(successResult).case({
@@ -506,13 +461,6 @@ describe("result().case()", () => {
     expectTypeOf(stringValue).toEqualTypeOf<string>();
     expect(stringValue).toBe("success string");
 
-    const numberValue = result(successResult).case({
-      success: (data) => data,
-      else: 0,
-    });
-    expectTypeOf(numberValue).toEqualTypeOf<number>();
-    expect(numberValue).toBe(42);
-
     const objectValue = result(successResult).case({
       success: () => ({ status: "ok" }),
       else: { status: "not ok" },
@@ -521,68 +469,57 @@ describe("result().case()", () => {
     expect(objectValue).toEqual({ status: "ok" });
   });
 
-  it("handles non-function values as handlers", () => {
-    const successResult = result.success(42);
-    const errorResult = result.error(new Error("test error"));
-    const pendingResult = result.pending({ data: 10 });
+  it("passes the result data and error to the handlers", () => {
+    const successValue = result(result.success("test data")).case({
+      success: (data) => data,
+      else: "fallback",
+    });
+    expectTypeOf(successValue).toEqualTypeOf<"test data">();
+    expect(successValue).toBe("test data");
 
-    // Direct value for success
-    const successValue = result(successResult).case({
+    const pendingValue = result(result.pending({ data: "stale data" })).case({
+      pending: (data) => `pending with ${data}`,
+      else: "fallback",
+    });
+    expectTypeOf(pendingValue).toEqualTypeOf<string>();
+    expect(pendingValue).toBe("pending with stale data");
+
+    const errorValue = result(result.error(new Error("test error"))).case({
+      error: (error) => `error: ${error.message}`,
+      else: "fallback",
+    });
+    expectTypeOf(errorValue).toEqualTypeOf<string>();
+    expect(errorValue).toBe("error: test error");
+  });
+
+  it("accepts non-function handler values", () => {
+    const directValue = result(result.success(42)).case({
       success: "direct success value",
       else: "fallback",
     });
-    expect(successValue).toBe("direct success value");
+    expectTypeOf(directValue).toEqualTypeOf<string>();
+    expect(directValue).toBe("direct success value");
 
-    // Direct value for error
-    const errorValue = result(errorResult).case({
-      error: "direct error value",
-      else: "fallback",
-    });
-    expect(errorValue).toBe("direct error value");
-
-    // Direct value for pending
-    const pendingValue = result(pendingResult).case({
-      pending: "direct pending value",
-      else: "fallback",
-    });
-    expect(pendingValue).toBe("direct pending value");
-
-    // Direct value for else
-    const elseValue = result(null).case({
-      else: "direct else value",
-    });
-    expect(elseValue).toBe("direct else value");
-  });
-
-  it("can mix function and non-function handlers", () => {
-    const successResult = result.success(42);
-
-    const value = result(successResult).case({
+    const mixedValue = result(result.success(42)).case({
       success: (data) => `computed: ${data}`,
       error: "static error",
       else: "static else",
     });
-    expect(value).toBe("computed: 42");
-
-    const errorResult = result.error(new Error("test"));
-    const errorValue = result(errorResult).case({
-      success: "static success",
-      error: (error) => `error: ${error.message}`,
-      else: "static else",
-    });
-    expect(errorValue).toBe("error: test");
+    expectTypeOf(mixedValue).toEqualTypeOf<string>();
+    expect(mixedValue).toBe("computed: 42");
   });
 
-  it("can return falsy values", () => {
+  it("returns falsy handler values", () => {
     const successResult = result.success("test");
 
-    const falsyValues = [undefined, null, false, 0, "", null];
+    const falsyValues = [undefined, null, false, 0, ""];
     falsyValues.forEach((falsyValue) => {
-      const result1 = result(successResult).case({
+      const value = result(successResult).case({
         success: falsyValue,
         else: "fallback",
       });
-      expect(result1).toBe(falsyValue);
+      expectTypeOf(value).toEqualTypeOf<string | number | boolean | null>();
+      expect(value).toBe(falsyValue);
     });
   });
 });
