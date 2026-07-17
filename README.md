@@ -50,6 +50,7 @@ import { assert } from "@peerigon/typescript-toolkit/assert";
 | [`namespace`](./src/namespace/README.md) | Hierarchical namespaces with exclusive member claims and dotted prefixes         | [→](./src/namespace/README.md) |
 | [`result`](./src/result/README.md)       | Type-safe error handling with pending, success, and error states                 | [→](./src/result/README.md)    |
 | [`signals`](./src/signals/README.md)     | Push-based reactive state with explicit watchers and `signal.from` adapters      | [→](./src/signals/README.md)   |
+| [`sleep`](./src/sleep/README.md)         | Promise-based delay with optional `AbortSignal` cancellation                     | [→](./src/sleep/README.md)     |
 | [`unwrap`](./src/unwrap/README.md)       | Extract values from `Result` or nullable types, with optional fallback support   | [→](./src/unwrap/README.md)    |
 
 ## License

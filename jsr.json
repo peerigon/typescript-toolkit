@@ -13,6 +13,7 @@
     "./need": "./src/need/need.ts",
     "./result": "./src/result/result.ts",
     "./signals": "./src/signals/signals.ts",
+    "./sleep": "./src/sleep/sleep.ts",
     "./unwrap": "./src/unwrap/unwrap.ts"
   },
   "publish": {

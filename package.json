@@ -26,6 +26,7 @@
     "./need": "./dist/need/need.js",
     "./result": "./dist/result/result.js",
     "./signals": "./dist/signals/signals.js",
+    "./sleep": "./dist/sleep/sleep.js",
     "./unwrap": "./dist/unwrap/unwrap.js"
   },
   "files": [

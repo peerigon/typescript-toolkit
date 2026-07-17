@@ -60,6 +60,12 @@
     "brotli": true
   },
   {
+    "name": "@peerigon/typescript-toolkit/sleep",
+    "path": "dist/sleep/sleep.js",
+    "limit": "200 B",
+    "brotli": true
+  },
+  {
     "name": "@peerigon/typescript-toolkit/unwrap",
     "path": "dist/unwrap/unwrap.js",
     "limit": "395 B",
