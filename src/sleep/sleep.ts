@@ -1,7 +1,10 @@
 /**
  * Resolve after `ms` milliseconds. Pass an `AbortSignal` to cancel the wait.
  */
-export const sleep = async (ms: number, signal?: AbortSignal) => {
+export const sleep = async (
+  ms: number,
+  signal?: AbortSignal,
+): Promise<void> => {
   signal?.throwIfAborted();
 
   await new Promise<void>((resolve, reject) => {
@@ -12,11 +15,12 @@ export const sleep = async (ms: number, signal?: AbortSignal) => {
 
     const onAbort = () => {
       clearTimeout(id);
+      const { reason } = signal!;
       reject(
-        signal!.reason instanceof Error
-          ? signal!.reason
+        reason instanceof Error
+          ? reason
           : new Error("This operation was aborted", {
-              cause: signal!.reason,
+              cause: reason,
             }),
       );
     };
