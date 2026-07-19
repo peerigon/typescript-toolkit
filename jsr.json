@@ -14,6 +14,8 @@
     "./result": "./src/result/result.ts",
     "./signals": "./src/signals/signals.ts",
     "./sleep": "./src/sleep/sleep.ts",
+    "./stable-stringify": "./src/stable-stringify/stable-stringify.ts",
+    "./stable-stringify/json": "./src/stable-stringify/json/json.ts",
     "./unwrap": "./src/unwrap/unwrap.ts"
   },
   "publish": {

@@ -27,6 +27,8 @@
     "./result": "./dist/result/result.js",
     "./signals": "./dist/signals/signals.js",
     "./sleep": "./dist/sleep/sleep.js",
+    "./stable-stringify": "./dist/stable-stringify/stable-stringify.js",
+    "./stable-stringify/json": "./dist/stable-stringify/json/json.js",
     "./unwrap": "./dist/unwrap/unwrap.js"
   },
   "files": [

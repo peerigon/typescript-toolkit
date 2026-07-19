@@ -66,6 +66,18 @@
     "brotli": true
   },
   {
+    "name": "@peerigon/typescript-toolkit/stable-stringify",
+    "path": "dist/stable-stringify/stable-stringify.js",
+    "limit": "750 B",
+    "brotli": true
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/stable-stringify/json",
+    "path": "dist/stable-stringify/json/json.js",
+    "limit": "220 B",
+    "brotli": true
+  },
+  {
     "name": "@peerigon/typescript-toolkit/unwrap",
     "path": "dist/unwrap/unwrap.js",
     "limit": "395 B",
