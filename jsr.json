@@ -12,6 +12,7 @@
     "./metadata": "./src/metadata/metadata.ts",
     "./namespace": "./src/namespace/namespace.ts",
     "./need": "./src/need/need.ts",
+    "./no-null": "./src/no-null/no-null.ts",
     "./result": "./src/result/result.ts",
     "./signals": "./src/signals/signals.ts",
     "./sleep": "./src/sleep/sleep.ts",

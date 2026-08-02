@@ -42,6 +42,7 @@ import { assert } from "@peerigon/typescript-toolkit/assert";
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------ |
 | [`assert`](./src/assert/README.md)                               | Assert a value is not `null` or `undefined`, with TypeScript narrowing           | [→](./src/assert/README.md)                |
 | [`need`](./src/need/README.md)                                   | Assert a value is not `null` or `undefined` and return it with a narrowed type   | [→](./src/need/README.md)                  |
+| [`no-null`](./src/no-null/README.md)                             | Convert between `null` and `undefined` in JSON-like values (runtime + types)     | [→](./src/no-null/README.md)               |
 | [`dedupe`](./src/dedupe/README.md)                               | Remove duplicate values from an array while preserving first-occurrence order    | [→](./src/dedupe/README.md)                |
 | [`emitter`](./src/emitter/README.md)                             | Minimal typed event emitter with payload objects per event                       | [→](./src/emitter/README.md)               |
 | [`enums`](./src/enums/README.md)                                 | Lightweight string-enum alternative for `erasableSyntaxOnly` TypeScript projects | [→](./src/enums/README.md)                 |

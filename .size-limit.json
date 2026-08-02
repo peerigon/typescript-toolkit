@@ -24,6 +24,12 @@
     "brotli": true
   },
   {
+    "name": "@peerigon/typescript-toolkit/no-null",
+    "path": "dist/no-null/no-null.js",
+    "limit": "240 B",
+    "brotli": true
+  },
+  {
     "name": "@peerigon/typescript-toolkit/enums",
     "path": "dist/enums/enums.js",
     "limit": "335 B",
