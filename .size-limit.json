@@ -30,6 +30,12 @@
     "brotli": true
   },
   {
+    "name": "@peerigon/typescript-toolkit/map-leaves",
+    "path": "dist/map-leaves/map-leaves.js",
+    "limit": "210 B",
+    "brotli": true
+  },
+  {
     "name": "@peerigon/typescript-toolkit/match",
     "path": "dist/match/match.js",
     "limit": "390 B",

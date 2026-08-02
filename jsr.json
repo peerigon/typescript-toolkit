@@ -7,6 +7,7 @@
     "./dedupe": "./src/dedupe/dedupe.ts",
     "./emitter": "./src/emitter/emitter.ts",
     "./enums": "./src/enums/enums.ts",
+    "./map-leaves": "./src/map-leaves/map-leaves.ts",
     "./match": "./src/match/match.ts",
     "./metadata": "./src/metadata/metadata.ts",
     "./namespace": "./src/namespace/namespace.ts",

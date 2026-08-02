@@ -20,6 +20,7 @@
     "./dedupe": "./dist/dedupe/dedupe.js",
     "./emitter": "./dist/emitter/emitter.js",
     "./enums": "./dist/enums/enums.js",
+    "./map-leaves": "./dist/map-leaves/map-leaves.js",
     "./match": "./dist/match/match.js",
     "./metadata": "./dist/metadata/metadata.js",
     "./namespace": "./dist/namespace/namespace.js",

@@ -45,6 +45,7 @@ import { assert } from "@peerigon/typescript-toolkit/assert";
 | [`dedupe`](./src/dedupe/README.md)                               | Remove duplicate values from an array while preserving first-occurrence order    | [→](./src/dedupe/README.md)                |
 | [`emitter`](./src/emitter/README.md)                             | Minimal typed event emitter with payload objects per event                       | [→](./src/emitter/README.md)               |
 | [`enums`](./src/enums/README.md)                                 | Lightweight string-enum alternative for `erasableSyntaxOnly` TypeScript projects | [→](./src/enums/README.md)                 |
+| [`map-leaves`](./src/map-leaves/README.md)                       | Deeply map leaves in JSON-like values (mutates arrays/objects in place)          | [→](./src/map-leaves/README.md)            |
 | [`match`](./src/match/README.md)                                 | Exhaustive pattern matching with compile-time case checks, similar to `switch`   | [→](./src/match/README.md)                 |
 | [`metadata`](./src/metadata/README.md)                           | Typed metadata attached to objects via per-channel WeakMap stores                | [→](./src/metadata/README.md)              |
 | [`namespace`](./src/namespace/README.md)                         | Hierarchical namespaces with exclusive member claims and dotted prefixes         | [→](./src/namespace/README.md)             |
