@@ -1,5 +1,41 @@
 [
   {
+    "name": "@peerigon/typescript-toolkit/concurrency/exactlyOnce",
+    "path": "dist/concurrency/exactlyOnce/exactlyOnce.js",
+    "limit": "230 B",
+    "brotli": true
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/concurrency/exactlyOnce/result",
+    "path": "dist/concurrency/exactlyOnce/result/result.js",
+    "limit": "1.08 kB",
+    "brotli": true
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/concurrency/mutex",
+    "path": "dist/concurrency/mutex/mutex.js",
+    "limit": "90 B",
+    "brotli": true
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/concurrency/rate-limit",
+    "path": "dist/concurrency/rate-limit/rate-limit.js",
+    "limit": "400 B",
+    "brotli": true
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/concurrency/once",
+    "path": "dist/concurrency/once/once.js",
+    "limit": "200 B",
+    "brotli": true
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/concurrency/once/result",
+    "path": "dist/concurrency/once/result/result.js",
+    "limit": "1.05 kB",
+    "brotli": true
+  },
+  {
     "name": "@peerigon/typescript-toolkit/assert",
     "path": "dist/assert/assert.js",
     "limit": "195 B",

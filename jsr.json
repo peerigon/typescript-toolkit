@@ -4,6 +4,12 @@
   "license": "MIT",
   "exports": {
     "./assert": "./src/assert/assert.ts",
+    "./concurrency/exactlyOnce": "./src/concurrency/exactlyOnce/exactlyOnce.ts",
+    "./concurrency/exactlyOnce/result": "./src/concurrency/exactlyOnce/result/result.ts",
+    "./concurrency/mutex": "./src/concurrency/mutex/mutex.ts",
+    "./concurrency/once": "./src/concurrency/once/once.ts",
+    "./concurrency/once/result": "./src/concurrency/once/result/result.ts",
+    "./concurrency/rate-limit": "./src/concurrency/rate-limit/rate-limit.ts",
     "./dedupe": "./src/dedupe/dedupe.ts",
     "./emitter": "./src/emitter/emitter.ts",
     "./enums": "./src/enums/enums.ts",
