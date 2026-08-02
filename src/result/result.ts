@@ -1,6 +1,7 @@
 // We're using manual prototype inheritance here, so `this` outside of a class is expected.
 /* eslint-disable unicorn/no-this-outside-of-class */
 import { createPrototype } from "../lib/create-prototype.ts";
+import { isError } from "../lib/is-error.ts";
 import { stringify } from "../lib/string.ts";
 import { metadata } from "../metadata/metadata.ts";
 import { markResultInstance } from "./result.lib.ts";
@@ -294,31 +295,6 @@ const fromAsync = async <Data>(
 
     throw caughtError;
   }
-};
-
-/**
- * Checks if the given value is an Error. Doesn't use instanceof so that
- * DOMException and errors from a different realm can be checked as well.
- */
-const isError = (error: unknown): error is GenericError => {
-  if ("isError" in Error && typeof Error.isError === "function") {
-    const result: unknown = Error.isError(error);
-
-    if (typeof result === "boolean") {
-      return result;
-    }
-  }
-
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "name" in error &&
-    typeof error.name === "string" &&
-    "message" in error &&
-    typeof error.message === "string" &&
-    "stack" in error &&
-    typeof error.stack === "string"
-  );
 };
 
 type HandlerValue<Argument, ReturnType> =
