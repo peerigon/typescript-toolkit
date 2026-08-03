@@ -3,6 +3,9 @@
   "version": "0.0.0-semantically-released",
   "license": "MIT",
   "exports": {
+    "./api": "./src/api/api.ts",
+    "./api/rate-limit": "./src/api/rate-limit/rate-limit.ts",
+    "./api/result": "./src/api/result/result.ts",
     "./assert": "./src/assert/assert.ts",
     "./concurrency/exactlyOnce": "./src/concurrency/exactlyOnce/exactlyOnce.ts",
     "./concurrency/exactlyOnce/result": "./src/concurrency/exactlyOnce/result/result.ts",

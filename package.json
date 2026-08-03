@@ -16,6 +16,9 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
+    "./api": "./dist/api/api.js",
+    "./api/rate-limit": "./dist/api/rate-limit/rate-limit.js",
+    "./api/result": "./dist/api/result/result.js",
     "./assert": "./dist/assert/assert.js",
     "./concurrency/exactlyOnce": "./dist/concurrency/exactlyOnce/exactlyOnce.js",
     "./concurrency/exactlyOnce/result": "./dist/concurrency/exactlyOnce/result/result.js",

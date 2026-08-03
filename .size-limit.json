@@ -54,6 +54,24 @@
     "brotli": true
   },
   {
+    "name": "@peerigon/typescript-toolkit/api",
+    "path": "dist/api/api.js",
+    "limit": "575 B",
+    "brotli": true
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/api/rate-limit",
+    "path": "dist/api/rate-limit/rate-limit.js",
+    "limit": "675 B",
+    "brotli": true
+  },
+  {
+    "name": "@peerigon/typescript-toolkit/api/result",
+    "path": "dist/api/result/result.js",
+    "limit": "1.4 kB",
+    "brotli": true
+  },
+  {
     "name": "@peerigon/typescript-toolkit/need",
     "path": "dist/need/need.js",
     "limit": "150 B",
@@ -110,7 +128,7 @@
   {
     "name": "@peerigon/typescript-toolkit/sleep",
     "path": "dist/sleep/sleep.js",
-    "limit": "200 B",
+    "limit": "175 B",
     "brotli": true
   },
   {

@@ -40,6 +40,9 @@ import { assert } from "@peerigon/typescript-toolkit/assert";
 
 | Module                                                                             | Description                                                                      | Docs                                                |
 | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------- |
+| [`api`](./src/api/README.md)                                                       | Define a typed JSON API client with an overridable hook pipeline                 | [→](./src/api/README.md)                            |
+| [`api/rate-limit`](./src/api/rate-limit/README.md)                                 | Rate-limited `fetch` for `defineApi` (pacing + Retry-After)                      | [→](./src/api/rate-limit/README.md)                 |
+| [`api/result`](./src/api/result/README.md)                                         | `defineApiResult` — like `defineApi`, but returns `Result.Sync`                  | [→](./src/api/result/README.md)                     |
 | [`assert`](./src/assert/README.md)                                                 | Assert a value is not `null` or `undefined`, with TypeScript narrowing           | [→](./src/assert/README.md)                         |
 | [`concurrency/once`](./src/concurrency/once/README.md)                             | Run an async function at most once (single-flight + cache)                       | [→](./src/concurrency/once/README.md)               |
 | [`concurrency/once/result`](./src/concurrency/once/result/README.md)               | `once` with a synchronous `Result` snapshot                                      | [→](./src/concurrency/once/result/README.md)        |
