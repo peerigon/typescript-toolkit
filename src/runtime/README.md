@@ -263,3 +263,18 @@ A single-yield description of a context-dependent unit of work, produced by `act
 ### What's out of scope
 
 This is a small runtime, not a full effect system. No retry/backoff, middleware, or scheduling — compose those yourself with plain functions and `try`/`catch` around `yield*`. Cancellation isn't first-class either: put an `AbortSignal` in your own `Context` and check it inside actions, the same convention [`sleep`](../sleep/README.md) uses.
+
+### Actions that return a `Result`
+
+If an action's `fn` already returns a [`Result`](../result/README.md), call [`unwrap()`](../unwrap/README.md) on it inside the action — a success unwraps to its data, an error result throws, so the workflow doesn't need to unwrap it at every call site:
+
+```ts
+import { createRuntime } from "@peerigon/typescript-toolkit/runtime";
+import { unwrap } from "@peerigon/typescript-toolkit/unwrap";
+
+const { action } = createRuntime<AppContext>();
+
+const getUser = action(async (context, id: string) =>
+  unwrap(await context.db.findUser(id)),
+);
+```
