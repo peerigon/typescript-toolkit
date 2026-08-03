@@ -1,6 +1,6 @@
 ## `sleep`
 
-- 📦 Below **175 B** minified + compressed (brotli)
+- 📦 Below **190 B** minified + compressed (brotli)
 - ✅ Zero dependencies
 
 Promise-based delay with optional `AbortSignal` cancellation.

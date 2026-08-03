@@ -36,6 +36,7 @@
     "./need": "./dist/need/need.js",
     "./no-null": "./dist/no-null/no-null.js",
     "./result": "./dist/result/result.js",
+    "./runtime": "./dist/runtime/runtime.js",
     "./signals": "./dist/signals/signals.js",
     "./sleep": "./dist/sleep/sleep.js",
     "./stable-stringify": "./dist/stable-stringify/stable-stringify.js",
