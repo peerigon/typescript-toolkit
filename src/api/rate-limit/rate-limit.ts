@@ -68,7 +68,7 @@ const isRateLimited = (response: Response) =>
  */
 export const parseRetryAfter = (
   value: string | null,
-  now = Date.now(),
+  now: number = Date.now(),
 ): number | undefined => {
   if (value === null || value === "") {
     return undefined;

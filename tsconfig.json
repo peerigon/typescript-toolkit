@@ -1,6 +1,6 @@
 {
   "extends": "@peerigon/configs/typescript",
   "compilerOptions": {
-    "lib": ["es2024", "esnext.disposable"]
+    "lib": ["es2024", "dom", "esnext.disposable"]
   }
 }

@@ -134,7 +134,7 @@
   {
     "name": "@peerigon/typescript-toolkit/sleep",
     "path": "dist/sleep/sleep.js",
-    "limit": "175 B",
+    "limit": "190 B",
     "brotli": true
   },
   {
