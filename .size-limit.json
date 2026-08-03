@@ -42,6 +42,12 @@
     "brotli": true
   },
   {
+    "name": "@peerigon/typescript-toolkit/assert-never",
+    "path": "dist/assert-never/assert-never.js",
+    "limit": "200 B",
+    "brotli": true
+  },
+  {
     "name": "@peerigon/typescript-toolkit/dedupe",
     "path": "dist/dedupe/dedupe.js",
     "limit": "45 B",

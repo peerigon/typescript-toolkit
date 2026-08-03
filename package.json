@@ -20,6 +20,7 @@
     "./api/rate-limit": "./dist/api/rate-limit/rate-limit.js",
     "./api/result": "./dist/api/result/result.js",
     "./assert": "./dist/assert/assert.js",
+    "./assert-never": "./dist/assert-never/assert-never.js",
     "./concurrency/exactlyOnce": "./dist/concurrency/exactlyOnce/exactlyOnce.js",
     "./concurrency/exactlyOnce/result": "./dist/concurrency/exactlyOnce/result/result.js",
     "./concurrency/mutex": "./dist/concurrency/mutex/mutex.js",
