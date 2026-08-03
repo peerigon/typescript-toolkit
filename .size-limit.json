@@ -120,6 +120,12 @@
     "brotli": true
   },
   {
+    "name": "@peerigon/typescript-toolkit/runtime",
+    "path": "dist/runtime/runtime.js",
+    "limit": "375 B",
+    "brotli": true
+  },
+  {
     "name": "@peerigon/typescript-toolkit/signals",
     "path": "dist/signals/signals.js",
     "limit": "300 B",
