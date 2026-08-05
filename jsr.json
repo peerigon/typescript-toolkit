@@ -16,6 +16,7 @@
     "./concurrency/rate-limit": "./src/concurrency/rate-limit/rate-limit.ts",
     "./dedupe": "./src/dedupe/dedupe.ts",
     "./emitter": "./src/emitter/emitter.ts",
+    "./error": "./src/error/error.ts",
     "./enums": "./src/enums/enums.ts",
     "./map-leaves": "./src/map-leaves/map-leaves.ts",
     "./match": "./src/match/match.ts",

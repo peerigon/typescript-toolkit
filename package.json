@@ -29,6 +29,7 @@
     "./concurrency/rate-limit": "./dist/concurrency/rate-limit/rate-limit.js",
     "./dedupe": "./dist/dedupe/dedupe.js",
     "./emitter": "./dist/emitter/emitter.js",
+    "./error": "./dist/error/error.js",
     "./enums": "./dist/enums/enums.js",
     "./map-leaves": "./dist/map-leaves/map-leaves.js",
     "./match": "./dist/match/match.js",
