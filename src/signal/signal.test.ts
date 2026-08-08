@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { signal } from "./signals.ts";
+import { signal } from "./signal.ts";
 
 describe("signal()", () => {
   it("get returns the initial value", () => {

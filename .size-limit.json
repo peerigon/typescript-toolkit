@@ -60,8 +60,8 @@
     "brotli": true
   },
   {
-    "name": "@peerigon/typescript-toolkit/error",
-    "path": "dist/error/error.js",
+    "name": "@peerigon/typescript-toolkit/errors",
+    "path": "dist/errors/errors.js",
     "limit": "875 B",
     "brotli": true
   },
@@ -138,8 +138,8 @@
     "brotli": true
   },
   {
-    "name": "@peerigon/typescript-toolkit/signals",
-    "path": "dist/signals/signals.js",
+    "name": "@peerigon/typescript-toolkit/signal",
+    "path": "dist/signal/signal.js",
     "limit": "300 B",
     "brotli": true
   },

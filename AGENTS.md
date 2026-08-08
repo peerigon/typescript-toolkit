@@ -46,6 +46,7 @@ This project uses npm scripts for all development tasks:
 - Size limits mentioned in a utility's `README.md` must match its `limit` entry in `.size-limit.json`
 - README badge **Zero dependencies** means no third-party runtime deps (internal toolkit imports are fine and expected)
 - The size shown in a utility's `README.md` / `.size-limit.json` is the bundled size when that sub-package is used alone — always include transitive internal toolkit code
+- **Subpath naming**: Name the export path after the primary import binding (`signal` → `…/signal`, `errors` → `…/errors`). Prefer callsite English over folder English; reserved words force the plural (`enums`). Category folders that are never imported (`concurrency/`, `lib/`) are exempt. Classes use a lowercase path and PascalCase export (`emitter` → `Emitter`).
 - **Shared helpers**: Whenever a helper is reusable across modules, move it to `src/lib/` — one helper per file so consumers don't pull unnecessary size. `src/lib/` is internal only (no package export / README / size-limit entry)
 - **Environment variables**: Use `src/env.ts`; destructure at top-level module scope so missing vars fail immediately.
 

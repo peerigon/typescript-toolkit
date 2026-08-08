@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { isDev } from "../lib/is-dev.ts";
-import { errors, UnknownError } from "./error.ts";
+import { errors, UnknownError } from "./errors.ts";
 
 describe("errors", () => {
   describe("domain()", () => {

@@ -9,7 +9,7 @@ import {
   type DefinedErrorInstance,
   type SerializedError,
   type ToJSONOptions,
-} from "./error.lib.ts";
+} from "./errors.lib.ts";
 
 const renameClass = (Class: object, name: string): void => {
   Object.defineProperty(Class, "name", { value: name, configurable: true });
@@ -21,7 +21,7 @@ export type {
   SerializedError,
   SerializeOptions,
   ToJSONOptions,
-} from "./error.lib.ts";
+} from "./errors.lib.ts";
 
 type ContextInput<
   ErrorContext extends Context,

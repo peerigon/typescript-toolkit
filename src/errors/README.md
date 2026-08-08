@@ -1,4 +1,4 @@
-## `error`
+## `errors`
 
 - 📦 Below 875 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
@@ -8,7 +8,7 @@ Define namespaced, serializable error classes grouped into domains. Domains are 
 ### Basic usage
 
 ```ts
-import { errors } from "@peerigon/typescript-toolkit/error";
+import { errors } from "@peerigon/typescript-toolkit/errors";
 
 const HttpErrors = errors.domain("Http");
 

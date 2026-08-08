@@ -1,4 +1,4 @@
-## `signals`
+## `signal`
 
 - 📦 Below 300 Bytes minified + compressed (brotli)
 - ✅ Zero dependencies
@@ -10,7 +10,7 @@ Use `signal.from` to mirror values from an external source (DOM events, timers, 
 ### Basic usage
 
 ```ts
-import { signal } from "@peerigon/typescript-toolkit/signals";
+import { signal } from "@peerigon/typescript-toolkit/signal";
 
 const count = signal(0);
 
