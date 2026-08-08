@@ -1,15 +1,8 @@
-declare global {
-  // Declaration merging requires an interface here, not a type alias.
-  /* eslint-disable @typescript-eslint/consistent-type-definitions */
-  interface ImportMetaEnv {
+type ImportMetaWithEnv = {
+  readonly env?: {
     readonly DEV?: boolean;
-  }
-
-  interface ImportMeta {
-    readonly env?: ImportMetaEnv;
-  }
-  /* eslint-enable @typescript-eslint/consistent-type-definitions */
-}
+  };
+};
 
 /**
  * Whether we're running in a dev environment. `true` only when a bundler's
@@ -19,5 +12,5 @@ declare global {
  * by bundlers.
  */
 export const isDev: boolean =
-  import.meta.env?.DEV === true ||
+  (import.meta as ImportMetaWithEnv).env?.DEV === true ||
   (typeof process !== "undefined" && process.env["NODE_ENV"] === "development");
